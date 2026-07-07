@@ -25,7 +25,7 @@ describe("getProgress", () => {
     };
     const card = { state: {}, stamp_count: 5, reward_count: 0 };
     const p = getProgress(program, card, now);
-    expect(p.view.total).toBe(5);
+    expect(p.view).toEqual({ kind: "dots", filled: 5, total: 5 });
     expect(p.rewardReady).toBe(true);
   });
 });

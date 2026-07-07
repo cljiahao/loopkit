@@ -6,9 +6,15 @@ import { requireVendor } from "@/lib/auth";
 import { getProgram } from "@/lib/program";
 import { normalizePhone } from "@/lib/phone";
 import { rewardReady } from "@/lib/loyalty";
-import { applyVisit } from "@/lib/engine";
+import { applyVisit, getProgress } from "@/lib/engine";
+import {
+  plantStrategy,
+  type PlantConfig,
+  type PlantState,
+} from "@/lib/engine/plant";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
+import type { Progress } from "@/lib/engine/types";
 import type { Json } from "@/lib/types";
 import type { StampCard } from "@/app/dashboard/card";
 
@@ -47,14 +53,16 @@ export async function stampAction(formData: FormData): Promise<CardResult> {
 }
 
 type VisitResult = ActionResult<{
-  won: boolean;
+  rewardUnlocked: boolean;
+  progress: Progress;
   reward_text: string;
   phone: string;
 }>;
 
-// Generic engine play path for non-stamp types (Lucky Tap). The pure strategy
-// computes the next card state from a server-generated roll — randomness never
-// comes from the client — and record_visit persists it and logs the event.
+// Generic engine play path for non-stamp types (Lucky Tap, Sprout). The pure
+// strategy computes the next card state from a server-generated roll —
+// randomness never comes from the client — and record_visit persists it and
+// logs the event. Fresh per-type progress is derived so the client can render it.
 export async function recordVisitAction(
   formData: FormData,
 ): Promise<VisitResult> {
@@ -75,13 +83,9 @@ export async function recordVisitAction(
     .maybeSingle();
 
   const card = existing ?? { state: {}, stamp_count: 0, reward_count: 0 };
+  const now = new Date();
   const event = { kind: "visit" as const, payload: { roll: Math.random() } };
-  const { state, rewardUnlocked } = applyVisit(
-    program,
-    card,
-    event,
-    new Date(),
-  );
+  const { state, rewardUnlocked } = applyVisit(program, card, event, now);
 
   const { error } = await supabase.rpc("record_visit", {
     p_program: program.id,
@@ -95,15 +99,68 @@ export async function recordVisitAction(
     return { success: false, error: "Something went wrong. Try again." };
   }
 
+  const progress = getProgress(
+    program,
+    { state, stamp_count: 0, reward_count: 0 },
+    now,
+  );
+
   revalidatePath("/dashboard");
   return {
     success: true,
-    won: rewardUnlocked,
+    rewardUnlocked,
+    progress,
     reward_text:
       (program.config as { reward_text?: string })?.reward_text ??
       program.reward_text,
     phone: normalized.phone,
   };
+}
+
+// Redeem a bloomed Sprout: the pure strategy resets growth to a seed and counts
+// the bloom; record_visit persists the reset state and logs a 'redeem' event so
+// metrics and recent activity see the reward. Reuses the generic write path — no
+// card id needed, just the phone.
+export async function redeemPlantAction(
+  formData: FormData,
+): Promise<ActionResult<{ phone: string }>> {
+  await requireVendor();
+  const program = await getProgram();
+  if (!program) return { success: false, error: "Set up your card first." };
+  const normalized = normalizePhone(String(formData.get("phone") ?? ""));
+  if (!normalized.ok) {
+    return { success: false, error: "Enter a valid Singapore phone number." };
+  }
+
+  const supabase = await createServerClient();
+  const { data: existing } = await supabase
+    .from("cards")
+    .select("state")
+    .eq("program_id", program.id)
+    .eq("phone", normalized.phone)
+    .maybeSingle();
+  if (!existing) {
+    return { success: false, error: "No card yet for that number." };
+  }
+
+  const config = program.config as PlantConfig;
+  const state = existing.state as PlantState;
+  const reset = plantStrategy.redeem(state, config);
+
+  const { error } = await supabase.rpc("record_visit", {
+    p_program: program.id,
+    p_phone: normalized.phone,
+    p_state: reset as unknown as Json,
+    p_kind: "redeem",
+    p_payload: { reward: program.reward_text },
+  });
+  if (error) {
+    console.error("record_visit redeem failed", error.message);
+    return { success: false, error: "Something went wrong. Try again." };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true, phone: normalized.phone };
 }
 
 // Resolve a scanned card_token to its phone via the owner-gated card_by_token

@@ -3,7 +3,15 @@ export type EngineEvent = {
   payload?: Record<string, unknown>;
 };
 
-export type ProgressView = { kind: "dots"; filled: number; total: number };
+export type ProgressView =
+  | { kind: "dots"; filled: number; total: number }
+  | {
+      kind: "plant";
+      stage: number;
+      stageName: string;
+      totalStages: number;
+      wilting: boolean;
+    };
 
 export type Progress = {
   stage: string;

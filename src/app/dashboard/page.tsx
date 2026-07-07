@@ -6,6 +6,7 @@ import { formatSgtDateTime } from "@/lib/format";
 import { createServerClient } from "@/lib/supabase/server";
 import { StampForm } from "@/app/dashboard/stamp-form";
 import { LuckyForm } from "@/app/dashboard/lucky-form";
+import { PlantForm } from "@/app/dashboard/plant-form";
 import { CardLookup } from "@/app/dashboard/card-lookup";
 
 export default async function DashboardPage() {
@@ -15,6 +16,7 @@ export default async function DashboardPage() {
   if (!program) redirect("/setup");
 
   const isLucky = program.type === "lucky";
+  const isPlant = program.type === "plant";
   const config = (program.config ?? {}) as { win_probability?: number };
 
   const supabase = await createServerClient();
@@ -44,17 +46,25 @@ export default async function DashboardPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           {isLucky
             ? `Every visit has a ${Math.round((config.win_probability ?? 0) * 100)}% chance to win ${program.reward_text}`
-            : `Buy ${program.stamps_required}, get 1 ${program.reward_text}`}
+            : isPlant
+              ? `Water it ${program.stamps_required} times to bloom ${program.reward_text}`
+              : `Buy ${program.stamps_required}, get 1 ${program.reward_text}`}
         </p>
       </div>
 
       <div className="rounded-2xl border bg-card p-6 shadow-sm">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          {isLucky ? "Play a round" : "Stamp a customer"}
+          {isLucky
+            ? "Play a round"
+            : isPlant
+              ? "Water a plant"
+              : "Stamp a customer"}
         </h2>
         <div className="mt-4">
           {isLucky ? (
             <LuckyForm />
+          ) : isPlant ? (
+            <PlantForm />
           ) : (
             <StampForm stampsRequired={program.stamps_required} />
           )}

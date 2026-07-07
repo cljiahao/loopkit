@@ -34,9 +34,29 @@ describe("saveProgramSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects an unknown program type", () => {
+  it("accepts a valid plant program", () => {
     const result = saveProgramSchema.safeParse({
       type: "plant",
+      name: "Grow-a-kopi",
+      reward_text: "Free kopi",
+      visits_to_bloom: "6",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a plant program with an out-of-range visits-to-bloom", () => {
+    const result = saveProgramSchema.safeParse({
+      type: "plant",
+      name: "Grow-a-kopi",
+      reward_text: "Free kopi",
+      visits_to_bloom: "1",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an unknown program type", () => {
+    const result = saveProgramSchema.safeParse({
+      type: "mystery",
       name: "Sprout",
       reward_text: "Free plant",
     });

@@ -9,6 +9,11 @@ import {
   type LuckyConfig,
   type LuckyState,
 } from "@/lib/engine/lucky";
+import {
+  plantStrategy,
+  type PlantConfig,
+  type PlantState,
+} from "@/lib/engine/plant";
 
 export type ProgramLike = {
   type: string;
@@ -54,6 +59,15 @@ function resolveLuckyState(card: CardLike): LuckyState {
   return { visits_since_win: 0, total_wins: 0 };
 }
 
+function resolvePlantConfig(program: ProgramLike): PlantConfig {
+  return program.config as PlantConfig;
+}
+
+function resolvePlantState(card: CardLike): PlantState {
+  if (hasKeys(card.state)) return card.state as PlantState;
+  return plantStrategy.defaults({} as PlantConfig);
+}
+
 export function applyVisit(
   program: ProgramLike,
   card: CardLike,
@@ -66,6 +80,13 @@ export function applyVisit(
         event,
         resolveLuckyState(card),
         resolveLuckyConfig(program),
+        now,
+      );
+    case "plant":
+      return plantStrategy.apply(
+        event,
+        resolvePlantState(card),
+        resolvePlantConfig(program),
         now,
       );
     case "stamp":
@@ -89,6 +110,12 @@ export function getProgress(
       return luckyStrategy.progress(
         resolveLuckyState(card),
         resolveLuckyConfig(program),
+        now,
+      );
+    case "plant":
+      return plantStrategy.progress(
+        resolvePlantState(card),
+        resolvePlantConfig(program),
         now,
       );
     case "stamp":

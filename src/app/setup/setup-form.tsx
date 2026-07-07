@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-type ProgramType = "stamp" | "lucky";
+type ProgramType = "stamp" | "lucky" | "plant";
 
 const labelClass =
   "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
@@ -21,23 +21,29 @@ export function SetupForm({
   isEdit: boolean;
 }) {
   const initialType: ProgramType =
-    program?.type === "lucky" ? "lucky" : "stamp";
+    program?.type === "lucky" || program?.type === "plant"
+      ? program.type
+      : "stamp";
   const [type, setType] = useState<ProgramType>(initialType);
   const config = (program?.config ?? {}) as {
     win_probability?: number;
     pity_ceiling?: number;
     reward_text?: string;
+    stages?: { threshold: number }[];
   };
+  const visitsToBloom =
+    config.stages?.[config.stages.length - 1]?.threshold ?? 6;
 
   return (
     <form action={saveProgramAction} className="mt-7 space-y-5">
       <div className="space-y-2">
         <Label className={labelClass}>Card type</Label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {(
             [
               { value: "stamp", label: "Stamp card" },
               { value: "lucky", label: "Lucky Tap" },
+              { value: "plant", label: "🌱 Sprout" },
             ] as const
           ).map((option) => (
             <button
@@ -68,7 +74,13 @@ export function SetupForm({
           type="text"
           required
           maxLength={60}
-          placeholder={type === "lucky" ? "Lucky topping" : "Coffee card"}
+          placeholder={
+            type === "lucky"
+              ? "Lucky topping"
+              : type === "plant"
+                ? "Grow-a-kopi"
+                : "Coffee card"
+          }
           defaultValue={program?.name ?? ""}
           className="h-11 rounded-xl"
         />
@@ -88,6 +100,23 @@ export function SetupForm({
             max={20}
             placeholder="10"
             defaultValue={program?.stamps_required ?? 10}
+            className="h-11 rounded-xl"
+          />
+        </div>
+      ) : type === "plant" ? (
+        <div className="space-y-2">
+          <Label htmlFor="visits_to_bloom" className={labelClass}>
+            Visits to bloom
+          </Label>
+          <Input
+            id="visits_to_bloom"
+            name="visits_to_bloom"
+            type="number"
+            required
+            min={2}
+            max={20}
+            placeholder="6"
+            defaultValue={visitsToBloom}
             className="h-11 rounded-xl"
           />
         </div>

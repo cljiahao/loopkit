@@ -29,13 +29,13 @@ export function LuckyForm() {
         toast.error(res.error);
         return;
       }
-      if (res.won) {
+      if (res.rewardUnlocked) {
         toast.success(`🎉 ${res.phone} won ${res.reward_text}!`);
       } else {
         toast(`No win this time for ${res.phone}.`);
       }
       setResult({
-        won: res.won,
+        won: res.rewardUnlocked,
         reward_text: res.reward_text,
         phone: res.phone,
       });

@@ -4,7 +4,7 @@
 
 **Goal:** Ship the flagship **Sprout** template: a loyalty card that is a living plant — visits grow it through stages to **Bloom** (the reward); staying away wilts it (gently, never dies). The plant is the visible progress in both the vendor dashboard and the customer `/c` view.
 
-**Architecture:** A pure `plantStrategy` where **progress is derived on read** — growth decays as a function of time-since-last-visit (grace period + a floor so it never dies), computed from `last_visit_at` stored *in the plant state* (self-contained, no extra params, no cron). Rendering uses a new `ProgressView` **`plant`** variant + a lightweight SVG `<Plant>`. Reuses the generic `record_visit` write path (0005) via `recordVisitAction`.
+**Architecture:** A pure `plantStrategy` where **progress is derived on read** — growth decays as a function of time-since-last-visit (grace period + a floor so it never dies), computed from `last_visit_at` stored _in the plant state_ (self-contained, no extra params, no cron). Rendering uses a new `ProgressView` **`plant`** variant + a lightweight SVG `<Plant>`. Reuses the generic `record_visit` write path (0005) via `recordVisitAction`.
 
 **Tech Stack:** Next 16, TS strict, Supabase (schema `loopkit`), Vitest, pnpm 11. Builds on Phases 1–3 (engine, `record_visit`, `applyVisit`, `getProgress`, customer `/c`). No migration.
 
@@ -42,6 +42,7 @@
 **Files:** Modify `src/lib/engine/types.ts`, `src/lib/engine/index.ts`; Create `src/lib/engine/plant.ts`; Test `test/lib/engine/plant.test.ts`, `test/lib/engine/plant-apply-visit.test.ts`.
 
 **Interfaces:**
+
 - `ProgressView = { kind:'dots'; filled:number; total:number } | { kind:'plant'; stage:number; stageName:string; totalStages:number; wilting:boolean }`.
 - `PlantStage = { name:string; threshold:number }`; `PlantConfig = { stages:PlantStage[]; growth_per_visit:number; grace_days:number; decay_rate:number; floor_growth:number; reward_text:string }`; `PlantState = { growth:number; last_visit_at:string|null; blooms:number }`.
 - `plantStrategy: Strategy<PlantConfig, PlantState>`.
@@ -205,7 +206,11 @@ export type PlantState = {
 
 const MS_PER_DAY = 86_400_000;
 
-function decayedGrowth(state: PlantState, config: PlantConfig, now: Date): number {
+function decayedGrowth(
+  state: PlantState,
+  config: PlantConfig,
+  now: Date,
+): number {
   if (state.last_visit_at === null) return state.growth;
   const idleDays = Math.max(
     0,
@@ -238,9 +243,7 @@ export const plantStrategy: Strategy<PlantConfig, PlantState> = {
     const wilting = g < state.growth;
     return {
       stage: config.stages[idx].name,
-      label: wilting
-        ? "Wilting — visit to revive it"
-        : config.stages[idx].name,
+      label: wilting ? "Wilting — visit to revive it" : config.stages[idx].name,
       view: {
         kind: "plant",
         stage: idx,
