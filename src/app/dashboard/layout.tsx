@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireVendor } from "@/lib/auth";
+import { isAdmin } from "@/lib/admin";
 import { createServerClient } from "@/lib/supabase/server";
 import { DashboardNav } from "@/app/dashboard/dashboard-nav";
 
@@ -8,7 +9,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireVendor();
+  const { user } = await requireVendor();
+
+  // Admins have no program and don't use the vendor dashboard — send them home.
+  if (await isAdmin(user.id)) redirect("/admin");
 
   // Inline server action so the header's Sign out `<form>` can post directly —
   // no client bundle, no exposed endpoint beyond this closure.

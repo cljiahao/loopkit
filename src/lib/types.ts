@@ -94,6 +94,48 @@ export interface Database {
         };
         Relationships: [];
       };
+      admins: {
+        Row: {
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      admin_audit: {
+        Row: {
+          id: string;
+          admin_id: string;
+          action: string;
+          target_id: string | null;
+          detail: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          admin_id: string;
+          action: string;
+          target_id?: string | null;
+          detail?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          admin_id?: string;
+          action?: string;
+          target_id?: string | null;
+          detail?: Json | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -117,6 +159,10 @@ export interface Database {
           stamps_required: number;
           reward_text: string;
         }[];
+      };
+      is_admin: {
+        Args: { p_uid: string };
+        Returns: boolean;
       };
     };
     Enums: Record<string, never>;

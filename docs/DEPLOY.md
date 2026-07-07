@@ -17,6 +17,20 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      at the program's `stamps_required` so a full card can be redeemed without an
      extra stamp, and extends `card_status` to return the shop `name`. Safe to
      re-run; RLS/grants preserved.)
+   - `supabase/migrations/0003_loopkit_admin.sql` → Run. (Adds the platform-
+     operator admin: `admins` allow-list, `admin_audit` trail, the `is_admin`
+     membership function, RLS, and grants. Backs the `/admin` console.)
+   - **Bootstrap the first admin.** The `/admin` console 404s until your auth
+     user is in `loopkit.admins` — there is no self-serve UI. Sign in once so the
+     account exists, find its id under Authentication → Users, then in the SQL
+     Editor run:
+
+     ```sql
+     insert into loopkit.admins (user_id) values ('<YOUR_AUTH_USER_ID>');
+     ```
+
+     An admin account has no vendor program: `/dashboard` redirects it to
+     `/admin`.
 3. **Auth** is shared — email + Google are already configured (qkit/merqo use
    them). Add loopkit's callback to Authentication → **URL Configuration →
    Redirect URLs**: `https://<loopkit-domain>/auth/callback`.
