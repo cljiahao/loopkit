@@ -32,6 +32,7 @@ export async function stampAction(formData: FormData): Promise<CardResult> {
     p_phone: normalized.phone,
   });
   if (error || !card) {
+    console.error("add_stamp failed", error);
     return { success: false, error: "Something went wrong. Try again." };
   }
 
@@ -67,6 +68,7 @@ export async function lookupAction(formData: FormData): Promise<CardResult> {
     .eq("phone", normalized.phone)
     .maybeSingle();
   if (error) {
+    console.error("card lookup failed", error);
     return { success: false, error: "Something went wrong. Try again." };
   }
   if (!card) {
@@ -95,6 +97,7 @@ export async function redeemAction(formData: FormData): Promise<CardResult> {
     p_card: parsed.data,
   });
   if (error || !card) {
+    console.error("redeem failed", error);
     return { success: false, error: "Something went wrong. Try again." };
   }
 

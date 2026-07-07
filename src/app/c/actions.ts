@@ -30,6 +30,7 @@ export async function checkStatusAction(
     p_phone: normalized.phone,
   });
   if (error) {
+    console.error("card_status failed", error);
     return { status: "error", message: "Something went wrong." };
   }
 
