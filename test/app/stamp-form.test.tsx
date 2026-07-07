@@ -1,29 +1,33 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import * as React from "react";
-import { STAMP_IDLE, type StampState } from "@/app/dashboard/stamp-state";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
+const { stampMock } = vi.hoisted(() => ({ stampMock: vi.fn() }));
 vi.mock("@/app/dashboard/actions", () => ({
-  stampAction: vi.fn(),
+  stampAction: stampMock,
   redeemAction: vi.fn(),
+  lookupAction: vi.fn(),
 }));
 
-// useActionState needs a real submission cycle to reach a non-idle state,
-// which is hard to drive in a unit test — stub it so we can render each
-// branch (idle vs. reward-ready) directly.
-vi.mock("react", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("react")>();
-  return { ...actual, useActionState: vi.fn() };
-});
+const { toastSuccess, toastError } = vi.hoisted(() => ({
+  toastSuccess: vi.fn(),
+  toastError: vi.fn(),
+}));
+vi.mock("sonner", () => ({
+  toast: { success: toastSuccess, error: toastError },
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 
 import { StampForm } from "@/app/dashboard/stamp-form";
 
-const mockUseActionState = vi.mocked(React.useActionState);
-
 describe("StampForm", () => {
+  beforeEach(() => vi.clearAllMocks());
+
   it("renders the phone input and Add stamp button", () => {
-    mockUseActionState.mockReturnValue([STAMP_IDLE, vi.fn(), false]);
     render(<StampForm stampsRequired={10} />);
     expect(screen.getByLabelText("Customer phone")).toBeInTheDocument();
     expect(
@@ -31,15 +35,49 @@ describe("StampForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the reward-ready note and a Redeem button once the card is full", () => {
-    const state: StampState = {
-      status: "ok",
+  it("stamps, toasts, shows the card, and clears the input", async () => {
+    stampMock.mockResolvedValue({
+      success: true,
+      card: { id: "card-1", phone: "+6591234567", stamp_count: 3 },
+      rewardReady: false,
+    });
+    const user = userEvent.setup();
+    render(<StampForm stampsRequired={10} />);
+    const input = screen.getByLabelText("Customer phone") as HTMLInputElement;
+    await user.type(input, "91234567");
+    await user.click(screen.getByRole("button", { name: "Add stamp" }));
+
+    await waitFor(() => expect(stampMock).toHaveBeenCalled());
+    expect(toastSuccess).toHaveBeenCalled();
+    expect(screen.getByText("+6591234567")).toBeInTheDocument();
+    expect(input.value).toBe("");
+  });
+
+  it("surfaces a Redeem button once the stamped card is full", async () => {
+    stampMock.mockResolvedValue({
+      success: true,
       card: { id: "card-1", phone: "+6591234567", stamp_count: 10 },
       rewardReady: true,
-    };
-    mockUseActionState.mockReturnValue([state, vi.fn(), false]);
+    });
+    const user = userEvent.setup();
     render(<StampForm stampsRequired={10} />);
-    expect(screen.getByText("Reward ready!")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Customer phone"), "91234567");
+    await user.click(screen.getByRole("button", { name: "Add stamp" }));
+
+    await waitFor(() =>
+      expect(screen.getByText("Reward ready!")).toBeInTheDocument(),
+    );
     expect(screen.getByRole("button", { name: "Redeem" })).toBeInTheDocument();
+  });
+
+  it("toasts an error and shows no card on failure", async () => {
+    stampMock.mockResolvedValue({ success: false, error: "Bad number." });
+    const user = userEvent.setup();
+    render(<StampForm stampsRequired={10} />);
+    await user.type(screen.getByLabelText("Customer phone"), "91234567");
+    await user.click(screen.getByRole("button", { name: "Add stamp" }));
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith("Bad number."));
+    expect(screen.queryByText("Reward ready!")).not.toBeInTheDocument();
   });
 });

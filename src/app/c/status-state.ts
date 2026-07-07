@@ -3,6 +3,7 @@
 // is what both actions.ts and check-form.tsx import.
 export type StatusState = {
   status: "idle" | "found" | "none" | "error";
+  name?: string;
   stamp_count?: number;
   stamps_required?: number;
   reward_text?: string;

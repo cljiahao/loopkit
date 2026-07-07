@@ -112,6 +112,7 @@ export interface Database {
       card_status: {
         Args: { p_program: string; p_phone: string };
         Returns: {
+          name: string;
           stamp_count: number;
           stamps_required: number;
           reward_text: string;

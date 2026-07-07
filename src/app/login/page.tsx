@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Wordmark } from "@/components/landing/wordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -136,7 +137,7 @@ export default function LoginPage() {
       <main className="flex min-h-screen items-center justify-center p-5">
         <div className="w-full max-w-md text-center">
           <div className="rounded-2xl border bg-card px-7 py-10 shadow-sm">
-            <span className="text-2xl font-bold">loopkit</span>
+            <Wordmark className="text-2xl" />
             <h1 className="mt-6 text-3xl font-bold tracking-tight">
               Check your email
             </h1>
@@ -180,7 +181,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center p-5">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <span className="text-3xl font-bold">loopkit</span>
+          <Wordmark className="text-3xl" />
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to your loopkit dashboard.
           </p>

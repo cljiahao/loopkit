@@ -4,6 +4,7 @@ import {
   Plus_Jakarta_Sans,
   IBM_Plex_Mono,
 } from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 // Display: characterful grotesque for headlines, used with restraint.
@@ -45,7 +46,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${bricolage.variable} ${jakarta.variable} ${plexMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

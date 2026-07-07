@@ -45,7 +45,14 @@ describe("checkStatusAction", () => {
 
   it("normalizes the phone and calls card_status with it", async () => {
     rpcMock.mockResolvedValue({
-      data: [{ stamp_count: 3, stamps_required: 10, reward_text: "Free kopi" }],
+      data: [
+        {
+          name: "Kaya Toast Co.",
+          stamp_count: 3,
+          stamps_required: 10,
+          reward_text: "Free kopi",
+        },
+      ],
       error: null,
     });
 
@@ -62,7 +69,14 @@ describe("checkStatusAction", () => {
 
   it("reports found with the row's stamp progress and reward", async () => {
     rpcMock.mockResolvedValue({
-      data: [{ stamp_count: 3, stamps_required: 10, reward_text: "Free kopi" }],
+      data: [
+        {
+          name: "Kaya Toast Co.",
+          stamp_count: 3,
+          stamps_required: 10,
+          reward_text: "Free kopi",
+        },
+      ],
       error: null,
     });
 
@@ -73,6 +87,7 @@ describe("checkStatusAction", () => {
 
     expect(result).toEqual({
       status: "found",
+      name: "Kaya Toast Co.",
       stamp_count: 3,
       stamps_required: 10,
       reward_text: "Free kopi",

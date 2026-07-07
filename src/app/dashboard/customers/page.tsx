@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireVendor } from "@/lib/auth";
 import { getProgram } from "@/lib/program";
 import { listCards } from "@/lib/cards";
+import { formatSgtDate } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -65,7 +66,7 @@ export default async function CustomersPage({
                   </p>
                 </div>
                 <span className="text-muted-foreground">
-                  {new Date(card.updated_at).toLocaleDateString()}
+                  {formatSgtDate(card.updated_at)}
                 </span>
               </li>
             ))}

@@ -9,10 +9,14 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
 
 1. **Expose the `loopkit` schema**: Settings → API → _Exposed schemas_ → add
    `loopkit` → Save. (Without this, supabase-js returns `PGRST106` for `loopkit.*`.)
-2. **Apply the migration** — SQL Editor → paste
-   `supabase/migrations/0001_loopkit_core.sql` → Run. (Creates the `loopkit`
-   schema, `programs`/`cards`/`stamp_events`, RLS, and the
-   `owns_program`/`add_stamp`/`redeem`/`card_status` functions + grants.)
+2. **Apply the migrations** — SQL Editor, in order:
+   - `supabase/migrations/0001_loopkit_core.sql` → Run. (Creates the `loopkit`
+     schema, `programs`/`cards`/`stamp_events`, RLS, and the
+     `owns_program`/`add_stamp`/`redeem`/`card_status` functions + grants.)
+   - `supabase/migrations/0002_loopkit_stamp_cap.sql` → Run. (Caps `add_stamp`
+     at the program's `stamps_required` so a full card can be redeemed without an
+     extra stamp, and extends `card_status` to return the shop `name`. Safe to
+     re-run; RLS/grants preserved.)
 3. **Auth** is shared — email + Google are already configured (qkit/merqo use
    them). Add loopkit's callback to Authentication → **URL Configuration →
    Redirect URLs**: `https://<loopkit-domain>/auth/callback`.

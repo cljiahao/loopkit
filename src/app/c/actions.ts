@@ -42,6 +42,7 @@ export async function checkStatusAction(
 
   return {
     status: "found",
+    name: row.name,
     stamp_count: row.stamp_count,
     stamps_required: row.stamps_required,
     reward_text: row.reward_text,

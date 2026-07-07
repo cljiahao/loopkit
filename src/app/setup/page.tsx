@@ -1,6 +1,7 @@
 import { requireVendor } from "@/lib/auth";
 import { getProgram } from "@/lib/program";
 import { saveProgramAction } from "@/app/setup/actions";
+import { Wordmark } from "@/components/landing/wordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +15,7 @@ export default async function SetupPage() {
     <main className="flex min-h-screen items-center justify-center p-5">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <span className="text-3xl font-bold">loopkit</span>
+          <Wordmark className="text-3xl" />
           <p className="mt-1 text-sm text-muted-foreground">
             {isEdit
               ? "Update your loyalty card details."

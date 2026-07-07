@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Wordmark } from "@/components/landing/wordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +41,7 @@ export default function ResetPasswordPage() {
     <main className="flex min-h-screen items-center justify-center p-5">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <span className="text-3xl font-bold">loopkit</span>
+          <Wordmark className="text-3xl" />
         </div>
         <div className="rounded-2xl border bg-card px-7 py-9 shadow-sm">
           <h1 className="text-3xl font-bold tracking-tight">
