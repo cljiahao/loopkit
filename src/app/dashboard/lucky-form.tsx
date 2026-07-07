@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAsyncAction } from "@/hooks/use-async-action";
 import { recordVisitAction } from "@/app/dashboard/actions";
+import { ScanButton } from "@/app/dashboard/scan-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ export function LuckyForm() {
   const router = useRouter();
   const { pending, run } = useAsyncAction();
   const phoneRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [result, setResult] = useState<PlayResult | null>(null);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -45,7 +47,7 @@ export function LuckyForm() {
 
   return (
     <div className="space-y-4">
-      <form onSubmit={onSubmit} className="flex items-end gap-3">
+      <form ref={formRef} onSubmit={onSubmit} className="flex items-end gap-3">
         <div className="flex-1 space-y-2">
           <Label
             htmlFor="phone"
@@ -70,6 +72,14 @@ export function LuckyForm() {
         >
           {pending ? "Playing…" : "Play"}
         </Button>
+        <ScanButton
+          onScanned={(phone) => {
+            if (phoneRef.current) {
+              phoneRef.current.value = phone;
+              formRef.current?.requestSubmit();
+            }
+          }}
+        />
       </form>
 
       {result && (

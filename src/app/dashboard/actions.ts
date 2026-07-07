@@ -106,6 +106,28 @@ export async function recordVisitAction(
   };
 }
 
+// Resolve a scanned card_token to its phone via the owner-gated card_by_token
+// RPC. Identifies only — the phone flows into the existing stamp/play action.
+export async function resolveTokenAction(
+  formData: FormData,
+): Promise<ActionResult<{ phone: string }>> {
+  await requireVendor();
+  const token = String(formData.get("token") ?? "").trim();
+  if (!token) return { success: false, error: "No code scanned." };
+
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.rpc("card_by_token", {
+    p_token: token,
+  });
+  if (error) {
+    console.error("card_by_token failed", error.message);
+    return { success: false, error: "Couldn't read that code." };
+  }
+  const row = data?.[0];
+  if (!row) return { success: false, error: "That card isn't for this shop." };
+  return { success: true, phone: row.phone };
+}
+
 // Read a card's status by phone WITHOUT stamping it — so a full card can be
 // redeemed without being pushed past the ceiling. Vendor-scoped by RLS
 // (cards_own), and returns the card id the redeem RPC needs.

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useAsyncAction } from "@/hooks/use-async-action";
 import { stampAction } from "@/app/dashboard/actions";
 import { RedeemButton } from "@/app/dashboard/redeem-button";
+import { ScanButton } from "@/app/dashboard/scan-button";
 import type { StampCard } from "@/app/dashboard/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ export function StampForm({ stampsRequired }: { stampsRequired: number }) {
   const router = useRouter();
   const { pending, run } = useAsyncAction();
   const phoneRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [card, setCard] = useState<StampCard | null>(null);
   const [rewardReady, setRewardReady] = useState(false);
 
@@ -44,7 +46,7 @@ export function StampForm({ stampsRequired }: { stampsRequired: number }) {
 
   return (
     <div className="space-y-4">
-      <form onSubmit={onSubmit} className="flex items-end gap-3">
+      <form ref={formRef} onSubmit={onSubmit} className="flex items-end gap-3">
         <div className="flex-1 space-y-2">
           <Label
             htmlFor="phone"
@@ -69,6 +71,14 @@ export function StampForm({ stampsRequired }: { stampsRequired: number }) {
         >
           {pending ? "Stamping…" : "Add stamp"}
         </Button>
+        <ScanButton
+          onScanned={(phone) => {
+            if (phoneRef.current) {
+              phoneRef.current.value = phone;
+              formRef.current?.requestSubmit();
+            }
+          }}
+        />
       </form>
 
       {card && (
