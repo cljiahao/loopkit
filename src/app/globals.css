@@ -7,25 +7,27 @@
    blush paper. Deliberately NOT qkit's ember-kraft nor merqo's control-room grey. */
 
 :root {
-  /* blush paper canvas, deep grape ink, mulberry brand, gold reward stamp */
-  --background: oklch(0.985 0.008 350);
-  --foreground: oklch(0.24 0.048 342);
+  /* restrained blush paper, deep plum ink, plum-berry brand, gold reward stamp.
+     "Refined Mulberry": primary shifted off magenta toward a deep plum-berry
+     (~#7E2A50) — keeps the ownable identity, widens trade appeal, higher contrast. */
+  --background: oklch(0.982 0.006 350);
+  --foreground: oklch(0.24 0.05 350);
   --card: oklch(0.995 0.004 350);
-  --card-foreground: oklch(0.24 0.048 342);
+  --card-foreground: oklch(0.24 0.05 350);
   --popover: oklch(0.995 0.004 350);
-  --popover-foreground: oklch(0.24 0.048 342);
-  --primary: oklch(0.46 0.135 345);
-  --primary-foreground: oklch(0.98 0.01 345);
-  --secondary: oklch(0.94 0.024 342);
-  --secondary-foreground: oklch(0.36 0.09 345);
-  --muted: oklch(0.955 0.014 345);
-  --muted-foreground: oklch(0.46 0.035 345);
-  --accent: oklch(0.92 0.032 340);
-  --accent-foreground: oklch(0.36 0.09 345);
+  --popover-foreground: oklch(0.24 0.05 350);
+  --primary: oklch(0.4 0.12 350);
+  --primary-foreground: oklch(0.98 0.01 350);
+  --secondary: oklch(0.94 0.022 350);
+  --secondary-foreground: oklch(0.34 0.08 350);
+  --muted: oklch(0.955 0.013 350);
+  --muted-foreground: oklch(0.45 0.032 350);
+  --accent: oklch(0.92 0.03 348);
+  --accent-foreground: oklch(0.34 0.08 350);
   --destructive: oklch(0.55 0.2 27);
-  --border: oklch(0.9 0.02 342);
-  --input: oklch(0.9 0.02 342);
-  --ring: oklch(0.46 0.135 345);
+  --border: oklch(0.9 0.018 348);
+  --input: oklch(0.9 0.018 348);
+  --ring: oklch(0.4 0.12 350);
   --radius: 0.75rem;
 
   /* signature reward stamp — gold ink pressed into the card */
@@ -35,25 +37,25 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* dusk grape: deep plum canvas, warm off-white ink, orchid brand, gold stays hot */
-    --background: oklch(0.19 0.028 342);
+    /* dusk plum: deep plum canvas, warm off-white ink, plum brand, gold stays hot */
+    --background: oklch(0.19 0.026 350);
     --foreground: oklch(0.95 0.012 350);
-    --card: oklch(0.23 0.032 342);
+    --card: oklch(0.23 0.03 350);
     --card-foreground: oklch(0.95 0.012 350);
-    --popover: oklch(0.23 0.032 342);
+    --popover: oklch(0.23 0.03 350);
     --popover-foreground: oklch(0.95 0.012 350);
-    --primary: oklch(0.62 0.15 346);
-    --primary-foreground: oklch(0.17 0.03 345);
-    --secondary: oklch(0.3 0.03 342);
+    --primary: oklch(0.6 0.14 350);
+    --primary-foreground: oklch(0.17 0.03 350);
+    --secondary: oklch(0.3 0.028 350);
     --secondary-foreground: oklch(0.95 0.012 350);
-    --muted: oklch(0.28 0.026 342);
-    --muted-foreground: oklch(0.73 0.022 345);
-    --accent: oklch(0.33 0.035 342);
+    --muted: oklch(0.28 0.024 350);
+    --muted-foreground: oklch(0.73 0.02 350);
+    --accent: oklch(0.33 0.032 348);
     --accent-foreground: oklch(0.95 0.012 350);
     --destructive: oklch(0.62 0.2 27);
-    --border: oklch(0.33 0.03 342);
-    --input: oklch(0.35 0.03 342);
-    --ring: oklch(0.62 0.15 346);
+    --border: oklch(0.33 0.028 348);
+    --input: oklch(0.35 0.028 348);
+    --ring: oklch(0.6 0.14 350);
 
     --gold: oklch(0.81 0.13 84);
     --gold-foreground: oklch(0.2 0.04 60);
@@ -112,7 +114,7 @@ body {
     ),
     radial-gradient(
       ellipse 65% 50% at 6% -6%,
-      oklch(0.46 0.135 345 / 0.08),
+      oklch(0.4 0.12 350 / 0.08),
       transparent 58%
     );
   background-attachment: fixed;
