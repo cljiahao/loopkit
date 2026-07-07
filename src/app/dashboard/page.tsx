@@ -5,6 +5,7 @@ import { getProgram } from "@/lib/program";
 import { formatSgtDateTime } from "@/lib/format";
 import { createServerClient } from "@/lib/supabase/server";
 import { StampForm } from "@/app/dashboard/stamp-form";
+import { LuckyForm } from "@/app/dashboard/lucky-form";
 import { CardLookup } from "@/app/dashboard/card-lookup";
 
 export default async function DashboardPage() {
@@ -13,11 +14,14 @@ export default async function DashboardPage() {
   const program = await getProgram();
   if (!program) redirect("/setup");
 
+  const isLucky = program.type === "lucky";
+  const config = (program.config ?? {}) as { win_probability?: number };
+
   const supabase = await createServerClient();
   // RLS (events_own) already scopes this to the signed-in vendor's cards.
   const { data: events } = await supabase
     .from("stamp_events")
-    .select("id,kind,created_at,card_id")
+    .select("id,kind,payload,created_at,card_id")
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -38,16 +42,22 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{program.name}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Buy {program.stamps_required}, get 1 {program.reward_text}
+          {isLucky
+            ? `Every visit has a ${Math.round((config.win_probability ?? 0) * 100)}% chance to win ${program.reward_text}`
+            : `Buy ${program.stamps_required}, get 1 ${program.reward_text}`}
         </p>
       </div>
 
       <div className="rounded-2xl border bg-card p-6 shadow-sm">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Stamp a customer
+          {isLucky ? "Play a round" : "Stamp a customer"}
         </h2>
         <div className="mt-4">
-          <StampForm stampsRequired={program.stamps_required} />
+          {isLucky ? (
+            <LuckyForm />
+          ) : (
+            <StampForm stampsRequired={program.stamps_required} />
+          )}
         </div>
       </div>
 
@@ -71,7 +81,17 @@ export default async function DashboardPage() {
         <ul className="mt-4 space-y-2.5">
           {events && events.length > 0 ? (
             events.map((event) => {
-              const isRedeem = event.kind === "redeem";
+              const won =
+                event.kind === "visit" &&
+                typeof event.payload === "object" &&
+                event.payload !== null &&
+                (event.payload as { won?: boolean }).won === true;
+              const isReward = event.kind === "redeem" || won;
+              const label = won
+                ? "Won"
+                : event.kind === "visit"
+                  ? "Visit"
+                  : event.kind;
               return (
                 <li
                   key={event.id}
@@ -80,21 +100,19 @@ export default async function DashboardPage() {
                   <span className="flex min-w-0 items-center gap-2.5">
                     <span
                       className={
-                        isRedeem
+                        isReward
                           ? "grid size-7 shrink-0 place-items-center rounded-full bg-gold/20 text-gold-foreground"
                           : "grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"
                       }
                     >
-                      {isRedeem ? (
+                      {isReward ? (
                         <Gift className="size-3.5" />
                       ) : (
                         <Stamp className="size-3.5" />
                       )}
                     </span>
                     <span className="min-w-0">
-                      <span className="font-medium capitalize">
-                        {event.kind}
-                      </span>
+                      <span className="font-medium capitalize">{label}</span>
                       <span className="ml-2 truncate text-muted-foreground">
                         {phoneByCardId.get(event.card_id) ?? "—"}
                       </span>

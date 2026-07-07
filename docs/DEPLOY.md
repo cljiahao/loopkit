@@ -24,6 +24,10 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      idempotent). Adds the v2 engine columns — `programs.type`/`config`,
      `cards.state`/`last_event_at`, `stamp_events.payload` and a generalized
      `kind` check — then backfills existing rows. No function/RLS changes.
+   - apply `0005_loopkit_record_visit.sql` (adds the generic `record_visit`
+     RPC — SECURITY DEFINER, `owns_program`-gated; persists the state the
+     TypeScript strategy computed and logs one event). Backs non-stamp types
+     (Lucky Tap); the stamp card keeps its `add_stamp` path. Safe to re-run.
    - **Bootstrap the first admin.** The `/admin` console 404s until your auth
      user is in `loopkit.admins` — there is no self-serve UI. Sign in once so the
      account exists, find its id under Authentication → Users, then in the SQL

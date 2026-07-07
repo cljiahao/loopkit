@@ -6,8 +6,10 @@ import { requireVendor } from "@/lib/auth";
 import { getProgram } from "@/lib/program";
 import { normalizePhone } from "@/lib/phone";
 import { rewardReady } from "@/lib/loyalty";
+import { applyVisit } from "@/lib/engine";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
+import type { Json } from "@/lib/types";
 import type { StampCard } from "@/app/dashboard/card";
 
 type CardResult = ActionResult<{ card: StampCard; rewardReady: boolean }>;
@@ -41,6 +43,66 @@ export async function stampAction(formData: FormData): Promise<CardResult> {
     success: true,
     card: { id: card.id, phone: card.phone, stamp_count: card.stamp_count },
     rewardReady: rewardReady(card.stamp_count, program.stamps_required),
+  };
+}
+
+type VisitResult = ActionResult<{
+  won: boolean;
+  reward_text: string;
+  phone: string;
+}>;
+
+// Generic engine play path for non-stamp types (Lucky Tap). The pure strategy
+// computes the next card state from a server-generated roll — randomness never
+// comes from the client — and record_visit persists it and logs the event.
+export async function recordVisitAction(
+  formData: FormData,
+): Promise<VisitResult> {
+  await requireVendor();
+  const program = await getProgram();
+  if (!program) return { success: false, error: "Set up your card first." };
+  const normalized = normalizePhone(String(formData.get("phone") ?? ""));
+  if (!normalized.ok) {
+    return { success: false, error: "Enter a valid Singapore phone number." };
+  }
+
+  const supabase = await createServerClient();
+  const { data: existing } = await supabase
+    .from("cards")
+    .select("id,phone,stamp_count,reward_count,state")
+    .eq("program_id", program.id)
+    .eq("phone", normalized.phone)
+    .maybeSingle();
+
+  const card = existing ?? { state: {}, stamp_count: 0, reward_count: 0 };
+  const event = { kind: "visit" as const, payload: { roll: Math.random() } };
+  const { state, rewardUnlocked } = applyVisit(
+    program,
+    card,
+    event,
+    new Date(),
+  );
+
+  const { error } = await supabase.rpc("record_visit", {
+    p_program: program.id,
+    p_phone: normalized.phone,
+    p_state: state as Json,
+    p_kind: "visit",
+    p_payload: { won: rewardUnlocked, roll: event.payload.roll },
+  });
+  if (error) {
+    console.error("record_visit failed", error.message);
+    return { success: false, error: "Something went wrong. Try again." };
+  }
+
+  revalidatePath("/dashboard");
+  return {
+    success: true,
+    won: rewardUnlocked,
+    reward_text:
+      (program.config as { reward_text?: string })?.reward_text ??
+      program.reward_text,
+    phone: normalized.phone,
   };
 }
 

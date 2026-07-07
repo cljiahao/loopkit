@@ -39,6 +39,7 @@
 **Files:** Create `supabase/migrations/0005_loopkit_record_visit.sql`; Modify `src/lib/types.ts`, `docs/DEPLOY.md`; Test `test/db/record-visit-schema.test.ts`.
 
 **Interfaces:**
+
 - Produces RPC `record_visit(p_program uuid, p_phone text, p_state jsonb, p_kind text, p_payload jsonb) returns loopkit.cards` — SECURITY DEFINER, `owns_program`-gated, upserts the card's `state` + `last_event_at` and inserts one event.
 
 - [ ] **Step 1: Failing drift test**
@@ -55,9 +56,7 @@ const sql = readFileSync(
 
 describe("0005 record_visit", () => {
   it("defines the SECURITY DEFINER record_visit function", () => {
-    expect(sql).toMatch(
-      /create or replace function loopkit\.record_visit\(/i,
-    );
+    expect(sql).toMatch(/create or replace function loopkit\.record_visit\(/i);
     expect(sql).toMatch(/security definer/i);
     expect(sql).toMatch(/set search_path = ''/i);
   });
@@ -137,6 +136,7 @@ grant execute on function loopkit.record_visit(uuid, text, jsonb, text, jsonb)
 **Files:** Create `src/lib/engine/lucky.ts`; Modify `src/lib/engine/index.ts`; Test `test/lib/engine/lucky.test.ts`, `test/lib/engine/apply-visit.test.ts`.
 
 **Interfaces:**
+
 - Produces:
   - `type LuckyConfig = { win_probability: number; pity_ceiling: number; cooldown_visits: number; reward_text: string }`
   - `type LuckyState = { visits_since_win: number; total_wins: number }`
@@ -228,12 +228,22 @@ describe("applyVisit", () => {
       stamp_count: 0,
       reward_count: 0,
     };
-    const r = applyVisit(program, card, { kind: "visit", payload: { roll: 0.99 } }, now);
+    const r = applyVisit(
+      program,
+      card,
+      { kind: "visit", payload: { roll: 0.99 } },
+      now,
+    );
     expect(r.rewardUnlocked).toBe(true);
     expect(r.state).toEqual({ visits_since_win: 0, total_wins: 1 });
   });
   it("routes a stamp program to the stamp strategy", () => {
-    const program = { type: "stamp", config: { stamps_required: 5, reward_text: "x" }, stamps_required: 5, reward_text: "x" };
+    const program = {
+      type: "stamp",
+      config: { stamps_required: 5, reward_text: "x" },
+      stamps_required: 5,
+      reward_text: "x",
+    };
     const card = { state: { stamp_count: 4 }, stamp_count: 4, reward_count: 0 };
     const r = applyVisit(program, card, { kind: "visit" }, now);
     expect(r.rewardUnlocked).toBe(true);
@@ -300,7 +310,11 @@ export const luckyStrategy: Strategy<LuckyConfig, LuckyState> = {
 - [ ] **Step 4: Extend `src/lib/engine/index.ts`** — add lucky config/state resolvers + `applyVisit` + the `getProgress` lucky case:
 
 ```ts
-import { luckyStrategy, type LuckyConfig, type LuckyState } from "@/lib/engine/lucky";
+import {
+  luckyStrategy,
+  type LuckyConfig,
+  type LuckyState,
+} from "@/lib/engine/lucky";
 import type { EngineEvent } from "@/lib/engine/types";
 
 function resolveLuckyConfig(program: ProgramLike): LuckyConfig {
@@ -320,10 +334,20 @@ export function applyVisit(
 ): { state: unknown; rewardUnlocked: boolean } {
   switch (program.type) {
     case "lucky":
-      return luckyStrategy.apply(event, resolveLuckyState(card), resolveLuckyConfig(program), now);
+      return luckyStrategy.apply(
+        event,
+        resolveLuckyState(card),
+        resolveLuckyConfig(program),
+        now,
+      );
     case "stamp":
     default:
-      return stampStrategy.apply(event, resolveStampState(card), resolveStampConfig(program), now);
+      return stampStrategy.apply(
+        event,
+        resolveStampState(card),
+        resolveStampConfig(program),
+        now,
+      );
   }
 }
 ```
@@ -345,7 +369,7 @@ Add `case "lucky": return luckyStrategy.progress(resolveLuckyState(card), resolv
 - [ ] **Step 2:** Extend `src/app/setup/actions.ts` `saveProgramAction` — a Zod discriminated union on `type`:
   - `stamp`: `{ type:'stamp', name, stamps_required:2..20, reward_text }`.
   - `lucky`: `{ type:'lucky', name, reward_text, win_probability: 0.02..1 (from a percent field /100), pity_ceiling: 2..20, cooldown_visits: default 1 }`.
-  Build `config` accordingly; upsert the program with `type` + `config` (+ legacy `stamps_required`/`reward_text` when stamp; for lucky set `stamps_required` to a valid placeholder like the pity_ceiling to satisfy the NOT NULL 2..20 check, and `reward_text` from the form). Validate with `safeParse`; keep the existing redirect-to-dashboard behavior.
+    Build `config` accordingly; upsert the program with `type` + `config` (+ legacy `stamps_required`/`reward_text` when stamp; for lucky set `stamps_required` to a valid placeholder like the pity_ceiling to satisfy the NOT NULL 2..20 check, and `reward_text` from the form). Validate with `safeParse`; keep the existing redirect-to-dashboard behavior.
 
 - [ ] **Step 3:** `pnpm check && pnpm test && pnpm build` green; add/adjust any setup action test; commit `feat: setup type picker (stamp | lucky)`.
 
@@ -380,7 +404,12 @@ export async function recordVisitAction(
 
   const card = existing ?? { state: {}, stamp_count: 0, reward_count: 0 };
   const event = { kind: "visit" as const, payload: { roll: Math.random() } };
-  const { state, rewardUnlocked } = applyVisit(program, card, event, new Date());
+  const { state, rewardUnlocked } = applyVisit(
+    program,
+    card,
+    event,
+    new Date(),
+  );
 
   const { error } = await supabase.rpc("record_visit", {
     p_program: program.id,

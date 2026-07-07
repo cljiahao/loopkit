@@ -166,6 +166,16 @@ export interface Database {
         Args: { p_card: string };
         Returns: Database["loopkit"]["Tables"]["cards"]["Row"];
       };
+      record_visit: {
+        Args: {
+          p_program: string;
+          p_phone: string;
+          p_state: Json;
+          p_kind: string;
+          p_payload: Json;
+        };
+        Returns: Database["loopkit"]["Tables"]["cards"]["Row"];
+      };
       card_status: {
         Args: { p_program: string; p_phone: string };
         Returns: {
