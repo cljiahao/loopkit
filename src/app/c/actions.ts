@@ -4,6 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { normalizePhone } from "@/lib/phone";
 import { getProgress } from "@/lib/engine";
 import { qrSvg } from "@/lib/qr";
+import { allowRequest } from "@/lib/rate-limit";
 import type { StatusState } from "@/app/c/status-state";
 
 // Public card-check action — no auth. The vendor shares /c?p=<programId>; the
@@ -14,6 +15,13 @@ export async function checkStatusAction(
   _prev: StatusState,
   formData: FormData,
 ): Promise<StatusState> {
+  if (!(await allowRequest("c-check"))) {
+    return {
+      status: "error",
+      message: "Too many attempts — try again in a minute.",
+    };
+  }
+
   const normalized = normalizePhone(String(formData.get("phone") ?? ""));
   if (!normalized.ok) {
     return {

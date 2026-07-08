@@ -57,6 +57,16 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      Safe to re-run. After this migration, programs can only be created via the
      `create_program` RPC — vendors can still `select`/`update` their own rows.
 
+   - apply `0009_loopkit_enroll_phone_guard.sql` — rejects malformed phone
+     strings inside `enroll_card` so a direct anonymous RPC call can't seed junk
+     cards. Safe to re-run.
+
+   - **Optional — rate limiting on the public `/c` surface.** The card-check
+     action is throttled per-IP only if an Upstash Redis is configured. Create a
+     free Upstash Redis and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
+     in Vercel to enable it; leave them blank and the limiter fails open (no
+     throttling). The `0009` phone guard works regardless.
+
    - **Bootstrap the first admin.** The `/admin` console 404s until your auth
      user is in `loopkit.admins` — there is no self-serve UI. Sign in once so the
      account exists, find its id under Authentication → Users, then in the SQL
