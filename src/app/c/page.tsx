@@ -33,6 +33,9 @@ export default async function CheckPage({ searchParams }: CheckPageProps) {
           <p className="mt-1 text-sm text-muted-foreground">
             Check your stamp card.
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            New here? Enter your phone to join — no app needed.
+          </p>
         </div>
 
         <div className="rounded-2xl border bg-card px-7 py-9 shadow-sm">

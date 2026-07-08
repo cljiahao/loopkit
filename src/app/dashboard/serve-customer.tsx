@@ -214,6 +214,26 @@ export function ServeCustomer({
 
   return (
     <div className="space-y-4">
+      <ScanButton
+        onScanned={(phone) => {
+          if (phoneRef.current) {
+            phoneRef.current.value = phone;
+            formRef.current?.requestSubmit();
+          }
+        }}
+      />
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-card px-3 text-xs font-medium text-muted-foreground">
+            or enter phone manually
+          </span>
+        </div>
+      </div>
+
       <form
         ref={formRef}
         onSubmit={onPrimary}
@@ -253,14 +273,6 @@ export function ServeCustomer({
         >
           {lookingUp ? "Looking up…" : "Look up"}
         </Button>
-        <ScanButton
-          onScanned={(phone) => {
-            if (phoneRef.current) {
-              phoneRef.current.value = phone;
-              formRef.current?.requestSubmit();
-            }
-          }}
-        />
       </form>
 
       {result?.mode === "stamp" && (

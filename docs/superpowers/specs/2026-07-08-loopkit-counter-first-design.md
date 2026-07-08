@@ -3,6 +3,7 @@
 **Status:** approved direction (2026-07-08, user: templates + dashboard IA + onboarding feel wrong; auto-mode — decided and proceeding). Research: `docs/superpowers/research` (this session's onboarding/check-in + dashboard-IA/template-catalog streams).
 
 **Goal:** Fix three related complaints in one coherent redesign:
+
 1. The vendor dashboard is a wall of information, not a fast counter tool.
 2. Onboarding feels vendor-driven when it should be self-serve (customer scans to join).
 3. Only 3 loyalty templates exist; the vendor wants visibly more variety (spin-the-wheel, points, etc).
@@ -17,18 +18,19 @@
 
 **Model (research: Square splits POS-vs-back-office; Loopy's Stamper is one-button):** a persistent bottom tab bar, four tabs, **Counter is the default landing tab and holds only the identify+act job.**
 
-| Tab | Content (moved from today's single page) |
-|---|---|
-| **Counter** (default `/dashboard`) | ONLY: slim program bar (name+type badge+switcher, collapsed) + the identify control (Scan primary, phone secondary) → after identify, a result sheet (progress + primary action + Redeem-when-ready). No QR panel, no activity list here. |
-| **Customers** (`/dashboard/customers`, exists) | unchanged — the searchable list. |
-| **Activity** (`/dashboard/activity`, new route) | the recent-activity list, lifted verbatim off Counter. |
-| **Grow** (`/dashboard/grow`, new route) | the "Your customer card" QR/link/print panel, lifted verbatim, reframed as **"Get customers to join"** — this is where self-serve onboarding is explained and the join material lives. |
+| Tab                                             | Content (moved from today's single page)                                                                                                                                                                                                  |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Counter** (default `/dashboard`)              | ONLY: slim program bar (name+type badge+switcher, collapsed) + the identify control (Scan primary, phone secondary) → after identify, a result sheet (progress + primary action + Redeem-when-ready). No QR panel, no activity list here. |
+| **Customers** (`/dashboard/customers`, exists)  | unchanged — the searchable list.                                                                                                                                                                                                          |
+| **Activity** (`/dashboard/activity`, new route) | the recent-activity list, lifted verbatim off Counter.                                                                                                                                                                                    |
+| **Grow** (`/dashboard/grow`, new route)         | the "Your customer card" QR/link/print panel, lifted verbatim, reframed as **"Get customers to join"** — this is where self-serve onboarding is explained and the join material lives.                                                    |
 
 `Edit` moves into a small menu/kebab on the slim program bar (still `/setup?edit=`).
 
 **Scan-first on Counter:** reorder the identify row so **Scan is the primary, large button**; phone entry becomes a secondary "or type a number" affordance (collapsed/smaller), not a peer-sized field. This directly answers "why do I have to type the phone" — you don't, by default; scanning is first.
 
 **Component moves (no logic change, pure reorg):**
+
 - New `src/app/dashboard/dashboard-tabs.tsx` (client, bottom-fixed on mobile / top on wider, `usePathname` active state) rendered from `dashboard/layout.tsx`.
 - `dashboard/page.tsx` shrinks to: slim program bar + `<ServeCustomer>` only.
 - New `dashboard/activity/page.tsx`: the activity list + query, moved as-is (scoped to current program via `?p=`).
@@ -65,4 +67,5 @@ Per the research build order, ship the highest wow/effort-ratio templates that r
 - **Phase W3 — Streaks** (Wave 1). New migration/strategy, reuses Sprout's decay-derivation pattern.
 
 ## Testing
+
 Each phase: unit tests for any new pure logic (chance weighting, streak derivation), a migration drift test where schema changes, `pnpm check/test/build` green, no regression to existing stamp/lucky/plant flows.

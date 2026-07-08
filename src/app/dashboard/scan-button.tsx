@@ -57,12 +57,12 @@ export function ScanButton({
     <>
       <Button
         type="button"
-        variant="outline"
+        size="lg"
         onClick={() => setOpen(true)}
-        className="h-11 shrink-0 rounded-xl"
+        className="h-14 w-full rounded-xl text-base font-semibold"
       >
-        <Camera className="size-4" />
-        <span className="sr-only sm:not-sr-only sm:ml-1.5">Scan</span>
+        <Camera className="size-5" />
+        Scan to serve
       </Button>
       {open && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-black/90 p-5">

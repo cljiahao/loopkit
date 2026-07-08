@@ -25,6 +25,7 @@
 
 - [ ] Drift test asserting the new check constraint includes `wheel` and `scratch` alongside the existing three.
 - [ ] Migration:
+
 ```sql
 -- supabase/migrations/0010_loopkit_chance_types.sql
 -- Widen programs.type to admit the two chance-based templates (wheel, scratch).
@@ -35,6 +36,7 @@ alter table loopkit.programs
   add constraint programs_type_check
   check (type in ('stamp','lucky','plant','wheel','scratch'));
 ```
+
 - [ ] `src/lib/types.ts`: widen the `type` literal/check comment if one exists (the column is `text`, so likely no type-level change needed beyond a comment — verify). `docs/DEPLOY.md`: add apply-0010 step.
 - [ ] PASS; `pnpm check && pnpm test && pnpm build` green; commit `feat: 0010 widen programs.type for wheel/scratch`.
 
@@ -43,6 +45,7 @@ alter table loopkit.programs
 **Files:** Create `src/lib/engine/chance.ts`; Modify `src/lib/engine/types.ts` (new `ProgressView` variant); Test `test/lib/engine/chance.test.ts`.
 
 **Interfaces:**
+
 - `ProgressView` gains: `{ kind: "chance"; variant: "wheel" | "scratch"; segments: { id: string; label: string; reward: boolean }[]; landedId: string | null }`.
 - `type ChanceSegment = { id: string; label: string; weight: number; reward_text?: string }`.
 - `type ChanceConfig = { variant: "wheel" | "scratch"; segments: ChanceSegment[]; pity_ceiling?: number; cooldown_visits: number; reward_text: string }`.
@@ -54,7 +57,11 @@ alter table loopkit.programs
 
 ```ts
 import { describe, it, expect } from "vitest";
-import { pickSegment, makeChanceStrategy, type ChanceConfig } from "@/lib/engine/chance";
+import {
+  pickSegment,
+  makeChanceStrategy,
+  type ChanceConfig,
+} from "@/lib/engine/chance";
 
 describe("pickSegment", () => {
   const segs = [
@@ -94,24 +101,41 @@ describe("chanceStrategy (wheel)", () => {
 
   it("defaults to no spins yet", () => {
     expect(strategy.defaults(cfg)).toEqual({
-      visits_since_win: 0, total_wins: 0, landed_segment_id: null,
+      visits_since_win: 0,
+      total_wins: 0,
+      landed_segment_id: null,
     });
   });
   it("lands + wins on a low roll matching the reward segment's slice", () => {
-    const r = strategy.apply({ kind: "visit", payload: { roll: 0.99 } },
-      { visits_since_win: 0, total_wins: 0, landed_segment_id: null }, cfg, now);
+    const r = strategy.apply(
+      { kind: "visit", payload: { roll: 0.99 } },
+      { visits_since_win: 0, total_wins: 0, landed_segment_id: null },
+      cfg,
+      now,
+    );
     expect(r.rewardUnlocked).toBe(true);
     expect(r.state.landed_segment_id).toBe("b");
   });
   it("forces a reward segment at the pity ceiling regardless of roll", () => {
-    const r = strategy.apply({ kind: "visit", payload: { roll: 0.0 } },
-      { visits_since_win: 4, total_wins: 0, landed_segment_id: null }, cfg, now);
+    const r = strategy.apply(
+      { kind: "visit", payload: { roll: 0.0 } },
+      { visits_since_win: 4, total_wins: 0, landed_segment_id: null },
+      cfg,
+      now,
+    );
     expect(r.rewardUnlocked).toBe(true);
   });
   it("progress exposes the segment list + last landed id", () => {
     const p = strategy.progress(
-      { visits_since_win: 1, total_wins: 1, landed_segment_id: "b" }, cfg, now);
-    expect(p.view).toMatchObject({ kind: "chance", variant: "wheel", landedId: "b" });
+      { visits_since_win: 1, total_wins: 1, landed_segment_id: "b" },
+      cfg,
+      now,
+    );
+    expect(p.view).toMatchObject({
+      kind: "chance",
+      variant: "wheel",
+      landedId: "b",
+    });
     expect(p.view.segments).toHaveLength(2);
   });
 });
