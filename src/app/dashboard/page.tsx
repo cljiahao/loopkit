@@ -3,11 +3,13 @@ import { Gift, Stamp } from "lucide-react";
 import { requireVendor } from "@/lib/auth";
 import { getProgram } from "@/lib/program";
 import { formatSgtDateTime } from "@/lib/format";
+import { qrSvg } from "@/lib/qr";
 import { createServerClient } from "@/lib/supabase/server";
 import { StampForm } from "@/app/dashboard/stamp-form";
 import { LuckyForm } from "@/app/dashboard/lucky-form";
 import { PlantForm } from "@/app/dashboard/plant-form";
 import { CardLookup } from "@/app/dashboard/card-lookup";
+import { CardLinkActions } from "@/app/dashboard/card-link";
 
 export default async function DashboardPage() {
   await requireVendor();
@@ -18,6 +20,10 @@ export default async function DashboardPage() {
   const isLucky = program.type === "lucky";
   const isPlant = program.type === "plant";
   const config = (program.config ?? {}) as { win_probability?: number };
+
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "";
+  const cardLink = `${base}/c?p=${program.id}`;
+  const cardQr = await qrSvg(cardLink);
 
   const supabase = await createServerClient();
   // RLS (events_own) already scopes this to the signed-in vendor's cards.
@@ -68,6 +74,28 @@ export default async function DashboardPage() {
           ) : (
             <StampForm stampsRequired={program.stamps_required} />
           )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border bg-card p-6 shadow-sm">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Your customer card
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Share this link or print the QR — customers open it to see their{" "}
+          {program.name} card.
+        </p>
+        <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          <div
+            className="shrink-0 rounded-xl border bg-white p-2 [&_svg]:size-32"
+            dangerouslySetInnerHTML={{ __html: cardQr }}
+          />
+          <div className="min-w-0 space-y-3">
+            <code className="block truncate rounded-lg bg-muted px-3 py-2 font-mono text-xs">
+              {cardLink}
+            </code>
+            <CardLinkActions link={cardLink} />
+          </div>
         </div>
       </div>
 
