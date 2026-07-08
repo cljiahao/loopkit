@@ -17,6 +17,7 @@ import { Plant } from "@/components/plant";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
 import { StreakFlame } from "@/components/streak-flame";
+import { RewardCelebration } from "@/components/reward-celebration";
 import type { StampCard } from "@/app/dashboard/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +117,10 @@ export function ServeCustomer({
   const [result, setResult] = useState<ServeResult | null>(null);
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
+  const [celebration, setCelebration] = useState<{
+    phone: string;
+    rewardText: string;
+  } | null>(null);
 
   const copy = ACTION_COPY[type] ?? ACTION_COPY.stamp;
 
@@ -132,6 +137,7 @@ export function ServeCustomer({
         }
         if (res.rewardUnlocked) {
           toast.success(`🎉 ${res.phone} won ${res.reward_text}!`);
+          setCelebration({ phone: res.phone, rewardText: res.reward_text });
         } else {
           toast(`No win this time for ${res.phone}.`);
         }
@@ -153,6 +159,7 @@ export function ServeCustomer({
           toast.success(
             `🌻 ${res.phone} bloomed — ${res.reward_text} unlocked!`,
           );
+          setCelebration({ phone: res.phone, rewardText: res.reward_text });
         } else {
           toast(`Watered ${res.phone} — now ${res.progress.view.stageName}.`);
         }
@@ -173,6 +180,7 @@ export function ServeCustomer({
         if (res.progress.view.kind !== "streak") return;
         if (res.rewardUnlocked) {
           toast.success(`🔥 ${res.phone} unlocked ${res.reward_text}!`);
+          setCelebration({ phone: res.phone, rewardText: res.reward_text });
         } else {
           toast(
             `Checked in ${res.phone} — streak at ${res.progress.view.current}.`,
@@ -195,6 +203,7 @@ export function ServeCustomer({
         if (res.progress.view.kind !== "chance") return;
         if (res.rewardUnlocked) {
           toast.success(`🎉 ${res.phone} won ${res.reward_text}!`);
+          setCelebration({ phone: res.phone, rewardText: res.reward_text });
         } else {
           toast(`No win this time for ${res.phone}.`);
         }
@@ -207,6 +216,7 @@ export function ServeCustomer({
           rewardText: res.reward_text,
         });
       } else {
+        const prevResult = result;
         const res = await stampAction(formData);
         if (!res.success) {
           toast.error(res.error);
@@ -215,6 +225,13 @@ export function ServeCustomer({
         toast.success(
           `Stamped ${res.card.phone} — ${res.card.stamp_count}/${stampsRequired}`,
         );
+        const wasReady =
+          prevResult?.mode === "stamp" && prevResult.phone === res.card.phone
+            ? prevResult.rewardReady
+            : false;
+        if (res.rewardReady && !wasReady) {
+          setCelebration({ phone: res.card.phone, rewardText });
+        }
         setResult({
           mode: "stamp",
           phone: res.card.phone,
@@ -616,6 +633,15 @@ export function ServeCustomer({
           )}
         </div>
       )}
+
+      <RewardCelebration
+        open={celebration !== null}
+        phone={celebration?.phone ?? ""}
+        rewardText={celebration?.rewardText ?? ""}
+        onOpenChange={(open) => {
+          if (!open) setCelebration(null);
+        }}
+      />
     </div>
   );
 }

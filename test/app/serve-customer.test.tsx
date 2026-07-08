@@ -99,6 +99,11 @@ describe("ServeCustomer", () => {
     await waitFor(() =>
       expect(screen.getByText("Reward ready!")).toBeInTheDocument(),
     );
+    expect(
+      screen.getByRole("heading", { name: "🎉 Reward unlocked!" }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Nice!" }));
+
     expect(screen.getByRole("button", { name: "Redeem" })).toBeInTheDocument();
   });
 
@@ -191,5 +196,34 @@ describe("ServeCustomer", () => {
 
     await waitFor(() => expect(recordVisitMock).toHaveBeenCalled());
     expect(screen.getByText("🎉 Won A prize!")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "🎉 Reward unlocked!" }),
+    ).toBeInTheDocument();
+  });
+
+  it("does not celebrate a lucky round with no win", async () => {
+    recordVisitMock.mockResolvedValue({
+      success: true,
+      rewardUnlocked: false,
+      reward_text: "A prize",
+      phone: "+6591234567",
+      progress: { view: { kind: "dots", filled: 0, total: 5 }, label: "" },
+    });
+    const user = userEvent.setup();
+    render(
+      <ServeCustomer
+        programId="p1"
+        type="lucky"
+        stampsRequired={5}
+        rewardText="A prize"
+      />,
+    );
+    await user.type(screen.getByLabelText("Customer phone"), "91234567");
+    await user.click(screen.getByRole("button", { name: "Play" }));
+
+    await waitFor(() => expect(recordVisitMock).toHaveBeenCalled());
+    expect(
+      screen.queryByRole("heading", { name: "🎉 Reward unlocked!" }),
+    ).not.toBeInTheDocument();
   });
 });
