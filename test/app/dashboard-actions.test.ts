@@ -43,6 +43,7 @@ describe("dashboard actions thread program_id", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     requireVendorMock.mockResolvedValue({ user: { id: "v1" } });
+    maybeSingleMock.mockResolvedValue({ data: null, error: null });
   });
 
   it("stampAction resolves the program from program_id and stamps it", async () => {
@@ -62,6 +63,21 @@ describe("dashboard actions thread program_id", () => {
       p_phone: "+6591234567",
     });
     expect(res.success).toBe(true);
+  });
+
+  it("stampAction blocks an expired card without calling add_stamp", async () => {
+    getProgramByIdMock.mockResolvedValue({ ...program, expiry_days: 30 });
+    maybeSingleMock.mockResolvedValue({
+      data: { cycle_started_at: "2020-01-01T00:00:00Z" },
+      error: null,
+    });
+
+    const res = await stampAction(
+      form({ program_id: "p1", phone: "91234567" }),
+    );
+
+    expect(res.success).toBe(false);
+    expect(rpcMock).not.toHaveBeenCalled();
   });
 
   it("stampAction errors when the program_id is not owned (RLS null)", async () => {

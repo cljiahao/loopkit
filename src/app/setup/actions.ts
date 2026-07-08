@@ -53,6 +53,7 @@ export async function saveProgramAction(
     segments: formData.get("segments"),
     period_days: formData.get("period_days"),
     target_streak: formData.get("target_streak"),
+    expiry_days: formData.get("expiry_days"),
   });
   if (!parsed.success) {
     return { error: "Check the card details and try again." };
@@ -114,6 +115,7 @@ export async function saveProgramAction(
       stamps_required: stampsRequired,
       reward_text: data.reward_text,
       config,
+      expiry_days: data.expiry_days ?? null,
     };
     const { error } = await supabase
       .from("programs")
@@ -139,6 +141,7 @@ export async function saveProgramAction(
     p_stamps_required: stampsRequired,
     p_reward_text: data.reward_text,
     p_config: config,
+    p_expiry_days: data.expiry_days ?? null,
   });
   if (error) {
     if (error.code === "42501") return { error: UPSELL_ERROR };

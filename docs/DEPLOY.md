@@ -72,6 +72,14 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      derivation lives in TypeScript (`src/lib/engine/streak.ts`) and reuses
      `record_visit` — no new tables/RPCs. Safe to re-run.
 
+   - apply `0012_loopkit_card_lifecycle.sql` — adds vendor-configurable card
+     expiry (`programs.expiry_days`) and a public, phone-validated
+     `regenerate_card` RPC (reissues a card's QR token and resets its
+     progress — for a lost code or a fresh start after expiry). Recreates
+     `create_program` (additive `p_expiry_days`, defaulted) and `card_view`
+     (adds `expiry_days`/`cycle_started_at`) — same grants as before. Safe to
+     re-run.
+
    - **Optional — rate limiting on the public `/c` surface.** The card-check
      action is throttled per-IP only if an Upstash Redis is configured. Create a
      free Upstash Redis and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`

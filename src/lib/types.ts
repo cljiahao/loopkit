@@ -23,6 +23,7 @@ export interface Database {
           type: string;
           config: Json;
           active: boolean;
+          expiry_days: number | null;
           created_at: string;
         };
         Insert: {
@@ -34,6 +35,7 @@ export interface Database {
           type?: string;
           config?: Json;
           active?: boolean;
+          expiry_days?: number | null;
           created_at?: string;
         };
         Update: {
@@ -45,6 +47,7 @@ export interface Database {
           type?: string;
           config?: Json;
           active?: boolean;
+          expiry_days?: number | null;
           created_at?: string;
         };
         Relationships: [];
@@ -59,6 +62,7 @@ export interface Database {
           state: Json;
           card_token: string;
           last_event_at: string | null;
+          cycle_started_at: string;
           created_at: string;
           updated_at: string;
         };
@@ -71,6 +75,7 @@ export interface Database {
           state?: Json;
           card_token?: string;
           last_event_at?: string | null;
+          cycle_started_at?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -83,6 +88,7 @@ export interface Database {
           state?: Json;
           card_token?: string;
           last_event_at?: string | null;
+          cycle_started_at?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -201,6 +207,7 @@ export interface Database {
           p_stamps_required: number;
           p_reward_text: string;
           p_config: Json;
+          p_expiry_days?: number | null;
         };
         Returns: string;
       };
@@ -219,6 +226,8 @@ export interface Database {
           card_token: string;
           reward_text: string;
           stamps_required: number;
+          expiry_days: number | null;
+          cycle_started_at: string | null;
         }[];
       };
       card_by_token: {
@@ -228,6 +237,10 @@ export interface Database {
           card_id: string;
           phone: string;
         }[];
+      };
+      regenerate_card: {
+        Args: { p_program: string; p_phone: string };
+        Returns: Database["loopkit"]["Tables"]["cards"]["Row"];
       };
       is_admin: {
         Args: { p_uid: string };

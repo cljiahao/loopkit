@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Check, Gift } from "lucide-react";
-import { checkStatusAction } from "@/app/c/actions";
+import { toast } from "sonner";
+import { checkStatusAction, regenerateCardAction } from "@/app/c/actions";
 import { STATUS_IDLE } from "@/app/c/status-state";
 import { Plant } from "@/components/plant";
 import { Wheel } from "@/components/wheel";
@@ -11,6 +12,17 @@ import { StreakFlame } from "@/components/streak-flame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 export function CheckForm({ programId }: { programId: string }) {
@@ -18,8 +30,26 @@ export function CheckForm({ programId }: { programId: string }) {
     checkStatusAction,
     STATUS_IDLE,
   );
+  const [regenOpen, setRegenOpen] = useState(false);
+  const [regenerating, startRegenerate] = useTransition();
 
   const view = state.view;
+
+  function confirmRegenerate() {
+    if (!state.programId || !state.phone) return;
+    startRegenerate(async () => {
+      const fd = new FormData();
+      fd.set("program", state.programId!);
+      fd.set("phone", state.phone!);
+      const res = await regenerateCardAction(fd);
+      if (!res.success) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("New card issued — check your card again to see it.");
+      setRegenOpen(false);
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -134,6 +164,11 @@ export function CheckForm({ programId }: { programId: string }) {
               🎉 Reward ready!
             </p>
           )}
+          {state.expired && (
+            <p className="text-sm font-semibold text-destructive">
+              This card has expired.
+            </p>
+          )}
           {state.qr && (
             <div className="flex flex-col items-center gap-2 pt-2">
               <div
@@ -145,6 +180,44 @@ export function CheckForm({ programId }: { programId: string }) {
               </p>
             </div>
           )}
+          <AlertDialog open={regenOpen} onOpenChange={setRegenOpen}>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="rounded-xl text-xs text-muted-foreground"
+              >
+                {state.expired
+                  ? "Get a new card"
+                  : "Lost your code? Get a new one"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Get a new card?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This issues a fresh QR code and resets your progress to zero.
+                  Any reward you&apos;ve already earned should be redeemed at
+                  the shop first.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={regenerating}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={regenerating}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    confirmRegenerate();
+                  }}
+                >
+                  {regenerating ? "Issuing…" : "Get a new card"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </div>

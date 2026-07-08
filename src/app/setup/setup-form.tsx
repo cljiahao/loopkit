@@ -362,6 +362,26 @@ export function SetupForm({
         />
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="expiry_days" className={labelClass}>
+          Card expires after (days, optional)
+        </Label>
+        <Input
+          id="expiry_days"
+          name="expiry_days"
+          type="number"
+          min={1}
+          max={3650}
+          placeholder="Never expires"
+          defaultValue={program?.expiry_days ?? ""}
+          className="h-11 rounded-xl"
+        />
+        <p className="text-xs text-muted-foreground">
+          Counted from each customer&apos;s current cycle — resets whenever
+          their card is regenerated. Leave blank for a card that never expires.
+        </p>
+      </div>
+
       {state.error ? (
         <p className="text-sm font-medium text-destructive">{state.error}</p>
       ) : null}

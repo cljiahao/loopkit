@@ -112,7 +112,34 @@ describe("checkStatusAction", () => {
       rewardReady: false,
       reward_text: "Free kopi",
       qr: '<svg data-token="tok_abc"></svg>',
+      expired: false,
+      programId: "p1",
+      phone: "+6591234567",
     });
+  });
+
+  it("reports expired once the program's expiry window has elapsed", async () => {
+    mockRpcs([
+      {
+        name: "Kaya Toast Co.",
+        type: "stamp",
+        config: {},
+        state: {},
+        stamp_count: 3,
+        card_token: "tok_abc",
+        reward_text: "Free kopi",
+        stamps_required: 10,
+        expiry_days: 30,
+        cycle_started_at: "2020-01-01T00:00:00Z",
+      },
+    ]);
+
+    const result = await checkStatusAction(
+      STATUS_IDLE,
+      form({ program: "p1", phone: "91234567" }),
+    );
+
+    expect(result.expired).toBe(true);
   });
 
   it("reports none when card_view returns no rows (bad/inactive program)", async () => {

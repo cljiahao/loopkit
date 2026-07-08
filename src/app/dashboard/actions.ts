@@ -14,6 +14,7 @@ import {
 } from "@/lib/engine";
 import { plantStrategy, type PlantConfig } from "@/lib/engine/plant";
 import { streakStrategy, type StreakConfig } from "@/lib/engine/streak";
+import { isCardExpired } from "@/lib/expiry";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
 import type { Progress } from "@/lib/engine/types";
@@ -45,6 +46,26 @@ export async function stampAction(formData: FormData): Promise<CardResult> {
   }
 
   const supabase = await createServerClient();
+  const { data: existingCycle } = await supabase
+    .from("cards")
+    .select("cycle_started_at")
+    .eq("program_id", program.id)
+    .eq("phone", normalized.phone)
+    .maybeSingle();
+  if (
+    existingCycle &&
+    isCardExpired(
+      existingCycle.cycle_started_at,
+      program.expiry_days,
+      new Date(),
+    )
+  ) {
+    return {
+      success: false,
+      error: "This card has expired. Regenerate it to start a new cycle.",
+    };
+  }
+
   const { data: card, error } = await supabase.rpc("add_stamp", {
     p_program: program.id,
     p_phone: normalized.phone,
@@ -87,13 +108,23 @@ export async function recordVisitAction(
   const supabase = await createServerClient();
   const { data: existing } = await supabase
     .from("cards")
-    .select("id,phone,stamp_count,reward_count,state")
+    .select("id,phone,stamp_count,reward_count,state,cycle_started_at")
     .eq("program_id", program.id)
     .eq("phone", normalized.phone)
     .maybeSingle();
 
-  const card = existing ?? { state: {}, stamp_count: 0, reward_count: 0 };
   const now = new Date();
+  if (
+    existing &&
+    isCardExpired(existing.cycle_started_at, program.expiry_days, now)
+  ) {
+    return {
+      success: false,
+      error: "This card has expired. Regenerate it to start a new cycle.",
+    };
+  }
+
+  const card = existing ?? { state: {}, stamp_count: 0, reward_count: 0 };
   const event = { kind: "visit" as const, payload: { roll: Math.random() } };
   const { state, rewardUnlocked } = applyVisit(program, card, event, now);
 
@@ -220,6 +251,36 @@ export async function redeemStreakAction(
   });
   if (error) {
     console.error("record_visit redeem failed", error.message);
+    return { success: false, error: "Something went wrong. Try again." };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true, phone: normalized.phone };
+}
+
+// Regenerate a customer's card: reissues the card_token (invalidates the old
+// QR) and resets progress + the expiry clock — for a lost QR or a fresh start
+// after expiry. Vendor-triggered counterpart to the customer self-service
+// action in src/app/c/actions.ts; both call the same public regenerate_card
+// RPC (phone-validated, no separate customer auth exists in this app).
+export async function regenerateCardAction(
+  formData: FormData,
+): Promise<ActionResult<{ phone: string }>> {
+  await requireVendor();
+  const program = await programFromForm(formData);
+  if (!program) return { success: false, error: "Set up your card first." };
+  const normalized = normalizePhone(String(formData.get("phone") ?? ""));
+  if (!normalized.ok) {
+    return { success: false, error: "Enter a valid Singapore phone number." };
+  }
+
+  const supabase = await createServerClient();
+  const { data: card, error } = await supabase.rpc("regenerate_card", {
+    p_program: program.id,
+    p_phone: normalized.phone,
+  });
+  if (error || !card) {
+    console.error("regenerate_card failed", error);
     return { success: false, error: "Something went wrong. Try again." };
   }
 

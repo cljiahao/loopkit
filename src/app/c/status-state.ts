@@ -12,6 +12,9 @@ export type StatusState = {
   reward_text?: string;
   qr?: string;
   message?: string;
+  expired?: boolean;
+  programId?: string;
+  phone?: string;
 };
 
 export const STATUS_IDLE: StatusState = { status: "idle" };

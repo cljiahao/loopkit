@@ -6,7 +6,7 @@ import type { ChanceConfig } from "@/lib/engine/chance";
 import type { StreakConfig } from "@/lib/engine/streak";
 
 const PROGRAM_COLUMNS =
-  "id,name,stamps_required,reward_text,type,config,active";
+  "id,name,stamps_required,reward_text,type,config,active,expiry_days";
 
 export type Program = {
   id: string;
@@ -16,6 +16,7 @@ export type Program = {
   type: string;
   config: unknown;
   active: boolean;
+  expiry_days?: number | null;
 };
 
 export const programInputSchema = z.object({
@@ -43,17 +44,25 @@ function emptyToUndefined(value: unknown): unknown {
   return value === "" || value == null ? undefined : value;
 }
 
+const expiryDaysSchema = z.preprocess(
+  emptyToUndefined,
+  z.coerce.number().int().min(1).max(3650).optional(),
+);
+
 // Type-aware program input for the /setup type picker. A discriminated union on
 // `type`: the stamp variant keeps the legacy fields; the lucky variant takes a
 // win-chance percentage (turned into a [0,1) probability) and a pity ceiling;
 // the wheel/scratch variants share a weighted-segment editor (JSON-encoded in
-// a hidden field) plus an optional pity ceiling.
+// a hidden field) plus an optional pity ceiling. Every variant also carries an
+// optional expiry_days — type-agnostic, so it's applied uniformly rather than
+// baked into any one variant.
 export const saveProgramSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("stamp"),
     name: z.string().trim().min(1).max(60),
     stamps_required: z.coerce.number().int().min(2).max(20),
     reward_text: z.string().trim().min(1).max(80),
+    expiry_days: expiryDaysSchema,
   }),
   z.object({
     type: z.literal("lucky"),
@@ -61,12 +70,14 @@ export const saveProgramSchema = z.discriminatedUnion("type", [
     reward_text: z.string().trim().min(1).max(80),
     win_percent: z.coerce.number().int().min(2).max(100),
     pity_ceiling: z.coerce.number().int().min(2).max(20),
+    expiry_days: expiryDaysSchema,
   }),
   z.object({
     type: z.literal("plant"),
     name: z.string().trim().min(1).max(60),
     reward_text: z.string().trim().min(1).max(80),
     visits_to_bloom: z.coerce.number().int().min(4).max(20),
+    expiry_days: expiryDaysSchema,
   }),
   z.object({
     type: z.literal("wheel"),
@@ -80,6 +91,7 @@ export const saveProgramSchema = z.discriminatedUnion("type", [
       emptyToUndefined,
       z.coerce.number().int().min(2).max(20).optional(),
     ),
+    expiry_days: expiryDaysSchema,
   }),
   z.object({
     type: z.literal("scratch"),
@@ -93,6 +105,7 @@ export const saveProgramSchema = z.discriminatedUnion("type", [
       emptyToUndefined,
       z.coerce.number().int().min(2).max(20).optional(),
     ),
+    expiry_days: expiryDaysSchema,
   }),
   z.object({
     type: z.literal("streak"),
@@ -100,6 +113,7 @@ export const saveProgramSchema = z.discriminatedUnion("type", [
     reward_text: z.string().trim().min(1).max(80),
     period_days: z.coerce.number().int().min(1).max(30),
     target_streak: z.coerce.number().int().min(2).max(20),
+    expiry_days: expiryDaysSchema,
   }),
 ]);
 

@@ -10,6 +10,7 @@ import {
   lookupAction,
   redeemPlantAction,
   redeemStreakAction,
+  regenerateCardAction,
 } from "@/app/dashboard/actions";
 import { RedeemButton } from "@/app/dashboard/redeem-button";
 import { ScanButton } from "@/app/dashboard/scan-button";
@@ -116,6 +117,7 @@ export function ServeCustomer({
   const formRef = useRef<HTMLFormElement>(null);
   const [result, setResult] = useState<ServeResult | null>(null);
   const [redeemOpen, setRedeemOpen] = useState(false);
+  const [regenOpen, setRegenOpen] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
   const [celebration, setCelebration] = useState<{
     phone: string;
@@ -343,6 +345,25 @@ export function ServeCustomer({
       toast.success(`Reward redeemed for ${res.phone}.`);
       setResult(null);
       setRedeemOpen(false);
+      router.refresh();
+    });
+  }
+
+  function confirmRegenerate() {
+    if (!result) return;
+    const phone = result.phone;
+    run(async () => {
+      const fd = new FormData();
+      fd.set("phone", phone);
+      fd.set("program_id", programId);
+      const res = await regenerateCardAction(fd);
+      if (!res.success) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(`Issued a fresh card for ${res.phone}.`);
+      setResult(null);
+      setRegenOpen(false);
       router.refresh();
     });
   }
@@ -632,6 +653,43 @@ export function ServeCustomer({
             </div>
           )}
         </div>
+      )}
+
+      {result && (
+        <AlertDialog open={regenOpen} onOpenChange={setRegenOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="rounded-xl text-muted-foreground"
+            >
+              Regenerate card
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Regenerate this card?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Issues {result.phone} a fresh QR code and resets their progress
+                to zero — for a lost code or an expired card. Their lifetime
+                reward count is kept.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={pending}
+                onClick={(e) => {
+                  e.preventDefault();
+                  confirmRegenerate();
+                }}
+              >
+                {pending ? "Regenerating…" : "Regenerate"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
 
       <RewardCelebration
