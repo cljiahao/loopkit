@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 
 type PlayResult = { won: boolean; reward_text: string; phone: string };
 
-export function LuckyForm() {
+export function LuckyForm({ programId }: { programId: string }) {
   const router = useRouter();
   const { pending, run } = useAsyncAction();
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -48,6 +48,7 @@ export function LuckyForm() {
   return (
     <div className="space-y-4">
       <form ref={formRef} onSubmit={onSubmit} className="flex items-end gap-3">
+        <input type="hidden" name="program_id" value={programId} />
         <div className="flex-1 space-y-2">
           <Label
             htmlFor="phone"

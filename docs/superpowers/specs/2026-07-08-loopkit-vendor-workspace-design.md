@@ -5,7 +5,8 @@
 **Goal:** Make a vendor able to run **multiple loyalty programs** (gated: free = 1, Pro = unlimited, admin-granted — no billing yet), and revamp the vendor dashboard so it reads as a clear workspace instead of a wall of boxes.
 
 **In scope:**
-1. **Multi-program data model** — drop the one-program-per-vendor constraint; a vendor has a *list* of programs; the dashboard operates on a *current* one.
+
+1. **Multi-program data model** — drop the one-program-per-vendor constraint; a vendor has a _list_ of programs; the dashboard operates on a _current_ one.
 2. **Free/Pro gate** — free vendors get 1 program; Pro (an admin-granted allow-list) get unlimited. Enforced server-side at create time.
 3. **Dashboard revamp** — program header (name · type · reward · Edit), a program switcher (when >1), and one merged "identify a customer → stamp/redeem" flow (folds in today's separate look-up box). Keep the just-shipped customer-card panel + recent activity.
 4. **`/setup` → program create/list** — create a new program (gated), edit an existing one, see your programs.
@@ -28,6 +29,7 @@
 ## 2. Program access layer (`src/lib/program.ts`)
 
 Today: `getProgram()` returns the vendor's single program (RLS `.maybeSingle()`). Change to:
+
 - `listPrograms(): Promise<Program[]>` — all of the vendor's programs, newest-or-name ordered.
 - `getProgramById(id): Promise<Program | null>` — one, RLS-scoped (vendor owns it).
 - `currentProgram(programs, requestedId?)` — pick the requested id if present + owned, else the first; returns `Program | null`.
@@ -47,6 +49,7 @@ Today: `getProgram()` returns the vendor's single program (RLS `.maybeSingle()`)
 ## 4. Dashboard revamp (`/dashboard`)
 
 Reads `?p=<programId>` (searchParams) → `currentProgram`. Layout, top to bottom:
+
 1. **Program header** — program name (h1), a **type badge** (Stamp / Lucky / Sprout), the reward line, and an **Edit** link (`/setup?edit=<id>`); if the vendor has >1 program, a **switcher** (a `<select>` or segmented control of their programs → navigates `/dashboard?p=<id>`); a **"New program"** link (gated affordance).
 2. **Serve a customer** — ONE flow that merges today's stamp form + look-up: identify a customer (type phone or **Scan**), then act — stamp/play/water AND, when their card is full, **Redeem** — from the same result card. (Fold `card-lookup` behavior into the per-type form's result; the separate "Look up a card" box goes away.)
 3. **Your customer card** — the shipped link + printable QR panel (scoped to the current program).
@@ -72,5 +75,6 @@ Add a small **Pro** control to the existing loopkit `/admin` (built in 0003): li
 - **Phase C — admin Pro toggle** (nice-to-have; SQL works meanwhile).
 
 ## Open decisions (resolve in plan)
+
 - Merged flow: keep `card-lookup` as the identify-first entry and add stamp/play/water to its result, or extend each type form to also expose Redeem when full. (Lean: one `ServeCustomer` component that identifies once, shows the card via `getProgress`, then offers the type action + Redeem.)
 - Free limit constant (1) — confirm 1, not 2.

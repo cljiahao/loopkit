@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { saveProgramAction } from "@/app/setup/actions";
 import type { Program } from "@/lib/program";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ export function SetupForm({
   program: Program | null;
   isEdit: boolean;
 }) {
+  const [state, formAction, pending] = useActionState(saveProgramAction, {});
   const initialType: ProgramType =
     program?.type === "lucky" || program?.type === "plant"
       ? program.type
@@ -35,7 +36,8 @@ export function SetupForm({
     config.stages?.[config.stages.length - 1]?.threshold ?? 6;
 
   return (
-    <form action={saveProgramAction} className="mt-7 space-y-5">
+    <form action={formAction} className="mt-7 space-y-5">
+      {program ? <input type="hidden" name="id" value={program.id} /> : null}
       <div className="space-y-2">
         <Label className={labelClass}>Card type</Label>
         <div className="grid grid-cols-3 gap-2">
@@ -177,9 +179,14 @@ export function SetupForm({
         />
       </div>
 
+      {state.error ? (
+        <p className="text-sm font-medium text-destructive">{state.error}</p>
+      ) : null}
+
       <Button
         type="submit"
         size="lg"
+        disabled={pending}
         className="h-12 w-full rounded-xl text-base font-semibold"
       >
         {isEdit ? "Save changes" : "Create card"}

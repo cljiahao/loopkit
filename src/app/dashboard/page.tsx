@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { Gift, Stamp } from "lucide-react";
 import { requireVendor } from "@/lib/auth";
-import { getProgram } from "@/lib/program";
+import { listPrograms, currentProgram } from "@/lib/program";
 import { formatSgtDateTime } from "@/lib/format";
 import { qrSvg } from "@/lib/qr";
 import { createServerClient } from "@/lib/supabase/server";
@@ -11,10 +12,16 @@ import { PlantForm } from "@/app/dashboard/plant-form";
 import { CardLookup } from "@/app/dashboard/card-lookup";
 import { CardLinkActions } from "@/app/dashboard/card-link";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ p?: string }>;
+}) {
   await requireVendor();
 
-  const program = await getProgram();
+  const programs = await listPrograms();
+  const { p } = await searchParams;
+  const program = currentProgram(programs, p);
   if (!program) redirect("/setup");
 
   const isLucky = program.type === "lucky";
@@ -26,36 +33,77 @@ export default async function DashboardPage() {
   const cardQr = await qrSvg(cardLink);
 
   const supabase = await createServerClient();
-  // RLS (events_own) already scopes this to the signed-in vendor's cards.
-  const { data: events } = await supabase
-    .from("stamp_events")
-    .select("id,kind,payload,created_at,card_id")
-    .order("created_at", { ascending: false })
-    .limit(10);
-
-  // Resolve each event's card phone in one follow-up read (cards_own scopes it
-  // to this vendor). A join keeps the activity rows meaningful — which customer.
-  const cardIds = [...new Set((events ?? []).map((e) => e.card_id))];
+  // Scope recent activity to the current program's cards (cards_own already
+  // limits this to the signed-in vendor). Reading the cards first also gives us
+  // the phone map the activity list needs.
+  const { data: cards } = await supabase
+    .from("cards")
+    .select("id,phone")
+    .eq("program_id", program.id);
   const phoneByCardId = new Map<string, string>();
-  if (cardIds.length) {
-    const { data: cards } = await supabase
-      .from("cards")
-      .select("id,phone")
-      .in("id", cardIds);
-    for (const c of cards ?? []) phoneByCardId.set(c.id, c.phone);
-  }
+  const cardIds = (cards ?? []).map((c) => c.id);
+  for (const c of cards ?? []) phoneByCardId.set(c.id, c.phone);
+
+  const events =
+    cardIds.length > 0
+      ? (
+          await supabase
+            .from("stamp_events")
+            .select("id,kind,payload,created_at,card_id")
+            .in("card_id", cardIds)
+            .order("created_at", { ascending: false })
+            .limit(10)
+        ).data
+      : [];
 
   return (
     <main className="mx-auto max-w-2xl space-y-8 p-5 py-10">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{program.name}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {isLucky
-            ? `Every visit has a ${Math.round((config.win_probability ?? 0) * 100)}% chance to win ${program.reward_text}`
-            : isPlant
-              ? `Water it ${program.stamps_required} times to bloom ${program.reward_text}`
-              : `Buy ${program.stamps_required}, get 1 ${program.reward_text}`}
-        </p>
+        {programs.length > 1 ? (
+          <form
+            action="/dashboard"
+            method="get"
+            className="mb-4 flex items-center gap-2"
+          >
+            <select
+              name="p"
+              defaultValue={program.id}
+              className="h-9 flex-1 rounded-lg border bg-card px-3 text-sm"
+            >
+              {programs.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="h-9 rounded-lg border px-4 text-sm font-medium hover:bg-muted/50"
+            >
+              Switch
+            </button>
+          </form>
+        ) : null}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight">
+              {program.name}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {isLucky
+                ? `Every visit has a ${Math.round((config.win_probability ?? 0) * 100)}% chance to win ${program.reward_text}`
+                : isPlant
+                  ? `Water it ${program.stamps_required} times to bloom ${program.reward_text}`
+                  : `Buy ${program.stamps_required}, get 1 ${program.reward_text}`}
+            </p>
+          </div>
+          <Link
+            href={`/setup?edit=${program.id}`}
+            className="shrink-0 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            Edit
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-2xl border bg-card p-6 shadow-sm">
@@ -68,11 +116,14 @@ export default async function DashboardPage() {
         </h2>
         <div className="mt-4">
           {isLucky ? (
-            <LuckyForm />
+            <LuckyForm programId={program.id} />
           ) : isPlant ? (
-            <PlantForm />
+            <PlantForm programId={program.id} />
           ) : (
-            <StampForm stampsRequired={program.stamps_required} />
+            <StampForm
+              programId={program.id}
+              stampsRequired={program.stamps_required}
+            />
           )}
         </div>
       </div>
@@ -108,7 +159,10 @@ export default async function DashboardPage() {
           adding a stamp.
         </p>
         <div className="mt-4">
-          <CardLookup stampsRequired={program.stamps_required} />
+          <CardLookup
+            programId={program.id}
+            stampsRequired={program.stamps_required}
+          />
         </div>
       </div>
 

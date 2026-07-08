@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireVendor } from "@/lib/auth";
-import { getProgram } from "@/lib/program";
+import { getProgramById } from "@/lib/program";
 import { normalizePhone } from "@/lib/phone";
 import { rewardReady } from "@/lib/loyalty";
 import { applyVisit, getProgress } from "@/lib/engine";
@@ -20,11 +20,19 @@ import type { StampCard } from "@/app/dashboard/card";
 
 type CardResult = ActionResult<{ card: StampCard; rewardReady: boolean }>;
 
+// Resolve which of the vendor's programs a counter form is acting on. The form
+// carries the current program's id in a hidden input; getProgramById is
+// RLS-scoped, so a vendor can only ever resolve their own programs.
+async function programFromForm(formData: FormData) {
+  const id = String(formData.get("program_id") ?? "").trim();
+  return id ? getProgramById(id) : null;
+}
+
 // Add a stamp to the phone's card (capped at the requirement by add_stamp).
 export async function stampAction(formData: FormData): Promise<CardResult> {
   await requireVendor();
 
-  const program = await getProgram();
+  const program = await programFromForm(formData);
   if (!program) {
     return { success: false, error: "Set up your card first." };
   }
@@ -67,7 +75,7 @@ export async function recordVisitAction(
   formData: FormData,
 ): Promise<VisitResult> {
   await requireVendor();
-  const program = await getProgram();
+  const program = await programFromForm(formData);
   if (!program) return { success: false, error: "Set up your card first." };
   const normalized = normalizePhone(String(formData.get("phone") ?? ""));
   if (!normalized.ok) {
@@ -125,7 +133,7 @@ export async function redeemPlantAction(
   formData: FormData,
 ): Promise<ActionResult<{ phone: string }>> {
   await requireVendor();
-  const program = await getProgram();
+  const program = await programFromForm(formData);
   if (!program) return { success: false, error: "Set up your card first." };
   const normalized = normalizePhone(String(formData.get("phone") ?? ""));
   if (!normalized.ok) {
@@ -191,7 +199,7 @@ export async function resolveTokenAction(
 export async function lookupAction(formData: FormData): Promise<CardResult> {
   await requireVendor();
 
-  const program = await getProgram();
+  const program = await programFromForm(formData);
   if (!program) {
     return { success: false, error: "Set up your card first." };
   }

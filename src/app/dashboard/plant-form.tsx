@@ -38,7 +38,7 @@ type WaterResult = {
   rewardUnlocked: boolean;
 };
 
-export function PlantForm() {
+export function PlantForm({ programId }: { programId: string }) {
   const router = useRouter();
   const { pending, run } = useAsyncAction();
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -80,6 +80,7 @@ export function PlantForm() {
     run(async () => {
       const fd = new FormData();
       fd.set("phone", result.phone);
+      fd.set("program_id", programId);
       const res = await redeemPlantAction(fd);
       if (!res.success) {
         toast.error(res.error);
@@ -95,6 +96,7 @@ export function PlantForm() {
   return (
     <div className="space-y-4">
       <form ref={formRef} onSubmit={onSubmit} className="flex items-end gap-3">
+        <input type="hidden" name="program_id" value={programId} />
         <div className="flex-1 space-y-2">
           <Label
             htmlFor="phone"

@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function CardLookup({ stampsRequired }: { stampsRequired: number }) {
+export function CardLookup({
+  programId,
+  stampsRequired,
+}: {
+  programId: string;
+  stampsRequired: number;
+}) {
   const { pending, run } = useAsyncAction();
   const [card, setCard] = useState<StampCard | null>(null);
   const [rewardReady, setRewardReady] = useState(false);
@@ -33,6 +39,7 @@ export function CardLookup({ stampsRequired }: { stampsRequired: number }) {
   return (
     <div className="space-y-4">
       <form onSubmit={onSubmit} className="flex items-end gap-3">
+        <input type="hidden" name="program_id" value={programId} />
         <div className="flex-1 space-y-2">
           <Label
             htmlFor="lookup-phone"

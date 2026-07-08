@@ -28,7 +28,7 @@ describe("StampForm", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("renders the phone input and Add stamp button", () => {
-    render(<StampForm stampsRequired={10} />);
+    render(<StampForm programId="prog-1" stampsRequired={10} />);
     expect(screen.getByLabelText("Customer phone")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add stamp" }),
@@ -42,7 +42,7 @@ describe("StampForm", () => {
       rewardReady: false,
     });
     const user = userEvent.setup();
-    render(<StampForm stampsRequired={10} />);
+    render(<StampForm programId="prog-1" stampsRequired={10} />);
     const input = screen.getByLabelText("Customer phone") as HTMLInputElement;
     await user.type(input, "91234567");
     await user.click(screen.getByRole("button", { name: "Add stamp" }));
@@ -60,7 +60,7 @@ describe("StampForm", () => {
       rewardReady: true,
     });
     const user = userEvent.setup();
-    render(<StampForm stampsRequired={10} />);
+    render(<StampForm programId="prog-1" stampsRequired={10} />);
     await user.type(screen.getByLabelText("Customer phone"), "91234567");
     await user.click(screen.getByRole("button", { name: "Add stamp" }));
 
@@ -73,7 +73,7 @@ describe("StampForm", () => {
   it("toasts an error and shows no card on failure", async () => {
     stampMock.mockResolvedValue({ success: false, error: "Bad number." });
     const user = userEvent.setup();
-    render(<StampForm stampsRequired={10} />);
+    render(<StampForm programId="prog-1" stampsRequired={10} />);
     await user.type(screen.getByLabelText("Customer phone"), "91234567");
     await user.click(screen.getByRole("button", { name: "Add stamp" }));
 

@@ -33,6 +33,20 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      and `card_view` functions behind the customer `/c` page, and the owner-
      gated `card_by_token` for the Phase 3b vendor scan). No direct anon table
      access; existing rows are backfilled with distinct tokens on add.
+   - apply `0007_loopkit_multiprogram.sql` (drops the one-program-per-vendor
+     unique constraint so a vendor can own many programs, indexes
+     `programs.vendor_id`, and adds the `vendor_pro` Pro allow-list + the
+     `is_pro` SECURITY DEFINER predicate). The free/Pro limit — free = 1
+     program, Pro = unlimited — is enforced in the `/setup` create action, not
+     in SQL. Safe to re-run; existing single-program vendors stay valid.
+
+     **Grant a vendor Pro (admin/SQL only; no self-serve billing yet).** Find
+     the vendor's id under Authentication → Users, then in the SQL Editor run:
+
+     ```sql
+     insert into loopkit.vendor_pro (vendor_id) values ('<VENDOR_AUTH_USER_ID>');
+     ```
+
    - **Bootstrap the first admin.** The `/admin` console 404s until your auth
      user is in `loopkit.admins` — there is no self-serve UI. Sign in once so the
      account exists, find its id under Authentication → Users, then in the SQL

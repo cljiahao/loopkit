@@ -12,7 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function StampForm({ stampsRequired }: { stampsRequired: number }) {
+export function StampForm({
+  programId,
+  stampsRequired,
+}: {
+  programId: string;
+  stampsRequired: number;
+}) {
   const router = useRouter();
   const { pending, run } = useAsyncAction();
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -47,6 +53,7 @@ export function StampForm({ stampsRequired }: { stampsRequired: number }) {
   return (
     <div className="space-y-4">
       <form ref={formRef} onSubmit={onSubmit} className="flex items-end gap-3">
+        <input type="hidden" name="program_id" value={programId} />
         <div className="flex-1 space-y-2">
           <Label
             htmlFor="phone"

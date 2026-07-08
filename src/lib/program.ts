@@ -1,6 +1,10 @@
 import { z } from "zod";
+import { requireVendor } from "@/lib/auth";
 import { createServerClient } from "@/lib/supabase/server";
 import type { PlantConfig } from "@/lib/engine/plant";
+
+const PROGRAM_COLUMNS =
+  "id,name,stamps_required,reward_text,type,config,active";
 
 export type Program = {
   id: string;
@@ -70,15 +74,66 @@ export function buildPlantConfig(
   };
 }
 
-// The signed-in vendor's program, or null if they haven't set one up yet.
-// RLS (programs_own) scopes the select to auth.uid(), so no vendor_id filter
-// is needed here — and a vendor has at most one program (unique vendor_id).
-export async function getProgram(): Promise<Program | null> {
+// Every program the signed-in vendor owns, oldest first. RLS (programs_own)
+// scopes the select to auth.uid(), so no vendor_id filter is needed here.
+export async function listPrograms(): Promise<Program[]> {
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("programs")
-    .select("id,name,stamps_required,reward_text,type,config,active")
+    .select(PROGRAM_COLUMNS)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(`listPrograms: ${error.message}`);
+  return data ?? [];
+}
+
+// One of the vendor's programs by id, or null if it does not exist or is not
+// theirs — RLS (programs_own) hides other vendors' rows, so an unowned id
+// resolves to null rather than leaking.
+export async function getProgramById(id: string): Promise<Program | null> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("programs")
+    .select(PROGRAM_COLUMNS)
+    .eq("id", id)
     .maybeSingle();
-  if (error) throw new Error(`getProgram: ${error.message}`);
+  if (error) throw new Error(`getProgramById: ${error.message}`);
   return data;
+}
+
+// Pure: pick the current program — the requested id when the vendor owns it,
+// else the first program, else null (no programs yet).
+export function currentProgram(
+  programs: Program[],
+  requestedId?: string,
+): Program | null {
+  if (requestedId) {
+    const match = programs.find((p) => p.id === requestedId);
+    if (match) return match;
+  }
+  return programs[0] ?? null;
+}
+
+// Pure: free vendors get one program; Pro vendors are unlimited.
+export function canCreateProgram(count: number, pro: boolean): boolean {
+  return pro || count < 1;
+}
+
+// Whether the signed-in vendor is on the Pro tier (present in vendor_pro).
+export async function isPro(): Promise<boolean> {
+  const { user } = await requireVendor();
+  const supabase = await createServerClient();
+  const { data } = await supabase
+    .from("vendor_pro")
+    .select("vendor_id")
+    .eq("vendor_id", user.id)
+    .maybeSingle();
+  return !!data;
+}
+
+// Transitional single-program shim (= first program). Retained only for callers
+// that still assume one program (e.g. /dashboard/customers); prefer the
+// list/current pair for anything program-scoped.
+export async function getProgram(): Promise<Program | null> {
+  const programs = await listPrograms();
+  return programs[0] ?? null;
 }

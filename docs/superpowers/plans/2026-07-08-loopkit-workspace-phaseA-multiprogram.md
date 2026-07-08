@@ -72,6 +72,7 @@ Note: confirm the exact unique-constraint name in `0001` (Postgres auto-names `<
 **Files:** Modify `src/lib/program.ts`; Test `test/lib/program-access.test.ts`.
 
 **Interfaces:**
+
 - `listPrograms(): Promise<Program[]>` — the vendor's programs (RLS-scoped), ordered by `created_at`.
 - `getProgramById(id: string): Promise<Program | null>` — one, RLS-scoped.
 - `currentProgram(programs: Program[], requestedId?: string): Program | null` — pure: the requested-and-owned program, else `programs[0] ?? null`.

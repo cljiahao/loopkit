@@ -3,14 +3,28 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireVendor } from "@/lib/auth";
-import { saveProgramSchema, buildPlantConfig } from "@/lib/program";
+import {
+  saveProgramSchema,
+  buildPlantConfig,
+  listPrograms,
+  isPro,
+  canCreateProgram,
+} from "@/lib/program";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/types";
 
 type ProgramInsert = Database["loopkit"]["Tables"]["programs"]["Insert"];
 
-export async function saveProgramAction(formData: FormData): Promise<void> {
+export type SaveProgramState = { error?: string };
+
+export async function saveProgramAction(
+  _prev: SaveProgramState,
+  formData: FormData,
+): Promise<SaveProgramState> {
   const { user } = await requireVendor();
+
+  const id = String(formData.get("id") ?? "").trim();
+  const isEdit = id.length > 0;
 
   const parsed = saveProgramSchema.safeParse({
     type: formData.get("type"),
@@ -22,7 +36,7 @@ export async function saveProgramAction(formData: FormData): Promise<void> {
     visits_to_bloom: formData.get("visits_to_bloom"),
   });
   if (!parsed.success) {
-    throw new Error(`Invalid program input: ${parsed.error.message}`);
+    return { error: "Check the card details and try again." };
   }
 
   const data = parsed.data;
@@ -68,13 +82,33 @@ export async function saveProgramAction(formData: FormData): Promise<void> {
   }
 
   const supabase = await createServerClient();
-  // vendor_id is unique — a vendor has exactly one program, so this upsert
-  // both creates the first card and edits it thereafter.
-  const { error } = await supabase
+
+  if (isEdit) {
+    const { error } = await supabase.from("programs").update(row).eq("id", id);
+    if (error) return { error: "Couldn't save your card. Try again." };
+    revalidatePath("/dashboard");
+    redirect(`/dashboard?p=${id}`);
+  }
+
+  // Re-check the free/Pro gate server-side — never trust the client to have
+  // hidden the create form.
+  const programs = await listPrograms();
+  const pro = await isPro();
+  if (!canCreateProgram(programs.length, pro)) {
+    return {
+      error: "You're on the free plan — 1 program. Ask an admin for Pro.",
+    };
+  }
+
+  const { data: created, error } = await supabase
     .from("programs")
-    .upsert(row, { onConflict: "vendor_id" });
-  if (error) throw new Error(`saveProgramAction: ${error.message}`);
+    .insert(row)
+    .select("id")
+    .single();
+  if (error || !created) {
+    return { error: "Couldn't create your card. Try again." };
+  }
 
   revalidatePath("/dashboard");
-  redirect("/dashboard");
+  redirect(`/dashboard?p=${created.id}`);
 }

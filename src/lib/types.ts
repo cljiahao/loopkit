@@ -154,6 +154,21 @@ export interface Database {
         };
         Relationships: [];
       };
+      vendor_pro: {
+        Row: {
+          vendor_id: string;
+          created_at: string;
+        };
+        Insert: {
+          vendor_id: string;
+          created_at?: string;
+        };
+        Update: {
+          vendor_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -213,6 +228,10 @@ export interface Database {
         }[];
       };
       is_admin: {
+        Args: { p_uid: string };
+        Returns: boolean;
+      };
+      is_pro: {
         Args: { p_uid: string };
         Returns: boolean;
       };
