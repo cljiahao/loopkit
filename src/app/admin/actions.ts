@@ -72,6 +72,51 @@ export async function setProgramActive(
   return { success: true };
 }
 
+const setVendorProSchema = z.object({
+  vendorId: z.string().uuid(),
+  pro: z.enum(["true", "false"]).transform((v) => v === "true"),
+});
+
+/**
+ * Grant or revoke a vendor's Pro tier. Admin-only: requireAdmin() 404s
+ * non-admins first. Pro membership is presence in vendor_pro, so granting is an
+ * upsert and revoking a delete, both via the service-role client (allowed in
+ * Server Actions) since RLS scopes vendor_pro reads to the owner or an admin.
+ */
+export async function setVendorPro(formData: FormData): Promise<ActionResult> {
+  const { user } = await requireAdmin();
+
+  const parsed = setVendorProSchema.safeParse({
+    vendorId: formData.get("vendorId"),
+    pro: formData.get("pro"),
+  });
+  if (!parsed.success) return { success: false, error: "Invalid input" };
+
+  const supabase = await createServiceClient();
+  const { error } = parsed.data.pro
+    ? await supabase
+        .from("vendor_pro")
+        .upsert(
+          { vendor_id: parsed.data.vendorId },
+          { onConflict: "vendor_id" },
+        )
+    : await supabase
+        .from("vendor_pro")
+        .delete()
+        .eq("vendor_id", parsed.data.vendorId);
+  if (error) {
+    console.error("setVendorPro failed", error.message);
+    return { success: false, error: "Could not update Pro status" };
+  }
+
+  await recordAudit(user.id, "set_vendor_pro", parsed.data.vendorId, {
+    pro: parsed.data.pro,
+  });
+
+  revalidatePath("/admin/vendors");
+  return { success: true };
+}
+
 const removeCardSchema = z.object({ cardId: z.string().uuid() });
 
 /**

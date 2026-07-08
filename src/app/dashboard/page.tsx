@@ -6,11 +6,9 @@ import { listPrograms, currentProgram } from "@/lib/program";
 import { formatSgtDateTime } from "@/lib/format";
 import { qrSvg } from "@/lib/qr";
 import { createServerClient } from "@/lib/supabase/server";
-import { StampForm } from "@/app/dashboard/stamp-form";
-import { LuckyForm } from "@/app/dashboard/lucky-form";
-import { PlantForm } from "@/app/dashboard/plant-form";
-import { CardLookup } from "@/app/dashboard/card-lookup";
+import { ServeCustomer } from "@/app/dashboard/serve-customer";
 import { CardLinkActions } from "@/app/dashboard/card-link";
+import { Badge } from "@/components/ui/badge";
 
 export default async function DashboardPage({
   searchParams,
@@ -26,6 +24,11 @@ export default async function DashboardPage({
 
   const isLucky = program.type === "lucky";
   const isPlant = program.type === "plant";
+  const typeBadge = isLucky
+    ? { label: "Lucky Tap", variant: "default" as const }
+    : isPlant
+      ? { label: "Sprout", variant: "gold" as const }
+      : { label: "Stamp", variant: "default" as const };
   const config = (program.config ?? {}) as { win_probability?: number };
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "";
@@ -86,9 +89,12 @@ export default async function DashboardPage({
         ) : null}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">
-              {program.name}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">
+                {program.name}
+              </h1>
+              <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {isLucky
                 ? `Every visit has a ${Math.round((config.win_probability ?? 0) * 100)}% chance to win ${program.reward_text}`
@@ -108,23 +114,20 @@ export default async function DashboardPage({
 
       <div className="rounded-2xl border bg-card p-6 shadow-sm">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          {isLucky
-            ? "Play a round"
-            : isPlant
-              ? "Water a plant"
-              : "Stamp a customer"}
+          Serve a customer
         </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Enter a phone or scan the customer&apos;s QR, then{" "}
+          {isLucky ? "play" : isPlant ? "water" : "add a stamp"} — or look up a
+          card to check progress and redeem without acting.
+        </p>
         <div className="mt-4">
-          {isLucky ? (
-            <LuckyForm programId={program.id} />
-          ) : isPlant ? (
-            <PlantForm programId={program.id} />
-          ) : (
-            <StampForm
-              programId={program.id}
-              stampsRequired={program.stamps_required}
-            />
-          )}
+          <ServeCustomer
+            programId={program.id}
+            type={program.type}
+            stampsRequired={program.stamps_required}
+            rewardText={program.reward_text}
+          />
         </div>
       </div>
 
@@ -147,22 +150,6 @@ export default async function DashboardPage({
             </code>
             <CardLinkActions link={cardLink} />
           </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border bg-card p-6 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Look up a card
-        </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Check a customer&apos;s progress and redeem a full card — without
-          adding a stamp.
-        </p>
-        <div className="mt-4">
-          <CardLookup
-            programId={program.id}
-            stampsRequired={program.stamps_required}
-          />
         </div>
       </div>
 

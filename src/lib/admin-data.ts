@@ -31,6 +31,13 @@ export type ActivityRow = {
   program_name: string | null;
 };
 
+export type VendorRow = {
+  vendor_id: string;
+  email: string | null;
+  program_count: number;
+  is_pro: boolean;
+};
+
 export type ProgramDetail = {
   program: {
     id: string;
@@ -111,6 +118,39 @@ export async function listProgramsOverview(): Promise<ProgramOverviewRow[]> {
     last_activity_at: lastActivity.get(p.id) ?? null,
     created_at: p.created_at,
   }));
+}
+
+/**
+ * Every vendor that owns at least one program, with their email, program count,
+ * and Pro status — for the admin Make-Pro table. Service-role reads over the
+ * flat programs + vendor_pro tables; identity resolved via the admin API.
+ */
+export async function listVendors(): Promise<VendorRow[]> {
+  const supabase = await createServiceClient();
+  const [programsRes, proRes] = await Promise.all([
+    supabase.from("programs").select("vendor_id"),
+    supabase.from("vendor_pro").select("vendor_id"),
+  ]);
+  for (const r of [programsRes, proRes]) {
+    if (r.error) throw new Error(`listVendors: ${r.error.message}`);
+  }
+  const programs = programsRes.data ?? [];
+  const pro = new Set((proRes.data ?? []).map((p) => p.vendor_id));
+  const emails = await emailByUserId(supabase);
+
+  const counts = new Map<string, number>();
+  for (const p of programs) {
+    counts.set(p.vendor_id, (counts.get(p.vendor_id) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([vendor_id, program_count]) => ({
+      vendor_id,
+      email: emails.get(vendor_id) ?? null,
+      program_count,
+      is_pro: pro.has(vendor_id),
+    }))
+    .sort((a, b) => (a.email ?? "").localeCompare(b.email ?? ""));
 }
 
 /** Platform-wide totals for the overview stat tiles. */

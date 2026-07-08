@@ -20,6 +20,7 @@
 ### Task 1: Program header — type badge
 
 **Files:** `src/app/dashboard/page.tsx`.
+
 - [ ] Add a shadcn `Badge` next to the program name showing the type: `Stamp` / `Lucky Tap` / `Sprout` (map from `program.type`; use the `gold` variant for Sprout, default otherwise). Keep the existing switcher + Edit link + reward subtitle. Green; commit `feat: dashboard program type badge`.
 
 ### Task 2: Merge look-up into one "Serve a customer" card
@@ -36,13 +37,13 @@
 - [ ] Reconcile the actions' return shapes so `ServeCustomer` can render one result card for all three types (stamp returns `{card, rewardReady}`; recordVisit returns `{rewardUnlocked, progress, ...}`; lookup returns `{card, rewardReady}`). If needed, normalize in the component (not the actions). Redeem: stamp/lucky use `redeemAction(card_id)`; plant uses `redeemPlantAction(program_id+phone)` — branch by type.
 - [ ] Update/trim tests touched (the old `stamp-form.test.tsx` may move to a `serve-customer` test or stay if `stamp-form` is retained internally). Green; commit `feat: merge stamp + look-up into one Serve-a-customer flow`.
 
-*Note:* if a full unified component is too large in one pass, an acceptable smaller version is: keep the per-type form as the primary action but add the "Look up" secondary button + shared result into it, and delete the separate look-up section. The requirement that must hold: **no separate "Look up a card" box; look-up + act share one card.**
+_Note:_ if a full unified component is too large in one pass, an acceptable smaller version is: keep the per-type form as the primary action but add the "Look up" secondary button + shared result into it, and delete the separate look-up section. The requirement that must hold: **no separate "Look up a card" box; look-up + act share one card.**
 
 ### Task 3: `/admin` Make-Pro toggle (Phase C)
 
 **Files:** `src/app/admin/programs/page.tsx` or a new `src/app/admin/vendors/page.tsx`; `src/app/admin/actions.ts`; reuse `admin_audit`.
 
-- [ ] Add a vendors view to `/admin`: list distinct `programs.vendor_id` (service-role read) with email (via `supabase.auth.admin.listUsers`), their program count, and Pro status (from `vendor_pro`). 
+- [ ] Add a vendors view to `/admin`: list distinct `programs.vendor_id` (service-role read) with email (via `supabase.auth.admin.listUsers`), their program count, and Pro status (from `vendor_pro`).
 - [ ] Add `setVendorPro(formData: { vendorId, pro })` server action: `requireAdmin` → service-role upsert/delete on `vendor_pro` → `recordAudit(user.id, 'set_vendor_pro', vendorId, {pro})` → `revalidatePath`. An `AlertDialog`-free toggle (a form button per row) + toast is fine (mirrors qkit admin's no-modal style).
 - [ ] Link it from the admin nav (add a "Vendors" tab, or fold into the programs list). Green; commit `feat: admin Make-Pro toggle`.
 
