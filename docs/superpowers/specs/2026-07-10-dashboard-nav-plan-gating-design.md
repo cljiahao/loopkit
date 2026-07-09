@@ -88,6 +88,7 @@ vendor, else inserts one. Same shape as qkit's `requestUpgrade` in
 `ProLock` component (`src/components/pro-lock.tsx`): qkit's exact pattern —
 inline pill, `Lock` icon (lucide), links to `/dashboard/plan`. Wired into two
 existing dead-end spots:
+
 - `src/app/setup/page.tsx`'s free-plan card (currently static text, no link)
 - `src/app/dashboard/profile/page.tsx`'s "Ask an admin for Pro" footer line
 

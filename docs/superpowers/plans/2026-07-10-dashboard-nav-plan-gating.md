@@ -42,9 +42,11 @@
 ### Task 1: Migration — `upgrade_requests` table
 
 **Files:**
+
 - Create: `supabase/migrations/0013_loopkit_upgrade_requests.sql`
 
 **Interfaces:**
+
 - Produces: table `loopkit.upgrade_requests(id uuid, vendor_id uuid, status text, created_at timestamptz)`, consumed by Task 2 (`listPendingUpgradeRequests`), Task 3 (`resolveUpgradeRequest`), and Task 6 (`requestUpgrade`).
 
 - [ ] **Step 1: Write the migration**
@@ -108,9 +110,11 @@ git commit -m "feat: add loopkit.upgrade_requests table for self-serve Pro reque
 ### Task 2: Admin data — list pending upgrade requests
 
 **Files:**
+
 - Modify: `src/lib/admin-data.ts`
 
 **Interfaces:**
+
 - Consumes: `createServiceClient` (existing import in this file), `emailByUserId` (existing helper, same file).
 - Produces: `PendingUpgradeRequest` type `{ id: string; vendor_id: string; email: string | null; created_at: string }`, `listPendingUpgradeRequests(): Promise<PendingUpgradeRequest[]>` — consumed by Task 4 (`admin/vendors/page.tsx`).
 
@@ -169,9 +173,11 @@ git commit -m "feat: add listPendingUpgradeRequests for the admin inbox"
 ### Task 3: Admin action — resolve an upgrade request
 
 **Files:**
+
 - Modify: `src/app/admin/actions.ts`
 
 **Interfaces:**
+
 - Consumes: `requireAdmin`, `createServiceClient`, `ActionResult`, `recordAudit` (all already in this file).
 - Produces: `resolveUpgradeRequest(formData: FormData): Promise<ActionResult>` — consumed by Task 4 (`resolve-upgrade-request-button.tsx`). Takes `FormData` with `requestId` (uuid) and `vendorId` (uuid).
 
@@ -253,10 +259,12 @@ git commit -m "feat: add resolveUpgradeRequest admin action"
 ### Task 4: Admin UI — pending upgrade requests section
 
 **Files:**
+
 - Create: `src/app/admin/vendors/resolve-upgrade-request-button.tsx`
 - Modify: `src/app/admin/vendors/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `resolveUpgradeRequest` (Task 3), `listPendingUpgradeRequests`/`PendingUpgradeRequest` (Task 2), `useAsyncAction` (`src/hooks/use-async-action.ts`), `formatSgtDateTime` (`src/lib/format.ts`).
 - Produces: `ResolveUpgradeRequestButton` component — used only in `admin/vendors/page.tsx`.
 
@@ -443,9 +451,11 @@ git commit -m "feat: show pending upgrade requests on the admin vendors page"
 ### Task 5: `ProLock` component
 
 **Files:**
+
 - Create: `src/components/pro-lock.tsx`
 
 **Interfaces:**
+
 - Consumes: `Link` (next/link), `Lock` (lucide-react), `cn` (`@/lib/utils`).
 - Produces: `ProLock({ label, className }: { label: string; className?: string })` — consumed by Task 7 (`setup/page.tsx`, `profile/page.tsx`).
 
@@ -501,11 +511,13 @@ git commit -m "feat: add ProLock component for Pro-gated feature CTAs"
 ### Task 6: `requestUpgrade` action + Plan page
 
 **Files:**
+
 - Create: `src/app/dashboard/plan/actions.ts`
 - Create: `src/app/dashboard/plan/upgrade-cta.tsx`
 - Create: `src/app/dashboard/plan/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `createServerClient` (`@/lib/supabase/server`), `ActionResult` (`@/lib/action-result`), `requireVendor` (`@/lib/auth`), `isPro` (`@/lib/program`), `useAsyncAction`, `Button`.
 - Produces: `requestUpgrade(): Promise<ActionResult>`, `UpgradeCta` component, `/dashboard/plan` route — Task 8's nav "Plan" link points here.
 
@@ -693,10 +705,12 @@ git commit -m "feat: add /dashboard/plan page with self-serve Pro upgrade reques
 ### Task 7: Wire `ProLock` into setup and profile pages
 
 **Files:**
+
 - Modify: `src/app/setup/page.tsx:107-119`
 - Modify: `src/app/dashboard/profile/page.tsx:54-59`
 
 **Interfaces:**
+
 - Consumes: `ProLock` (Task 5).
 
 - [ ] **Step 1: Replace the dead-end card in `setup/page.tsx`**
@@ -764,11 +778,13 @@ git commit -m "feat: link free-tier limit messages to the plan page via ProLock"
 ### Task 8: Merge `DashboardNav` + `DashboardTabs`
 
 **Files:**
+
 - Delete: `src/app/dashboard/dashboard-tabs.tsx`
 - Rewrite: `src/app/dashboard/dashboard-nav.tsx`
 - Modify: `src/app/dashboard/layout.tsx`
 
 **Interfaces:**
+
 - Consumes: `Program` type (`@/lib/program`), `listPrograms` (`@/lib/program`), `DropdownMenu*` (`@/components/ui/dropdown-menu`), `Wordmark`, `cn`.
 - Produces: `DashboardNav({ signOut, email, tier, programs }: { signOut: () => Promise<void>; email: string; tier: "free" | "pro"; programs: Program[] })` — replaces the old two-prop-set signature; consumed only by `layout.tsx`.
 
@@ -1107,6 +1123,7 @@ Expected: no errors.
 - [ ] **Step 6: Manual verification**
 
 Run: `pnpm dev`, sign in as a vendor with at least one program, and check:
+
 - Desktop (`≥640px`): single bar shows brand, page links (Counter/Customers/Activity/Grow/Plan), account menu. No bottom tab bar.
 - Mobile (`<640px`): brand + account menu visible; burger opens a panel with the page links; closing it (tap burger again or a link) works.
 - With a vendor that has 2+ programs (grant a second program via `/setup`, or check an existing multi-program vendor): program switcher appears next to the brand on desktop and in the mobile panel; switching updates `?p=` and the page content.
@@ -1140,6 +1157,7 @@ Expected: succeeds, `/dashboard/plan` appears in the route list.
 - [ ] **Step 3: Manual click-through**
 
 Using `pnpm dev`:
+
 1. As a free-tier vendor: visit `/setup`, confirm the free-plan card now shows the "Upgrade to Pro" `ProLock` pill instead of dead-end text; click it, land on `/dashboard/plan`; click "Request upgrade", see the success toast.
 2. Visit `/dashboard/profile`, confirm the same `ProLock` pill appears under the free-tier note.
 3. As an admin: visit `/admin/vendors`, confirm the "Pending upgrade requests" section shows the request just filed; click "Grant Pro"; confirm it disappears from pending and the vendor's row now shows the "Pro" badge.
@@ -1153,4 +1171,5 @@ Expected: every step above works with no console errors.
 git add -A
 git commit -m "fix: address issues found in manual verification"
 ```
+
 (Only if Step 3 surfaced fixes — otherwise skip, nothing to commit.)
