@@ -1,6 +1,5 @@
 export type VendorStatus =
-  | { active: true; plan: "free" | "pro" }
-  | { active: false; plan: null };
+  { active: true; plan: "free" | "pro" } | { active: false; plan: null };
 
 /**
  * Neither loopkit.programs nor loopkit.vendor_pro has an email column (both
@@ -18,5 +17,8 @@ export function resolveVendorStatus(
   const user = authUsers.find((u) => u.email?.toLowerCase() === key);
   if (!user) return { active: false, plan: null };
   if (!programVendorIds.includes(user.id)) return { active: false, plan: null };
-  return { active: true, plan: proVendorIds.includes(user.id) ? "pro" : "free" };
+  return {
+    active: true,
+    plan: proVendorIds.includes(user.id) ? "pro" : "free",
+  };
 }
