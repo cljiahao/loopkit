@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import { Check, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { checkStatusAction, regenerateCardAction } from "@/app/c/actions";
 import { STATUS_IDLE } from "@/app/c/status-state";
@@ -9,6 +8,7 @@ import { Plant } from "@/components/plant";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
 import { StreakFlame } from "@/components/streak-flame";
+import { StampDots } from "@/components/stamp-dots";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
 
 export function CheckForm({ programId }: { programId: string }) {
   const [state, formAction, pending] = useActionState(
@@ -122,39 +121,9 @@ export function CheckForm({ programId }: { programId: string }) {
                 />
               )}
             </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {Array.from(
-                { length: view?.kind === "dots" ? view.total : 0 },
-                (_, i) => {
-                  const total = view?.kind === "dots" ? view.total : 0;
-                  const filled = view?.kind === "dots" ? view.filled : 0;
-                  const isReward = i === total - 1;
-                  const stamped = i < filled;
-                  return (
-                    <span
-                      key={i}
-                      aria-hidden="true"
-                      className={cn(
-                        "flex size-7 items-center justify-center rounded-full border-2 text-sm",
-                        isReward
-                          ? "border-gold text-gold-accent"
-                          : stamped
-                            ? "border-transparent bg-gold text-gold-foreground"
-                            : "border-dashed border-muted-foreground/30",
-                      )}
-                    >
-                      {isReward ? (
-                        <Gift className="size-3.5 text-gold" />
-                      ) : stamped ? (
-                        <Check className="size-3.5" />
-                      ) : null}
-                    </span>
-                  );
-                },
-              )}
-            </div>
-          )}
+          ) : view?.kind === "dots" ? (
+            <StampDots filled={view.filled} total={view.total} />
+          ) : null}
           <p className="font-mono text-sm font-medium">{state.label}</p>
           <p className="text-sm text-muted-foreground">
             Reward: {state.reward_text}
