@@ -155,3 +155,58 @@ export async function removeCard(formData: FormData): Promise<ActionResult> {
   revalidatePath(`/admin/programs/${card.program_id}`);
   return { success: true };
 }
+
+const resolveUpgradeRequestSchema = z.object({
+  requestId: z.string().uuid(),
+  vendorId: z.string().uuid(),
+});
+
+/**
+ * Grant a vendor Pro and clear their pending upgrade request in one action —
+ * the admin's "Grant Pro" button on the /admin/vendors pending-requests
+ * section. Admin-only, service-role (RLS scopes vendor_pro/upgrade_requests
+ * reads to the owner or an admin).
+ */
+export async function resolveUpgradeRequest(
+  formData: FormData,
+): Promise<ActionResult> {
+  const { user } = await requireAdmin();
+
+  const parsed = resolveUpgradeRequestSchema.safeParse({
+    requestId: formData.get("requestId"),
+    vendorId: formData.get("vendorId"),
+  });
+  if (!parsed.success) return { success: false, error: "Invalid input" };
+
+  const supabase = await createServiceClient();
+
+  const { error: proError } = await supabase
+    .from("vendor_pro")
+    .upsert({ vendor_id: parsed.data.vendorId }, { onConflict: "vendor_id" });
+  if (proError) {
+    console.error("resolveUpgradeRequest (grant) failed", proError.message);
+    return { success: false, error: "Could not grant Pro" };
+  }
+
+  const { error: resolveError } = await supabase
+    .from("upgrade_requests")
+    .update({ status: "resolved" })
+    .eq("id", parsed.data.requestId);
+  if (resolveError) {
+    console.error(
+      "resolveUpgradeRequest (resolve) failed",
+      resolveError.message,
+    );
+    return {
+      success: false,
+      error: "Granted Pro, but could not clear the request",
+    };
+  }
+
+  await recordAudit(user.id, "resolve_upgrade_request", parsed.data.vendorId, {
+    requestId: parsed.data.requestId,
+  });
+
+  revalidatePath("/admin/vendors");
+  return { success: true };
+}
