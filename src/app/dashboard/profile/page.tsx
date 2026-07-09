@@ -1,6 +1,7 @@
 import { requireVendor } from "@/lib/auth";
 import { listPrograms, isPro } from "@/lib/program";
 import { Badge } from "@/components/ui/badge";
+import { ProLock } from "@/components/pro-lock";
 
 export default async function ProfilePage() {
   const { user } = await requireVendor();
@@ -52,10 +53,12 @@ export default async function ProfilePage() {
         </div>
 
         {!pro && (
-          <p className="border-t pt-4 text-xs text-muted-foreground">
-            Free accounts get one card. Ask an admin for Pro to run more than
-            one loyalty program at a time.
-          </p>
+          <div className="border-t pt-4">
+            <p className="text-xs text-muted-foreground">
+              Free accounts get one card.
+            </p>
+            <ProLock label="Upgrade to Pro" className="mt-2" />
+          </div>
         )}
       </div>
     </main>

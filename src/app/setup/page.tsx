@@ -8,6 +8,7 @@ import {
 } from "@/lib/program";
 import { SetupForm } from "@/app/setup/setup-form";
 import { Wordmark } from "@/components/landing/wordmark";
+import { ProLock } from "@/components/pro-lock";
 
 const typeLabel: Record<string, string> = {
   stamp: "Stamp card",
@@ -112,8 +113,9 @@ export default async function SetupPage({
               </h2>
               <p className="mt-1.5 text-sm text-muted-foreground">
                 You&apos;re on the free plan, which includes one loyalty
-                program. Ask an admin for Pro to add more.
+                program.
               </p>
+              <ProLock label="Upgrade to Pro" className="mt-4" />
             </div>
           </div>
         )}
