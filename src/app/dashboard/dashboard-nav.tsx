@@ -92,7 +92,7 @@ export function DashboardNav({
   const currentProgram = programs.find((prog) => prog.id === p) ?? programs[0];
 
   return (
-    <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
+    <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
       <div className="flex min-w-0 items-center gap-3">
         <Link
           href="/dashboard"
