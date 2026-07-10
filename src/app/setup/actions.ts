@@ -139,7 +139,7 @@ export async function saveProgramAction(
   // the database (SECURITY DEFINER), so a direct PostgREST insert can't bypass it.
   const programs = await listPrograms();
   const pro = await isPro();
-  if (!canCreateProgram(programs.length, pro)) {
+  if (!canCreateProgram(programs.filter((p) => p.active).length, pro)) {
     return { error: UPSELL_ERROR };
   }
 

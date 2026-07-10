@@ -27,7 +27,10 @@ export default async function SetupPage({
   const editing = edit ? currentProgram(programs, edit) : null;
   const isEdit = editing !== null;
   const pro = await isPro();
-  const canCreate = canCreateProgram(programs.length, pro);
+  const canCreate = canCreateProgram(
+    programs.filter((p) => p.active).length,
+    pro,
+  );
   const firstRun = programs.length === 0;
 
   return (

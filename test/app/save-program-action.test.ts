@@ -65,13 +65,26 @@ describe("saveProgramAction (gated create + edit)", () => {
   });
 
   it("blocks a free vendor already at the one-program limit", async () => {
-    listProgramsMock.mockResolvedValue([{ id: "existing" }]);
+    listProgramsMock.mockResolvedValue([{ id: "existing", active: true }]);
     isProMock.mockResolvedValue(false);
 
     const res = await saveProgramAction({}, form(stampFields));
 
     expect(res.error).toMatch(/free plan/i);
     expect(rpcMock).not.toHaveBeenCalled();
+  });
+
+  it("lets a free vendor create when their only program is inactive (mid-migration)", async () => {
+    listProgramsMock.mockResolvedValue([{ id: "retired", active: false }]);
+    isProMock.mockResolvedValue(false);
+
+    await expect(saveProgramAction({}, form(stampFields))).rejects.toThrow(
+      "REDIRECT:/dashboard?p=new-id",
+    );
+    expect(rpcMock).toHaveBeenCalledWith(
+      "create_program",
+      expect.objectContaining({ p_type: "stamp" }),
+    );
   });
 
   it("lets a free vendor create their first program via create_program", async () => {
