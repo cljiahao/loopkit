@@ -12,7 +12,7 @@ import {
   canCreateProgram,
 } from "@/lib/program";
 import { createServerClient } from "@/lib/supabase/server";
-import type { Database, Json } from "@/lib/types";
+import type { Database } from "@/lib/types";
 
 type ProgramUpdate = Database["loopkit"]["Tables"]["programs"]["Update"];
 

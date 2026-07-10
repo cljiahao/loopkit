@@ -190,6 +190,11 @@ export function buildStreakConfig(
   };
 }
 
+// A card's stamps_required column is NOT NULL and 2..20; lucky/wheel/scratch
+// programs reuse the pity ceiling (defaulting to 10 when left unset) and
+// plant programs reuse visits-to-bloom to satisfy it. The type-specific
+// knobs live in the config blob the TypeScript strategy reads.
+//
 // Shared by saveProgramAction (create/edit) and changeTypeAction (Section C
 // of the templates-and-migration design) — the type-to-{type,
 // stampsRequired, config, headStart} mapping is identical in both; this is
