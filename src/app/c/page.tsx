@@ -3,23 +3,28 @@ import { createServerClient } from "@/lib/supabase/server";
 import { CheckForm } from "@/app/c/check-form";
 
 type CheckPageProps = {
-  searchParams: Promise<{ p?: string }>;
+  searchParams: Promise<{ v?: string }>;
 };
 
 export default async function CheckPage({ searchParams }: CheckPageProps) {
-  const { p } = await searchParams;
+  const { v } = await searchParams;
 
-  // Resolve the shop name up front so the customer sees which stall this card
-  // belongs to before they type anything. card_view is SECURITY DEFINER and
-  // public — an empty phone matches no card but still returns the program row.
-  let shopName: string | null = null;
-  if (p) {
+  // Resolve which active programs this vendor runs up front, so the
+  // customer sees what a scan joins before they type anything.
+  // vendor_active_programs is SECURITY DEFINER and public — an unknown
+  // vendor id just returns an empty list.
+  let programs: {
+    id: string;
+    name: string;
+    type: string;
+    reward_text: string;
+  }[] = [];
+  if (v) {
     const supabase = await createServerClient();
-    const { data } = await supabase.rpc("card_view", {
-      p_program: p,
-      p_phone: "",
+    const { data } = await supabase.rpc("vendor_active_programs", {
+      p_vendor: v,
     });
-    shopName = data?.[0]?.name ?? null;
+    programs = data ?? [];
   }
 
   return (
@@ -28,10 +33,12 @@ export default async function CheckPage({ searchParams }: CheckPageProps) {
         <div className="mb-8 text-center">
           <Wordmark className="text-3xl" />
           <h1 className="mt-3 font-display text-2xl font-bold tracking-tight">
-            {shopName ?? "Stamp card"}
+            Loyalty card
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Check your stamp card.
+            {programs.length > 0
+              ? `Join: ${programs.map((p) => p.name).join(", ")}`
+              : "Check your rewards."}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             New here? Enter your phone to join — no app needed.
@@ -39,8 +46,8 @@ export default async function CheckPage({ searchParams }: CheckPageProps) {
         </div>
 
         <div className="rounded-2xl border bg-card px-7 py-9 shadow-sm">
-          {p ? (
-            <CheckForm programId={p} />
+          {v ? (
+            <CheckForm vendorId={v} />
           ) : (
             <p className="text-sm text-muted-foreground">
               Ask the shop for their loyalty link.
