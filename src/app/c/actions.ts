@@ -22,6 +22,7 @@ type VendorJoinRow = {
   expiry_days: number | null;
   cycle_started_at: string | null;
   active: boolean;
+  replaced_by_name: string | null;
 };
 
 // Public card-check action — no auth. The vendor shares /c?v=<vendorId>; the
@@ -99,6 +100,7 @@ export async function checkStatusAction(
         qr,
         expired,
         active: row.active,
+        replacedByName: row.replaced_by_name ?? null,
       };
     }),
   );

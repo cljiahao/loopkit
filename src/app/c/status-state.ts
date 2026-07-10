@@ -13,6 +13,7 @@ export type CardStatus = {
   qr: string;
   expired: boolean;
   active: boolean;
+  replacedByName: string | null;
 };
 
 export type StatusState = {

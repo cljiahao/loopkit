@@ -106,8 +106,9 @@ export function ProgramCardStatus({
       )}
       {!card.active && (
         <p className="text-xs text-muted-foreground">
-          This program is no longer joinable, but you can still redeem what
-          you&apos;ve earned.
+          {card.replacedByName
+            ? `This card is retired — check your rewards again to see your new ${card.replacedByName} card.`
+            : "This program is no longer joinable, but you can still redeem what you've earned."}
         </p>
       )}
       {card.qr && (

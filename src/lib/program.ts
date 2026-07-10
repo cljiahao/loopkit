@@ -1,12 +1,16 @@
 import { z } from "zod";
 import { requireVendor } from "@/lib/auth";
 import { createServerClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/types";
 import type { PlantConfig } from "@/lib/engine/plant";
 import type { ChanceConfig } from "@/lib/engine/chance";
 import type { StreakConfig } from "@/lib/engine/streak";
 
+export type ProgramType =
+  "stamp" | "lucky" | "plant" | "wheel" | "scratch" | "streak";
+
 const PROGRAM_COLUMNS =
-  "id,name,stamps_required,reward_text,type,config,active,expiry_days,head_start";
+  "id,name,stamps_required,reward_text,type,config,active,expiry_days,head_start,replaced_by";
 
 export type Program = {
   id: string;
@@ -18,6 +22,7 @@ export type Program = {
   active: boolean;
   expiry_days?: number | null;
   head_start: boolean;
+  replaced_by: string | null;
 };
 
 export const programInputSchema = z.object({
@@ -185,6 +190,78 @@ export function buildStreakConfig(
     period_days: periodDays,
     target_streak: targetStreak,
     reward_text: rewardText,
+  };
+}
+
+// A card's stamps_required column is NOT NULL and 2..20; lucky/wheel/scratch
+// programs reuse the pity ceiling (defaulting to 10 when left unset) and
+// plant programs reuse visits-to-bloom to satisfy it. The type-specific
+// knobs live in the config blob the TypeScript strategy reads.
+//
+// Shared by saveProgramAction (create/edit) and changeTypeAction (Section C
+// of the templates-and-migration design) — the type-to-{type,
+// stampsRequired, config, headStart} mapping is identical in both; this is
+// the one place it's implemented.
+export function buildProgramFields(data: SaveProgramInput): {
+  type: string;
+  stampsRequired: number;
+  config: Json;
+  headStart: boolean;
+} {
+  if (data.type === "stamp") {
+    return {
+      type: "stamp",
+      stampsRequired: data.stamps_required,
+      headStart: data.head_start,
+      config: {
+        stamps_required: data.stamps_required,
+        reward_text: data.reward_text,
+      },
+    };
+  }
+  if (data.type === "lucky") {
+    return {
+      type: "lucky",
+      stampsRequired: data.pity_ceiling,
+      headStart: false,
+      config: {
+        win_probability: data.win_percent / 100,
+        pity_ceiling: data.pity_ceiling,
+        cooldown_visits: 0,
+        reward_text: data.reward_text,
+      },
+    };
+  }
+  if (data.type === "plant") {
+    return {
+      type: "plant",
+      stampsRequired: data.visits_to_bloom,
+      headStart: data.head_start,
+      config: buildPlantConfig(data.visits_to_bloom, data.reward_text) as Json,
+    };
+  }
+  if (data.type === "streak") {
+    return {
+      type: "streak",
+      stampsRequired: data.target_streak,
+      headStart: data.head_start,
+      config: buildStreakConfig(
+        data.period_days,
+        data.target_streak,
+        data.reward_text,
+      ) as Json,
+    };
+  }
+  return {
+    type: data.type,
+    stampsRequired: data.pity_ceiling ?? 10,
+    headStart: false,
+    config: buildChanceConfig(
+      data.type,
+      data.segments,
+      data.pity_ceiling,
+      data.reward_text,
+    ) as Json,
   };
 }
 

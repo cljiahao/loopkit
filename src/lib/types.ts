@@ -25,6 +25,7 @@ export interface Database {
           active: boolean;
           expiry_days: number | null;
           head_start: boolean;
+          replaced_by: string | null;
           created_at: string;
         };
         Insert: {
@@ -38,6 +39,7 @@ export interface Database {
           active?: boolean;
           expiry_days?: number | null;
           head_start?: boolean;
+          replaced_by?: string | null;
           created_at?: string;
         };
         Update: {
@@ -51,6 +53,7 @@ export interface Database {
           active?: boolean;
           expiry_days?: number | null;
           head_start?: boolean;
+          replaced_by?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -284,6 +287,7 @@ export interface Database {
           expiry_days: number | null;
           cycle_started_at: string | null;
           active: boolean;
+          replaced_by_name: string | null;
         }[];
       };
       card_by_token: {

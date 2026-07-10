@@ -5,16 +5,14 @@ import { redirect } from "next/navigation";
 import { requireVendor } from "@/lib/auth";
 import {
   saveProgramSchema,
-  buildPlantConfig,
-  buildChanceConfig,
-  buildStreakConfig,
+  buildProgramFields,
   getProgramById,
   listPrograms,
   isPro,
   canCreateProgram,
 } from "@/lib/program";
 import { createServerClient } from "@/lib/supabase/server";
-import type { Database, Json } from "@/lib/types";
+import type { Database } from "@/lib/types";
 
 type ProgramUpdate = Database["loopkit"]["Tables"]["programs"]["Update"];
 
@@ -61,57 +59,7 @@ export async function saveProgramAction(
   }
 
   const data = parsed.data;
-  // A card's stamps_required column is NOT NULL and 2..20; lucky/wheel/scratch
-  // programs reuse the pity ceiling (defaulting to 10 when left unset) and
-  // plant programs reuse visits-to-bloom to satisfy it. The type-specific
-  // knobs live in the config blob the TypeScript strategy reads.
-  let type: string;
-  let stampsRequired: number;
-  let config: Json;
-  let headStart: boolean;
-  if (data.type === "stamp") {
-    type = "stamp";
-    stampsRequired = data.stamps_required;
-    headStart = data.head_start;
-    config = {
-      stamps_required: data.stamps_required,
-      reward_text: data.reward_text,
-    };
-  } else if (data.type === "lucky") {
-    type = "lucky";
-    stampsRequired = data.pity_ceiling;
-    headStart = false;
-    config = {
-      win_probability: data.win_percent / 100,
-      pity_ceiling: data.pity_ceiling,
-      cooldown_visits: 0,
-      reward_text: data.reward_text,
-    };
-  } else if (data.type === "plant") {
-    type = "plant";
-    stampsRequired = data.visits_to_bloom;
-    headStart = data.head_start;
-    config = buildPlantConfig(data.visits_to_bloom, data.reward_text) as Json;
-  } else if (data.type === "streak") {
-    type = "streak";
-    stampsRequired = data.target_streak;
-    headStart = data.head_start;
-    config = buildStreakConfig(
-      data.period_days,
-      data.target_streak,
-      data.reward_text,
-    ) as Json;
-  } else {
-    type = data.type;
-    stampsRequired = data.pity_ceiling ?? 10;
-    headStart = false;
-    config = buildChanceConfig(
-      data.type,
-      data.segments,
-      data.pity_ceiling,
-      data.reward_text,
-    ) as Json;
-  }
+  const { type, stampsRequired, config, headStart } = buildProgramFields(data);
 
   const supabase = await createServerClient();
 
@@ -139,7 +87,7 @@ export async function saveProgramAction(
   // the database (SECURITY DEFINER), so a direct PostgREST insert can't bypass it.
   const programs = await listPrograms();
   const pro = await isPro();
-  if (!canCreateProgram(programs.length, pro)) {
+  if (!canCreateProgram(programs.filter((p) => p.active).length, pro)) {
     return { error: UPSELL_ERROR };
   }
 
@@ -161,5 +109,91 @@ export async function saveProgramAction(
   }
 
   revalidatePath("/dashboard");
+  redirect(`/dashboard?p=${created}`);
+}
+
+// Vendor-initiated "change type" flow (templates-and-migration design,
+// Section C): a program's type is immutable in place (see the comment on
+// saveProgramAction above), so migrating means retiring the old program and
+// creating a fresh one — never mutating `type` on an existing row.
+//
+// Order matters: the old program is deactivated BEFORE the new one is
+// created. create_program's plan-cap gate counts only active programs
+// (migration 0016), so deactivating first is what lets a free-tier vendor's
+// single active program be replaced without ever needing a Pro upsell.
+export async function changeTypeAction(
+  _prev: SaveProgramState,
+  formData: FormData,
+): Promise<SaveProgramState> {
+  await requireVendor();
+
+  const replacingId = String(formData.get("replacing") ?? "").trim();
+  const existing = replacingId ? await getProgramById(replacingId) : null;
+  if (!existing) return { error: "Couldn't find that card." };
+
+  const parsed = saveProgramSchema.safeParse({
+    type: formData.get("type"),
+    name: formData.get("name"),
+    stamps_required: formData.get("stamps_required"),
+    reward_text: formData.get("reward_text"),
+    win_percent: formData.get("win_percent"),
+    pity_ceiling: formData.get("pity_ceiling"),
+    visits_to_bloom: formData.get("visits_to_bloom"),
+    segments: formData.get("segments"),
+    period_days: formData.get("period_days"),
+    target_streak: formData.get("target_streak"),
+    expiry_days: formData.get("expiry_days"),
+    head_start: formData.get("head_start"),
+  });
+  if (!parsed.success) {
+    return { error: "Check the card details and try again." };
+  }
+
+  const { type, stampsRequired, config, headStart } = buildProgramFields(
+    parsed.data,
+  );
+
+  const supabase = await createServerClient();
+
+  // 1. Deactivate the old program first (see order note above).
+  const { error: deactivateError } = await supabase
+    .from("programs")
+    .update({ active: false })
+    .eq("id", replacingId);
+  if (deactivateError) {
+    return { error: "Couldn't change your card. Try again." };
+  }
+
+  // 2. Create the new program.
+  const { data: created, error: createError } = await supabase.rpc(
+    "create_program",
+    {
+      p_type: type,
+      p_name: parsed.data.name,
+      p_stamps_required: stampsRequired,
+      p_reward_text: parsed.data.reward_text,
+      p_config: config,
+      p_expiry_days: parsed.data.expiry_days ?? null,
+      p_head_start: headStart,
+    },
+  );
+  if (createError || !created) {
+    // Old program is already deactivated with no replacement yet — not data
+    // loss. The vendor can retry from /setup; the free-tier gate is open
+    // again (active count is back to 0). No saga/rollback machinery, matching
+    // this codebase's existing non-transactional RPC-sequencing pattern.
+    return { error: "Couldn't create the new card. Try again from Setup." };
+  }
+
+  // 3. Link old -> new so vendor_join can tell affected customers. Best
+  // effort: a failure here just means the retired card shows the generic
+  // message (program-card-status.tsx) instead of naming the replacement —
+  // cosmetic, not blocking.
+  await supabase
+    .from("programs")
+    .update({ replaced_by: created })
+    .eq("id", replacingId);
+
+  revalidatePath("/setup");
   redirect(`/dashboard?p=${created}`);
 }

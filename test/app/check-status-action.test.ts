@@ -121,6 +121,7 @@ describe("checkStatusAction", () => {
           qr: '<svg data-token="tok_abc"></svg>',
           expired: false,
           active: true,
+          replacedByName: null,
         },
       ],
     });
@@ -196,6 +197,33 @@ describe("checkStatusAction", () => {
     );
 
     expect(result.cards?.[0].active).toBe(false);
+  });
+
+  it("surfaces the replacement program's name on a retired card", async () => {
+    mockJoin([
+      {
+        program_id: "p1",
+        name: "Old Program",
+        type: "stamp",
+        config: {},
+        state: {},
+        stamp_count: 5,
+        card_token: "tok_1",
+        reward_text: "Free item",
+        stamps_required: 10,
+        expiry_days: null,
+        cycle_started_at: null,
+        active: false,
+        replaced_by_name: "Weekly Regular",
+      },
+    ]);
+
+    const result = await checkStatusAction(
+      STATUS_IDLE,
+      form({ vendor: "v1", phone: "91234567" }),
+    );
+
+    expect(result.cards?.[0].replacedByName).toBe("Weekly Regular");
   });
 
   it("reports expired once a card's expiry window has elapsed", async () => {
