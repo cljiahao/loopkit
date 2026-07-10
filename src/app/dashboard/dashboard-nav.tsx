@@ -22,10 +22,10 @@ const LINKS = [
   { href: "/dashboard", label: "Counter" },
   { href: "/dashboard/customers", label: "Customers" },
   { href: "/dashboard/activity", label: "Activity" },
+  { href: "/dashboard/stats", label: "Stats" },
   { href: "/dashboard/grow", label: "Grow" },
   { href: "/dashboard/plan", label: "Plan" },
 ];
-
 function isActive(path: string, href: string): boolean {
   return href === "/dashboard" ? path === "/dashboard" : path.startsWith(href);
 }
