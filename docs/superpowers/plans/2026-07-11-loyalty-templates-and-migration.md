@@ -119,6 +119,10 @@ grant execute on function loopkit.create_program(text, text, int, text, jsonb, i
 -- vendor_join: surface the replacement program's name for a retired card, so
 -- the customer's card page can say what to use instead of a bare "retired"
 -- notice. Only the projection changes — enrollment/dedup logic is untouched.
+-- Postgres cannot CREATE OR REPLACE a function whose RETURNS TABLE column
+-- list changes (adding replaced_by_name here counts as one) — it errors
+-- "cannot change return type of existing function." Drop it first.
+drop function if exists loopkit.vendor_join(uuid, text);
 create or replace function loopkit.vendor_join(p_vendor uuid, p_phone text)
 returns table (
   program_id uuid, name text, type text, config jsonb, state jsonb,
