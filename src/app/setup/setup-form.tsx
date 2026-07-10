@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveProgramAction } from "@/app/setup/actions";
+import { saveProgramAction, changeTypeAction } from "@/app/setup/actions";
 import type { Program, ProgramType } from "@/lib/program";
+import { TEMPLATES } from "@/lib/templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,11 +31,16 @@ const DEFAULT_SEGMENTS: SegmentInput[] = [
 export function SetupForm({
   program,
   isEdit,
+  replacingId,
 }: {
   program: Program | null;
   isEdit: boolean;
+  replacingId: string | null;
 }) {
-  const [state, formAction, pending] = useActionState(saveProgramAction, {});
+  const [state, formAction, pending] = useActionState(
+    replacingId ? changeTypeAction : saveProgramAction,
+    {},
+  );
   const initialType: ProgramType =
     program?.type === "lucky" ||
     program?.type === "plant" ||
@@ -44,6 +50,26 @@ export function SetupForm({
       ? program.type
       : "stamp";
   const [type, setType] = useState<ProgramType>(initialType);
+  // "template" shows the curated grid (the default for both plain create and
+  // migrate flows); "custom" falls back to today's raw type grid. Only
+  // meaningful when !isEdit — isEdit always shows the locked static label.
+  const [pickerMode, setPickerMode] = useState<"template" | "custom">(
+    "template",
+  );
+  // Which template tile is selected, or null (custom mode, or no pick yet).
+  // prefill is derived from this — never stored separately — so there's one
+  // source of truth for "what did the vendor pick."
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string | null>(
+    null,
+  );
+  const prefill = TEMPLATES.find(
+    (t) => t.key === selectedTemplateKey,
+  )?.defaults;
+  // Changes whenever the template selection changes (including to/from
+  // "custom") — keying prefillable inputs on this forces them to remount
+  // with a fresh defaultValue, since they're uncontrolled.
+  const prefillGeneration = selectedTemplateKey ?? "custom";
+
   const config = (program?.config ?? {}) as {
     win_probability?: number;
     pity_ceiling?: number;
@@ -54,7 +80,9 @@ export function SetupForm({
     target_streak?: number;
   };
   const visitsToBloom =
-    config.stages?.[config.stages.length - 1]?.threshold ?? 6;
+    prefill?.visits_to_bloom ??
+    config.stages?.[config.stages.length - 1]?.threshold ??
+    6;
   const [segments, setSegments] = useState<SegmentInput[]>(
     config.segments?.map((s) => ({
       label: s.label,
@@ -63,6 +91,16 @@ export function SetupForm({
     })) ?? DEFAULT_SEGMENTS,
   );
   const [headStart, setHeadStart] = useState(program?.head_start ?? false);
+
+  function pickTemplate(template: (typeof TEMPLATES)[number]) {
+    setType(template.type);
+    setSelectedTemplateKey(template.key);
+  }
+
+  function pickCustomType(value: ProgramType) {
+    setType(value);
+    setSelectedTemplateKey(null);
+  }
 
   function updateSegment(index: number, patch: Partial<SegmentInput>) {
     setSegments((prev) =>
@@ -84,6 +122,9 @@ export function SetupForm({
   return (
     <form action={formAction} className="mt-7 space-y-5">
       {program ? <input type="hidden" name="id" value={program.id} /> : null}
+      {replacingId ? (
+        <input type="hidden" name="replacing" value={replacingId} />
+      ) : null}
       <div className="space-y-2">
         <Label className={labelClass}>Card type</Label>
         {isEdit ? (
@@ -91,31 +132,70 @@ export function SetupForm({
             {typeLabels[type]}
           </p>
         ) : (
-          <div className="grid grid-cols-3 gap-2">
-            {(
-              [
-                { value: "stamp", label: "Stamp card" },
-                { value: "lucky", label: "Lucky Tap" },
-                { value: "plant", label: "Sprout" },
-                { value: "wheel", label: "Spin the Wheel" },
-                { value: "scratch", label: "Scratch Card" },
-                { value: "streak", label: "Streak Club" },
-              ] as const
-            ).map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setType(option.value)}
-                className={cn(
-                  "h-11 rounded-xl border text-sm font-semibold transition-colors",
-                  type === option.value
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "bg-card text-muted-foreground hover:bg-muted/50",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className="space-y-3">
+            {pickerMode === "template" ? (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  {TEMPLATES.map((template) => (
+                    <button
+                      key={template.key}
+                      type="button"
+                      onClick={() => pickTemplate(template)}
+                      className={cn(
+                        "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
+                        selectedTemplateKey === template.key
+                          ? "border-primary bg-primary/10"
+                          : "bg-card hover:bg-muted/50",
+                      )}
+                    >
+                      <span className="text-sm font-semibold">
+                        {template.label}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {template.description}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPickerMode("custom");
+                    setSelectedTemplateKey(null);
+                  }}
+                  className="h-11 w-full rounded-xl border text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/50"
+                >
+                  Custom — start from scratch
+                </button>
+              </>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    { value: "stamp", label: "Stamp card" },
+                    { value: "lucky", label: "Lucky Tap" },
+                    { value: "plant", label: "Sprout" },
+                    { value: "wheel", label: "Spin the Wheel" },
+                    { value: "scratch", label: "Scratch Card" },
+                    { value: "streak", label: "Streak Club" },
+                  ] as const
+                ).map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => pickCustomType(option.value)}
+                    className={cn(
+                      "h-11 rounded-xl border text-sm font-semibold transition-colors",
+                      type === option.value
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "bg-card text-muted-foreground hover:bg-muted/50",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
         <input type="hidden" name="type" value={type} />
@@ -126,6 +206,7 @@ export function SetupForm({
           Card name
         </Label>
         <Input
+          key={`name-${prefillGeneration}`}
           id="name"
           name="name"
           type="text"
@@ -144,7 +225,7 @@ export function SetupForm({
                       ? "Weekly regular"
                       : "Coffee card"
           }
-          defaultValue={program?.name ?? ""}
+          defaultValue={prefill?.name ?? program?.name ?? ""}
           className="h-11 rounded-xl"
         />
       </div>
@@ -155,6 +236,7 @@ export function SetupForm({
             Stamps required
           </Label>
           <Input
+            key={`stamps_required-${prefillGeneration}`}
             id="stamps_required"
             name="stamps_required"
             type="number"
@@ -162,7 +244,9 @@ export function SetupForm({
             min={2}
             max={20}
             placeholder="10"
-            defaultValue={program?.stamps_required ?? 10}
+            defaultValue={
+              prefill?.stamps_required ?? program?.stamps_required ?? 10
+            }
             className="h-11 rounded-xl"
           />
         </div>
@@ -172,6 +256,7 @@ export function SetupForm({
             Visits to bloom
           </Label>
           <Input
+            key={`visits_to_bloom-${prefillGeneration}`}
             id="visits_to_bloom"
             name="visits_to_bloom"
             type="number"
@@ -190,6 +275,7 @@ export function SetupForm({
               Days per streak window
             </Label>
             <Input
+              key={`period_days-${prefillGeneration}`}
               id="period_days"
               name="period_days"
               type="number"
@@ -197,7 +283,7 @@ export function SetupForm({
               min={1}
               max={30}
               placeholder="7"
-              defaultValue={config.period_days ?? 7}
+              defaultValue={prefill?.period_days ?? config.period_days ?? 7}
               className="h-11 rounded-xl"
             />
           </div>
@@ -206,6 +292,7 @@ export function SetupForm({
               Streak length to earn reward
             </Label>
             <Input
+              key={`target_streak-${prefillGeneration}`}
               id="target_streak"
               name="target_streak"
               type="number"
@@ -213,7 +300,7 @@ export function SetupForm({
               min={2}
               max={20}
               placeholder="4"
-              defaultValue={config.target_streak ?? 4}
+              defaultValue={prefill?.target_streak ?? config.target_streak ?? 4}
               className="h-11 rounded-xl"
             />
           </div>
@@ -311,6 +398,7 @@ export function SetupForm({
               Win chance (%)
             </Label>
             <Input
+              key={`win_percent-${prefillGeneration}`}
               id="win_percent"
               name="win_percent"
               type="number"
@@ -319,9 +407,10 @@ export function SetupForm({
               max={100}
               placeholder="20"
               defaultValue={
-                config.win_probability
+                prefill?.win_percent ??
+                (config.win_probability
                   ? Math.round(config.win_probability * 100)
-                  : 20
+                  : 20)
               }
               className="h-11 rounded-xl"
             />
@@ -331,6 +420,7 @@ export function SetupForm({
               Guaranteed win by
             </Label>
             <Input
+              key={`pity_ceiling-${prefillGeneration}`}
               id="pity_ceiling"
               name="pity_ceiling"
               type="number"
@@ -338,7 +428,7 @@ export function SetupForm({
               min={2}
               max={20}
               placeholder="8"
-              defaultValue={config.pity_ceiling ?? 8}
+              defaultValue={prefill?.pity_ceiling ?? config.pity_ceiling ?? 8}
               className="h-11 rounded-xl"
             />
           </div>
@@ -350,13 +440,19 @@ export function SetupForm({
           Reward
         </Label>
         <Input
+          key={`reward_text-${prefillGeneration}`}
           id="reward_text"
           name="reward_text"
           type="text"
           required
           maxLength={80}
           placeholder="Free kopi"
-          defaultValue={program?.reward_text ?? config.reward_text ?? ""}
+          defaultValue={
+            prefill?.reward_text ??
+            program?.reward_text ??
+            config.reward_text ??
+            ""
+          }
           className="h-11 rounded-xl"
         />
       </div>
@@ -415,7 +511,7 @@ export function SetupForm({
         disabled={pending}
         className="h-12 w-full rounded-xl text-base font-semibold"
       >
-        {isEdit ? "Save changes" : "Create card"}
+        {isEdit ? "Save changes" : replacingId ? "Change type" : "Create card"}
       </Button>
     </form>
   );
