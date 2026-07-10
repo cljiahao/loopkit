@@ -2,13 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { saveProgramAction } from "@/app/setup/actions";
-import type { Program } from "@/lib/program";
+import type { Program, ProgramType } from "@/lib/program";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-
-type ProgramType = "stamp" | "lucky" | "plant" | "wheel" | "scratch" | "streak";
 
 type SegmentInput = { label: string; weight: number; is_reward: boolean };
 

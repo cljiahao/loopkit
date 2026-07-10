@@ -6,6 +6,9 @@ import type { PlantConfig } from "@/lib/engine/plant";
 import type { ChanceConfig } from "@/lib/engine/chance";
 import type { StreakConfig } from "@/lib/engine/streak";
 
+export type ProgramType =
+  "stamp" | "lucky" | "plant" | "wheel" | "scratch" | "streak";
+
 const PROGRAM_COLUMNS =
   "id,name,stamps_required,reward_text,type,config,active,expiry_days,head_start,replaced_by";
 
