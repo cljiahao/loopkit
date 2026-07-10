@@ -68,9 +68,11 @@ export async function saveProgramAction(
   let type: string;
   let stampsRequired: number;
   let config: Json;
+  let headStart: boolean;
   if (data.type === "stamp") {
     type = "stamp";
     stampsRequired = data.stamps_required;
+    headStart = data.head_start;
     config = {
       stamps_required: data.stamps_required,
       reward_text: data.reward_text,
@@ -78,6 +80,7 @@ export async function saveProgramAction(
   } else if (data.type === "lucky") {
     type = "lucky";
     stampsRequired = data.pity_ceiling;
+    headStart = false;
     config = {
       win_probability: data.win_percent / 100,
       pity_ceiling: data.pity_ceiling,
@@ -87,10 +90,12 @@ export async function saveProgramAction(
   } else if (data.type === "plant") {
     type = "plant";
     stampsRequired = data.visits_to_bloom;
+    headStart = data.head_start;
     config = buildPlantConfig(data.visits_to_bloom, data.reward_text) as Json;
   } else if (data.type === "streak") {
     type = "streak";
     stampsRequired = data.target_streak;
+    headStart = data.head_start;
     config = buildStreakConfig(
       data.period_days,
       data.target_streak,
@@ -99,6 +104,7 @@ export async function saveProgramAction(
   } else {
     type = data.type;
     stampsRequired = data.pity_ceiling ?? 10;
+    headStart = false;
     config = buildChanceConfig(
       data.type,
       data.segments,
@@ -117,6 +123,7 @@ export async function saveProgramAction(
       reward_text: data.reward_text,
       config,
       expiry_days: data.expiry_days ?? null,
+      head_start: headStart,
     };
     const { error } = await supabase
       .from("programs")
@@ -143,6 +150,7 @@ export async function saveProgramAction(
     p_reward_text: data.reward_text,
     p_config: config,
     p_expiry_days: data.expiry_days ?? null,
+    p_head_start: headStart,
   });
   if (error) {
     if (error.code === "42501") return { error: UPSELL_ERROR };
