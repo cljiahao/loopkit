@@ -8,6 +8,7 @@ describe("saveProgramSchema", () => {
       name: "Coffee card",
       stamps_required: "10",
       reward_text: "Free kopi",
+      head_start: "false",
     });
     expect(result.success).toBe(true);
   });
@@ -40,6 +41,7 @@ describe("saveProgramSchema", () => {
       name: "Grow-a-kopi",
       reward_text: "Free kopi",
       visits_to_bloom: "6",
+      head_start: "false",
     });
     expect(result.success).toBe(true);
   });
@@ -50,6 +52,7 @@ describe("saveProgramSchema", () => {
       name: "Grow-a-kopi",
       reward_text: "Free kopi",
       visits_to_bloom: "3",
+      head_start: "false",
     });
     expect(result.success).toBe(false);
   });
@@ -60,6 +63,7 @@ describe("saveProgramSchema", () => {
       name: "Grow-a-kopi",
       reward_text: "Free kopi",
       visits_to_bloom: "4",
+      head_start: "false",
     });
     expect(result.success).toBe(true);
   });
@@ -71,6 +75,7 @@ describe("saveProgramSchema", () => {
       reward_text: "Free kopi",
       period_days: "7",
       target_streak: "4",
+      head_start: "false",
     });
     expect(result.success).toBe(true);
   });
@@ -82,6 +87,7 @@ describe("saveProgramSchema", () => {
       reward_text: "Free kopi",
       period_days: "7",
       target_streak: "1",
+      head_start: "false",
     });
     expect(result.success).toBe(false);
   });
