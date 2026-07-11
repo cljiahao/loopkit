@@ -100,7 +100,7 @@ export function DashboardNav({
   const searchParams = useSearchParams();
   const p = searchParams.get("p");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const label = vendorName?.trim() || email;
+  const label = vendorName?.trim() || email.trim().split("@")[0];
 
   const withProgram = (href: string) => (p ? `${href}?p=${p}` : href);
   const currentProgram = programs.find((prog) => prog.id === p) ?? programs[0];

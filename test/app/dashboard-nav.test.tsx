@@ -55,6 +55,22 @@ describe("DashboardNav avatar trigger", () => {
     ).toHaveTextContent("JD");
   });
 
+  it("strips the email domain before deriving initials, not just the local part's own dots", () => {
+    // Regression check: the domain (e.g. "gmail.com") must never contribute
+    // to the initials — only the local part before "@" should be split.
+    render(
+      <DashboardNav
+        {...baseProps}
+        email="jane@gmail.com"
+        vendorName={null}
+        avatarUrl={null}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Account menu" }),
+    ).toHaveTextContent("JA");
+  });
+
   it("renders an avatar image instead of initials when avatarUrl is set", () => {
     render(
       <DashboardNav
