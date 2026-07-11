@@ -72,7 +72,7 @@ export default async function StatsPage({
       {stats.enrolled === 0 ? (
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <p className="text-sm text-muted-foreground">
-            No customers yet — share your QR from the Grow tab to start
+            No customers yet — share your QR from the Counter page to start
             enrolling.
           </p>
         </div>
