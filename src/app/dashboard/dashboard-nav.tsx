@@ -24,7 +24,6 @@ const LINKS = [
   { href: "/dashboard/customers", label: "Customers", scoped: true },
   { href: "/dashboard/activity", label: "Activity", scoped: true },
   { href: "/dashboard/stats", label: "Stats", scoped: true },
-  { href: "/dashboard/grow", label: "Grow", scoped: false },
   { href: "/dashboard/plan", label: "Plan", scoped: true },
 ];
 function isActive(path: string, href: string): boolean {
