@@ -122,6 +122,7 @@ describe("checkStatusAction", () => {
           expired: false,
           active: true,
           replacedByName: null,
+          carriedOverCount: null,
         },
       ],
     });
@@ -224,6 +225,62 @@ describe("checkStatusAction", () => {
     );
 
     expect(result.cards?.[0].replacedByName).toBe("Weekly Regular");
+  });
+
+  it("surfaces how many stamps carried over onto the replacement card", async () => {
+    mockJoin([
+      {
+        program_id: "p1",
+        name: "Old Program",
+        type: "stamp",
+        config: {},
+        state: {},
+        stamp_count: 5,
+        card_token: "tok_1",
+        reward_text: "Free item",
+        stamps_required: 10,
+        expiry_days: null,
+        cycle_started_at: null,
+        active: false,
+        replaced_by_name: "Weekly Regular",
+        replaced_by_stamp_count: 6,
+      },
+    ]);
+
+    const result = await checkStatusAction(
+      STATUS_IDLE,
+      form({ vendor: "v1", phone: "91234567" }),
+    );
+
+    expect(result.cards?.[0].carriedOverCount).toBe(6);
+  });
+
+  it("reports no carried-over count when the replacement card has zero stamps (or none exists)", async () => {
+    mockJoin([
+      {
+        program_id: "p1",
+        name: "Old Program",
+        type: "stamp",
+        config: {},
+        state: {},
+        stamp_count: 5,
+        card_token: "tok_1",
+        reward_text: "Free item",
+        stamps_required: 10,
+        expiry_days: null,
+        cycle_started_at: null,
+        active: false,
+        replaced_by_name: "Weekly Regular",
+        replaced_by_stamp_count: 0,
+      },
+    ]);
+
+    const result = await checkStatusAction(
+      STATUS_IDLE,
+      form({ vendor: "v1", phone: "91234567" }),
+    );
+
+    expect(result.cards?.[0].carriedOverCount).toBeNull();
   });
 
   it("reports expired once a card's expiry window has elapsed", async () => {

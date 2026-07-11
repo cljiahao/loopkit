@@ -23,6 +23,7 @@ type VendorJoinRow = {
   cycle_started_at: string | null;
   active: boolean;
   replaced_by_name: string | null;
+  replaced_by_stamp_count: number | null;
 };
 
 // Public card-check action — no auth. The vendor shares /c?v=<vendorId>; the
@@ -101,6 +102,10 @@ export async function checkStatusAction(
         expired,
         active: row.active,
         replacedByName: row.replaced_by_name ?? null,
+        carriedOverCount:
+          row.replaced_by_stamp_count && row.replaced_by_stamp_count > 0
+            ? row.replaced_by_stamp_count
+            : null,
       };
     }),
   );

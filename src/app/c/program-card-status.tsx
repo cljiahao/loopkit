@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { regenerateCardAction } from "@/app/c/actions";
 import type { CardStatus } from "@/app/c/status-state";
@@ -35,6 +35,34 @@ export function ProgramCardStatus({
   const [regenOpen, setRegenOpen] = useState(false);
   const [regenerating, startRegenerate] = useTransition();
   const view = card.view;
+
+  // Auto-opens once per retired card the first time this customer loads
+  // /c after a vendor migrates its type. "Seen" persists in localStorage,
+  // same no-server-round-trip trust model as regenerateCardAction's local
+  // UX elsewhere on this page — there's no customer auth to key a
+  // server-side "dismissed" flag off of.
+  const [noticeOpen, setNoticeOpen] = useState(false);
+
+  useEffect(() => {
+    if (card.active || !card.replacedByName) return;
+    const key = `loopkit:seen-replaced:${card.programId}`;
+    if (!localStorage.getItem(key)) {
+      // Reading localStorage (an external, non-reactive source) on mount to
+      // seed one-time dialog state — not derivable from props/state, so
+      // this isn't the render-time-derivation case the rule guards against.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setNoticeOpen(true);
+    }
+    // Only re-check when the identity of the retired card changes — not on
+    // every render, and not keyed on active/replacedByName individually
+    // since those don't change without programId also changing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [card.programId]);
+
+  function dismissNotice() {
+    localStorage.setItem(`loopkit:seen-replaced:${card.programId}`, "1");
+    setNoticeOpen(false);
+  }
 
   function confirmRegenerate() {
     startRegenerate(async () => {
@@ -156,6 +184,35 @@ export function ProgramCardStatus({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {card.replacedByName && (
+        <AlertDialog
+          open={noticeOpen}
+          onOpenChange={(open) => {
+            if (!open) dismissNotice();
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {card.name} has a new card: {card.replacedByName}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Your old rewards are still yours to redeem — show the shop this
+                card. Next time you check in, you&apos;ll get the new card
+                automatically.
+                {card.carriedOverCount
+                  ? ` Your ${card.carriedOverCount} stamps carried over.`
+                  : ""}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={dismissNotice}>
+                Got it
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }

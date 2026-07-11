@@ -14,6 +14,7 @@ export type CardStatus = {
   expired: boolean;
   active: boolean;
   replacedByName: string | null;
+  carriedOverCount: number | null;
 };
 
 export type StatusState = {
