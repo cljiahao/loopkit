@@ -75,33 +75,34 @@ ask:
   Building real customer accounts would be new ground for both kits, not a
   port.
 
-## Decision 1 — does the join QR go back to per-program?
+## Decision 1 — does the join QR go back to per-program? **RESOLVED: (a), keep vendor-level**
 
-Three options, not a recommendation baked in:
+Confirmed by Clarence 2026-07-11. Reaffirms yesterday's `50b9e72` decision —
+no change to the join QR. Reasoning that closed it: free tier is capped at
+1 active program, so this only ever affects Pro vendors running 2+ programs;
+loopkit's audience (small SG vendors) is better served by one QR to print
+and stick on the counter than qkit's per-booth model, which exists because
+booths are physically separate locations, not because "loyalty program" and
+"booth" are the same shape of problem; and the thing that actually needed
+per-entity uniqueness — which specific card to stamp — is already solved
+correctly by the existing per-card `card_token` flow. Revisit only if a
+concrete vendor need shows up later (e.g. a specific request for a
+single-program promo QR) — Option (c) below is additive and can be layered
+on then without touching anything built now.
 
-**(a) Keep vendor-level (reaffirm yesterday's decision).** Zero work. A
-customer scans once, sees every active program at that shop. Downside: a
-vendor running several programs (Pro tier) can't print/hand out a QR for
-just one of them — e.g. a promo table for a single seasonal card.
+Options (b) and (c) below are kept for record/future reference, not live
+choices for this implementation pass:
 
-**(b) Revert to per-program join QR**, mirroring qkit's per-booth model. One
-`short_code`-style QR per `programs` row, printed per card. Undoes `50b9e72`
-and the "What does NOT change" line in yesterday's spec — a vendor with 3
-active programs now manages 3 join QRs instead of 1. More granular, more
-vendor overhead, more surface to explain to a small-vendor user who may not
-want to think about "which QR is which."
+**(a) Keep vendor-level — CHOSEN.** Zero work. A customer scans once, sees
+every active program at that shop.
+
+**(b) Revert to per-program join QR**, mirroring qkit's per-booth model. Not
+chosen — see reasoning above.
 
 **(c) Both — vendor-level QR stays as the default/onboarding QR, each
-program additionally gets its own shareable join link/QR** for targeted
-use (e.g. a promo flyer for one card). No regression from today, additive.
-Slightly more surface area to build (need a `programs.join_code` or reuse
-`id`-based route per program) and to explain in the UI (two kinds of QR on
-`/dashboard/grow` or wherever Grow's content moves to — see Decision 3).
-
-No default recommendation stated here — this is squarely a business call
-about how vendors actually want to hand out QRs, and it directly reverses a
-decision made less than 24 hours ago. State explicitly which of (a)/(b)/(c)
-you want before any implementation plan is written for this spec.
+program additionally gets its own shareable join link/QR** for targeted use
+(e.g. a promo flyer for one card). Not chosen now; revisit if a concrete use
+case appears.
 
 ## Decision 2 — customer accounts: full login, or is `card_token` already enough?
 
@@ -160,9 +161,9 @@ as a collapsed/secondary section below "Serve a customer" (e.g. a "Get new
 customers" disclosure or a second card). Drop the `Grow` entry from `LINKS`
 in `dashboard-nav.tsx:26` and delete `src/app/dashboard/grow/`. No RPC/schema
 changes — same `qrSvg(cardLink)` call, same `/c?v=<user.id>` link, just
-relocated. If Decision 1 lands on (b) or (c), this section becomes "your
-join QRs" (plural) instead of one QR — sequence this merge _after_ Decision
-1 is settled so it isn't done twice.
+relocated. Decision 1 resolved to (a) (single vendor-level QR, no change) —
+this merge is a straight one-QR relocation, no plural-QR complication, ready
+to implement as-is.
 
 ## What does NOT change (regardless of Decision 1/2 outcome)
 
@@ -182,14 +183,13 @@ guessing.
 
 ## Open questions for Clarence
 
-1. **Join QR scope** (Decision 1) — (a) keep vendor-level as shipped
-   yesterday, (b) revert to per-program, or (c) both? This directly reverses
-   `50b9e72` if you pick (b) or (c) — confirm that's intentional.
+1. ~~Join QR scope (Decision 1)~~ — **RESOLVED 2026-07-11: (a) keep
+   vendor-level.** See Decision 1 above.
 2. **Customer accounts** (Decision 2) — (a) full login/OTP subsystem, (b)
    keep today's phone-number-is-the-credential model (recommended), or (c)
    a no-auth "feels like an account" middle ground? If you lean (a), what's
    the concrete feature that needs a real authenticated cross-vendor
    customer identity — is it in this dump already or something new?
-3. Does Grow→Counter merge (Decision 3) proceed regardless of how 1/2
-   land, or should it wait until the join-QR scope is settled (recommended,
-   since the section's content — one QR vs. several — depends on Decision 1)?
+3. ~~Does Grow→Counter merge (Decision 3) proceed regardless of how 1/2
+   land~~ — moot now that Decision 1 is resolved; the merge is unblocked
+   and ready to plan whenever Decision 2 (or independently) is greenlit.
