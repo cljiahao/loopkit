@@ -153,6 +153,16 @@ export async function changeTypeAction(
     parsed.data,
   );
 
+  // Belt-and-suspenders: the UI only renders the checkbox when the
+  // predecessor's type and the new type both resolve to "stamp" (Task 3),
+  // but a stray field in the submitted form must never carry the flag
+  // through for a type pairing the RPC's own guard (Task 1) wouldn't have
+  // honored anyway — this keeps the intent visible at the call site too.
+  const carryOverStamps =
+    formData.get("carry_over_stamps") === "true" &&
+    existing.type === "stamp" &&
+    type === "stamp";
+
   const supabase = await createServerClient();
 
   // 1. Deactivate the old program first (see order note above).
@@ -175,6 +185,7 @@ export async function changeTypeAction(
       p_config: config,
       p_expiry_days: parsed.data.expiry_days ?? null,
       p_head_start: headStart,
+      p_carry_over_stamps: carryOverStamps,
     },
   );
   if (createError || !created) {

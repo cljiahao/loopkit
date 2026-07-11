@@ -126,4 +126,43 @@ describe("changeTypeAction", () => {
     expect(fromMock).not.toHaveBeenCalled();
     expect(rpcMock).not.toHaveBeenCalled();
   });
+
+  it("passes carry_over_stamps through on a same-type (stamp -> stamp) migration when ticked", async () => {
+    getProgramByIdMock.mockResolvedValue({ id: "old-id", type: "stamp" });
+
+    await expect(
+      changeTypeAction({}, form({ ...stampFields, carry_over_stamps: "true" })),
+    ).rejects.toThrow("REDIRECT:/dashboard?p=new-id");
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "create_program",
+      expect.objectContaining({ p_carry_over_stamps: true }),
+    );
+  });
+
+  it("ignores carry_over_stamps when the predecessor's type differs from the new type", async () => {
+    getProgramByIdMock.mockResolvedValue({ id: "old-id", type: "wheel" });
+
+    await expect(
+      changeTypeAction({}, form({ ...stampFields, carry_over_stamps: "true" })),
+    ).rejects.toThrow("REDIRECT:/dashboard?p=new-id");
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "create_program",
+      expect.objectContaining({ p_carry_over_stamps: false }),
+    );
+  });
+
+  it("defaults carry_over_stamps to false when not submitted", async () => {
+    getProgramByIdMock.mockResolvedValue({ id: "old-id", type: "stamp" });
+
+    await expect(changeTypeAction({}, form(stampFields))).rejects.toThrow(
+      "REDIRECT:/dashboard?p=new-id",
+    );
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "create_program",
+      expect.objectContaining({ p_carry_over_stamps: false }),
+    );
+  });
 });
