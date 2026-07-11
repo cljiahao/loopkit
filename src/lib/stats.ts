@@ -17,6 +17,11 @@ export type ProgramStats = {
   active: number;
   lapsed: number;
   avgVisitsPerCustomer: number;
+  visitsDelta: number | null;
+  rewardsDelta: number | null;
+  activeDelta: number | null;
+  // wired in Task 3
+  avgDaysBetweenVisits: number | null;
 };
 
 type StatsEvent = {
@@ -82,6 +87,7 @@ export function computeCardStats(
   const enrolled = cards.length;
   const cutoff7d = nowMs - 7 * MS_PER_DAY;
   const cutoff30d = nowMs - 30 * MS_PER_DAY;
+  const cutoff60d = nowMs - 60 * MS_PER_DAY;
 
   const newThisWeek = cards.filter(
     (c) => Date.parse(c.created_at) >= cutoff7d,
@@ -110,6 +116,22 @@ export function computeCardStats(
     (n) => n >= 2,
   ).length;
 
+  const priorVisits30d = activityEvents.filter((e) => {
+    const t = Date.parse(e.created_at);
+    return t >= cutoff60d && t < cutoff30d;
+  }).length;
+
+  const priorRewards30d = rewardEvents.filter((e) => {
+    const t = Date.parse(e.created_at);
+    return t >= cutoff60d && t < cutoff30d;
+  }).length;
+
+  const priorActiveCardIds = new Set<string>();
+  for (const e of activityEvents) {
+    const t = Date.parse(e.created_at);
+    if (t >= cutoff60d && t < cutoff30d) priorActiveCardIds.add(e.card_id);
+  }
+
   return {
     enrolled,
     newThisWeek,
@@ -122,6 +144,10 @@ export function computeCardStats(
     active: activeCardIds.size,
     lapsed: enrolled - activeCardIds.size,
     avgVisitsPerCustomer: enrolled === 0 ? 0 : visitsTotal / enrolled,
+    visitsDelta: pctChange(visits30d, priorVisits30d),
+    rewardsDelta: pctChange(rewards30d, priorRewards30d),
+    activeDelta: pctChange(activeCardIds.size, priorActiveCardIds.size),
+    avgDaysBetweenVisits: null,
   };
 }
 

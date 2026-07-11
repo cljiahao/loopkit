@@ -132,6 +132,57 @@ describe("computeCardStats", () => {
     expect(stats.rewards30d).toBe(0); // the redeem is 35d ago
     expect(stats.newThisWeek).toBe(0); // card enrolled 40d ago
   });
+
+  it("computes prior-period deltas from the 31-60 day window", () => {
+    const cards = [{ id: "c1", created_at: iso(70) }];
+    const activityEvents = [
+      { card_id: "c1", kind: "stamp", created_at: iso(5) }, // current 30d
+      { card_id: "c1", kind: "stamp", created_at: iso(5) }, // current 30d
+      { card_id: "c1", kind: "stamp", created_at: iso(45) }, // prior 31-60d
+    ];
+    const rewardEvents = [
+      { card_id: "c1", kind: "redeem", created_at: iso(5) }, // current 30d
+      { card_id: "c1", kind: "redeem", created_at: iso(45) }, // prior 31-60d
+      { card_id: "c1", kind: "redeem", created_at: iso(45) }, // prior 31-60d
+    ];
+    const stats = computeCardStats(cards, activityEvents, rewardEvents, now);
+
+    expect(stats.visits30d).toBe(2);
+    expect(stats.visitsDelta).toBe(100); // 2 vs prior 1 -> +100%
+    expect(stats.rewards30d).toBe(1);
+    expect(stats.rewardsDelta).toBe(-50); // 1 vs prior 2 -> -50%
+  });
+
+  it("handles events exactly at the 30d/60d boundaries via the half-open interval", () => {
+    const cards = [{ id: "c1", created_at: iso(70) }];
+    // iso(30) === cutoff30d exactly; iso(60) === cutoff60d exactly.
+    const activityEvents = [
+      { card_id: "c1", kind: "stamp", created_at: iso(30) },
+      { card_id: "c1", kind: "stamp", created_at: iso(60) },
+    ];
+    const stats = computeCardStats(cards, activityEvents, [], now);
+
+    // iso(30) is >= cutoff30d, so it lands in the current 30d window (the
+    // existing current-window filter is an inclusive `>=` on cutoff30d).
+    expect(stats.visits30d).toBe(1);
+    // iso(60) falls in the half-open prior interval [cutoff60d, cutoff30d)
+    // since t === cutoff60d satisfies `>=`. iso(30) does NOT land in the
+    // prior window (t === cutoff30d fails the strict `< cutoff30d` check),
+    // so each event lands in exactly one window: no double-counting, no gap.
+    expect(stats.visitsDelta).toBe(0); // current 1 vs prior 1 -> 0% change
+  });
+
+  it("returns null activeDelta/visitsDelta/rewardsDelta when nothing happened in the prior window", () => {
+    const cards = [{ id: "c1", created_at: iso(10) }];
+    const activityEvents = [
+      { card_id: "c1", kind: "stamp", created_at: iso(1) },
+    ];
+    const stats = computeCardStats(cards, activityEvents, [], now);
+
+    expect(stats.visitsDelta).toBeNull(); // prior is 0
+    expect(stats.rewardsDelta).toBeNull();
+    expect(stats.activeDelta).toBeNull();
+  });
 });
 
 describe("pctChange", () => {
