@@ -17,6 +17,13 @@ function Cell({ on }: { on: boolean }) {
   );
 }
 
+const FEATURES = [
+  { label: "Loyalty programs", free: "1", pro: "Unlimited" },
+  { label: "Loyalty card templates", free: true, pro: true },
+  { label: "Change card type", free: true, pro: true },
+  { label: "Stats dashboard", free: true, pro: true },
+] as const;
+
 export default async function PlanPage({
   searchParams,
 }: {
@@ -86,11 +93,20 @@ export default async function PlanPage({
           <span className="text-center">Free</span>
           <span className="text-center">Pro</span>
         </div>
-        <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-5 border-t px-5 py-3 text-sm">
-          <span>Loyalty programs</span>
-          <span className="text-center text-muted-foreground">1</span>
-          <Cell on={true} />
-        </div>
+        {FEATURES.map((f) => (
+          <div
+            key={f.label}
+            className="grid grid-cols-[1fr_auto_auto] items-center gap-x-5 border-t px-5 py-3 text-sm"
+          >
+            <span>{f.label}</span>
+            <span className="text-center text-muted-foreground">
+              {typeof f.free === "string" ? f.free : <Cell on={f.free} />}
+            </span>
+            <span className="text-center">
+              {typeof f.pro === "string" ? f.pro : <Cell on={f.pro} />}
+            </span>
+          </div>
+        ))}
       </div>
     </main>
   );
