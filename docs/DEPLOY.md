@@ -116,6 +116,18 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      `vendor_join` to also surface the replacement card's carried-over
      stamp_count. Safe to re-run.
 
+   - apply `0019_qkit_earn.sql` — adds `loopkit.qkit_earn_config` (vendor's
+     chosen stamp program + on/off toggle), `loopkit.qkit_earn_events`
+     (one-award-per-order idempotency), and `cards.customer_name` (optional
+     name capture alongside the phone-only identity model). Requires merqo's
+     `0008_kit_events.sql` to already be live (see below). Safe to re-run.
+
+   - apply `0020_qkit_earn_functions.sql` — adds `qkit_earn_lookup` and
+     `qkit_earn_commit`, the anonymous-flow SECURITY DEFINER pair backing
+     `/earn`. Gated by `merqo.kit_events` + `qkit_earn_events` instead of
+     `owns_program`, since no vendor session exists on this customer-facing
+     path. Safe to re-run.
+
    - **Optional — rate limiting on the public `/c` surface.** The card-check
      action is throttled per-IP only if an Upstash Redis is configured. Create a
      free Upstash Redis and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
@@ -178,4 +190,15 @@ merqo code change needed.
 
 - Rotate the secret by updating both loopkit's Vercel env and merqo's
   `merqo.products.metrics_secret` for the loopkit row.
-- loopkit never reads another kit's schema; cross-kit data is HTTP-only.
+- Cross-kit data is normally HTTP-only (loopkit never queries another kit's
+  schema from app code). One deliberate exception: the qkit-loopkit
+  auto-award functions below read `merqo.kit_events` directly from inside a
+  SECURITY DEFINER Postgres function — never via a Supabase JS client — since
+  all three kits already share one Postgres instance and a same-DB read
+  avoids an HTTP round-trip for a per-claim verification check.
+- **qkit-loopkit auto-award**: apply `0019_qkit_earn.sql` and
+  `0020_qkit_earn_functions.sql` before deploying the `/earn` page and
+  dashboard setting code (same class as the 0006/0007 notes above — the
+  page reads these tables/functions on every load and will 500 without them).
+  Requires merqo's `0008_kit_events.sql` to already be live (the functions
+  read `merqo.kit_events`).
