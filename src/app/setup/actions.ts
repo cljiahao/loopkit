@@ -10,6 +10,7 @@ import {
   listPrograms,
   isPro,
   canCreateProgram,
+  canPrepProgram,
   getEntitlement,
 } from "@/lib/program";
 import { createServerClient } from "@/lib/supabase/server";
@@ -213,4 +214,141 @@ export async function changeTypeAction(
 
   revalidatePath("/setup");
   redirect(`/dashboard?p=${created}`);
+}
+
+const PREP_UPSELL_ERROR =
+  "You already have a card and a prepped replacement — activate or replace one first.";
+
+// Free-tier prep flow: create a second program that starts inactive
+// (hidden from customers — enroll_card gates on active) alongside the
+// vendor's existing active one. The vendor activates it later via
+// activateProgramAction when ready. Pro doesn't need this action (Pro
+// creates directly active via saveProgramAction, no cap) but isn't
+// blocked from calling it either — canPrepProgram/create_program's
+// p_active=false branch never restricts Pro.
+export async function prepProgramAction(
+  _prev: SaveProgramState,
+  formData: FormData,
+): Promise<SaveProgramState> {
+  await requireVendor();
+
+  const parsed = saveProgramSchema.safeParse({
+    type: formData.get("type"),
+    name: formData.get("name"),
+    stamps_required: formData.get("stamps_required"),
+    reward_text: formData.get("reward_text"),
+    win_percent: formData.get("win_percent"),
+    pity_ceiling: formData.get("pity_ceiling"),
+    visits_to_bloom: formData.get("visits_to_bloom"),
+    segments: formData.get("segments"),
+    period_days: formData.get("period_days"),
+    target_streak: formData.get("target_streak"),
+    expiry_days: formData.get("expiry_days"),
+    head_start: formData.get("head_start"),
+  });
+  if (!parsed.success) {
+    return { error: "Check the card details and try again." };
+  }
+
+  const { type, stampsRequired, config, headStart } = buildProgramFields(
+    parsed.data,
+  );
+
+  const programs = await listPrograms();
+  const pro = await isPro();
+  if (
+    !canPrepProgram(
+      getEntitlement(pro),
+      programs.filter((p) => p.replaced_by === null).length,
+    )
+  ) {
+    return { error: PREP_UPSELL_ERROR };
+  }
+
+  const supabase = await createServerClient();
+  const { data: created, error } = await supabase.rpc("create_program", {
+    p_type: type,
+    p_name: parsed.data.name,
+    p_stamps_required: stampsRequired,
+    p_reward_text: parsed.data.reward_text,
+    p_config: config,
+    p_expiry_days: parsed.data.expiry_days ?? null,
+    p_head_start: headStart,
+    p_active: false,
+  });
+  if (error) {
+    if (error.code === "42501") return { error: PREP_UPSELL_ERROR };
+    return { error: "Couldn't create your card. Try again." };
+  }
+  if (!created) {
+    return { error: "Couldn't create your card. Try again." };
+  }
+
+  revalidatePath("/setup");
+  redirect(`/setup?edit=${created}`);
+}
+
+// Free-tier "flip the switch" action: activates a prepped program,
+// deactivating whatever else is currently active for this vendor (the
+// activate_program RPC, migration 0023, does the actual swap + links the
+// old program(s) to this one via replaced_by).
+export async function activateProgramAction(
+  _prev: SaveProgramState,
+  formData: FormData,
+): Promise<SaveProgramState> {
+  await requireVendor();
+
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return { error: "Couldn't find that card." };
+
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.rpc("activate_program", {
+    p_program: id,
+  });
+  if (error || !data) {
+    return { error: "Couldn't activate that card. Try again." };
+  }
+
+  revalidatePath("/setup");
+  revalidatePath("/dashboard");
+  redirect(`/dashboard?p=${id}`);
+}
+
+// Pro-only scheduled cutover: sets a future date on which `id` retires and
+// hands over to `successor_id`. The schedule_retirement RPC (migration
+// 0023) enforces Pro-only, ownership of both programs, and that both are
+// currently active — this action just surfaces its errors.
+export async function scheduleRetirementAction(
+  _prev: SaveProgramState,
+  formData: FormData,
+): Promise<SaveProgramState> {
+  await requireVendor();
+
+  const id = String(formData.get("id") ?? "").trim();
+  const successorId = String(formData.get("successor_id") ?? "").trim();
+  const dateValue = String(formData.get("date") ?? "").trim();
+  if (!id || !successorId || !dateValue) {
+    return { error: "Pick a successor card and a date." };
+  }
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime()) || date.getTime() <= Date.now()) {
+    return { error: "Pick a date in the future." };
+  }
+
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.rpc("schedule_retirement", {
+    p_program: id,
+    p_successor: successorId,
+    p_date: date.toISOString(),
+  });
+  if (error || !data) {
+    if (error?.code === "42501") {
+      return { error: "Scheduled retirement is a Pro feature." };
+    }
+    return { error: "Couldn't schedule that. Try again." };
+  }
+
+  revalidatePath("/setup");
+  redirect("/setup");
 }

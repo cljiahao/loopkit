@@ -27,6 +27,7 @@ export interface Database {
           head_start: boolean;
           replaced_by: string | null;
           carry_over_stamps: boolean;
+          scheduled_deactivate_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -42,6 +43,7 @@ export interface Database {
           head_start?: boolean;
           replaced_by?: string | null;
           carry_over_stamps?: boolean;
+          scheduled_deactivate_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -57,6 +59,7 @@ export interface Database {
           head_start?: boolean;
           replaced_by?: string | null;
           carry_over_stamps?: boolean;
+          scheduled_deactivate_at?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -336,8 +339,21 @@ export interface Database {
           p_expiry_days?: number | null;
           p_head_start?: boolean;
           p_carry_over_stamps?: boolean;
+          p_active?: boolean;
         };
         Returns: string;
+      };
+      activate_program: {
+        Args: { p_program: string };
+        Returns: Database["loopkit"]["Tables"]["programs"]["Row"];
+      };
+      schedule_retirement: {
+        Args: {
+          p_program: string;
+          p_successor: string;
+          p_date: string;
+        };
+        Returns: Database["loopkit"]["Tables"]["programs"]["Row"];
       };
       enroll_card: {
         Args: { p_program: string; p_phone: string };
