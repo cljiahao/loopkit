@@ -6,6 +6,13 @@ import type { Program } from "@/lib/program";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const labelClass =
   "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
@@ -29,18 +36,18 @@ export function ScheduleRetirementForm({
         <Label htmlFor="successor_id" className={labelClass}>
           Replacement card
         </Label>
-        <select
-          id="successor_id"
-          name="successor_id"
-          required
-          className="h-11 w-full rounded-xl border bg-card px-3 text-sm"
-        >
-          {successors.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+        <Select name="successor_id" required defaultValue={successors[0]?.id}>
+          <SelectTrigger id="successor_id" className="h-11 w-full rounded-xl">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {successors.map((s) => (
+              <SelectItem key={s.id} value={s.id}>
+                {s.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-2">
         <Label htmlFor="date" className={labelClass}>
