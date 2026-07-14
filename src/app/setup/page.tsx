@@ -14,6 +14,7 @@ import { ScheduleRetirementForm } from "@/app/setup/schedule-retirement-form";
 import { activateProgramAction } from "@/app/setup/actions";
 import { Wordmark } from "@/components/landing/wordmark";
 import { ProLock } from "@/components/pro-lock";
+import { BackButton } from "@/components/back-button";
 import { cn } from "@/lib/utils";
 
 const typeLabel: Record<string, string> = {
@@ -78,6 +79,9 @@ export default async function SetupPage({
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-5">
       <div className="w-full">
+        <div className="mb-4">
+          <BackButton href="/dashboard" label="Back to dashboard" />
+        </div>
         <div className="mb-8 text-center">
           <Wordmark className="text-3xl" />
           <h1 className="mt-3 font-display text-2xl font-bold tracking-tight">
