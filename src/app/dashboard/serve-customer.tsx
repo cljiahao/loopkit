@@ -105,11 +105,13 @@ export function ServeCustomer({
   type,
   stampsRequired,
   rewardText,
+  initialPhone,
 }: {
   programId: string;
   type: string;
   stampsRequired: number;
   rewardText: string;
+  initialPhone?: string;
 }) {
   const router = useRouter();
   const { pending, run } = useAsyncAction();
@@ -438,6 +440,7 @@ export function ServeCustomer({
             type="tel"
             required
             placeholder="9123 4567"
+            defaultValue={initialPhone}
             className="h-11 rounded-xl"
           />
         </div>
