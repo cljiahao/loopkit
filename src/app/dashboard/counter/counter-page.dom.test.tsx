@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { redirect } from "next/navigation";
 
 vi.mock("@/lib/auth", () => ({ requireVendor: vi.fn(async () => ({})) }));
 vi.mock("@/lib/program", () => ({
@@ -23,7 +24,12 @@ vi.mock("@/lib/program", () => ({
     programs.find((p) => p.id === id) ?? null,
 }));
 vi.mock("next/navigation", () => ({
-  redirect: vi.fn(),
+  // Mirrors Next.js's real redirect(): it throws to halt render, so callers
+  // that don't expect a return value (like CounterPage) stop executing right
+  // after calling it instead of falling through and crashing on a null program.
+  redirect: vi.fn((url: string) => {
+    throw new Error(`REDIRECT:${url}`);
+  }),
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
 }));
 vi.mock("@/app/dashboard/actions", () => ({
@@ -50,5 +56,19 @@ describe("CounterPage", () => {
     ).toHaveAttribute("href", "/dashboard");
     expect(screen.getByText("Coffee Stamps")).toBeInTheDocument();
     expect(screen.getByLabelText("Customer phone")).toHaveValue("+6591234567");
+  });
+
+  it("redirects to /dashboard when ?p= is missing", async () => {
+    await expect(
+      CounterPage({ searchParams: Promise.resolve({}) }),
+    ).rejects.toThrow("REDIRECT:/dashboard");
+    expect(redirect).toHaveBeenCalledWith("/dashboard");
+  });
+
+  it("redirects to /dashboard when ?p= doesn't match any program", async () => {
+    await expect(
+      CounterPage({ searchParams: Promise.resolve({ p: "does-not-exist" }) }),
+    ).rejects.toThrow("REDIRECT:/dashboard");
+    expect(redirect).toHaveBeenCalledWith("/dashboard");
   });
 });
