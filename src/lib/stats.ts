@@ -221,3 +221,57 @@ export const getProgramStats = cache(async function getProgramStats(
     avgDaysBetweenVisits: avgDaysBetweenVisits(activityEvents),
   };
 });
+
+// Impure shell: fetch cards+events across every one of the vendor's
+// programs (not just one), then delegate to the same pure pipeline
+// getProgramStats uses. classifyActivity/computeCardStats/
+// bucketVisitsByDay/avgDaysBetweenVisits are already program-agnostic —
+// no new pure logic is needed, only a wider query.
+export async function getVendorStats(
+  programIds: string[],
+): Promise<ProgramStats> {
+  const supabase = await createServerClient();
+  const nowMs = Date.now();
+
+  if (programIds.length === 0) {
+    const cardStats = computeCardStats([], [], [], nowMs);
+    return {
+      ...cardStats,
+      visitsByDay: bucketVisitsByDay([], nowMs),
+      avgDaysBetweenVisits: null,
+    };
+  }
+
+  const { data: cards, error: cardsError } = await supabase
+    .from("cards")
+    .select("id,created_at")
+    .in("program_id", programIds);
+  if (cardsError) throw new Error(`getVendorStats: ${cardsError.message}`);
+
+  const cardIds = (cards ?? []).map((c) => c.id);
+
+  let events: StatsEvent[] = [];
+  if (cardIds.length > 0) {
+    const { data, error } = await supabase
+      .from("stamp_events")
+      .select("card_id,kind,payload,created_at")
+      .in("card_id", cardIds);
+    if (error) throw new Error(`getVendorStats: ${error.message}`);
+    events = data ?? [];
+  }
+
+  const { activityEvents, rewardEvents } = classifyActivity(events);
+  const cardStats = computeCardStats(
+    cards ?? [],
+    activityEvents,
+    rewardEvents,
+    nowMs,
+  );
+  const visitsByDay = bucketVisitsByDay(activityEvents, nowMs);
+
+  return {
+    ...cardStats,
+    visitsByDay,
+    avgDaysBetweenVisits: avgDaysBetweenVisits(activityEvents),
+  };
+}
