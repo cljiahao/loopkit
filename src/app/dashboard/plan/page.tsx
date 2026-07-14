@@ -55,15 +55,21 @@ export default async function PlanPage({
       </div>
 
       {stats && stats.enrolled > 0 && program && (
-        <p className="rounded-xl border bg-card px-5 py-4 text-sm">
-          <strong className="font-semibold">
-            {Math.round(stats.repeatVisitRate * 100)}%
-          </strong>{" "}
-          of your customers have come back for a second visit, and you&apos;ve
-          handed out{" "}
-          <strong className="font-semibold">{stats.rewardsTotal}</strong> reward
-          {stats.rewardsTotal === 1 ? "" : "s"} so far with {program.name}.
-        </p>
+        <div className="rounded-xl border bg-card px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            How your program is doing
+          </p>
+          <p className="mt-1.5 text-sm">
+            <strong className="font-semibold">
+              {Math.round(stats.repeatVisitRate * 100)}%
+            </strong>{" "}
+            of your customers have come back for a second visit, and you&apos;ve
+            handed out{" "}
+            <strong className="font-semibold">{stats.rewardsTotal}</strong>{" "}
+            reward
+            {stats.rewardsTotal === 1 ? "" : "s"} so far with {program.name}.
+          </p>
+        </div>
       )}
 
       {pro ? (
@@ -87,8 +93,11 @@ export default async function PlanPage({
         </div>
       )}
 
+      {/* Header and every row use the same fixed column widths (not "auto")
+          so the Free/Pro ticks line up under their headers regardless of
+          each row being its own grid instance. */}
       <div className="overflow-hidden rounded-2xl border">
-        <div className="grid grid-cols-[1fr_auto_auto] gap-x-5 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="grid grid-cols-[1fr_2.75rem_2.75rem] gap-x-5 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <span>Feature</span>
           <span className="text-center">Free</span>
           <span className="text-center">Pro</span>
@@ -96,7 +105,7 @@ export default async function PlanPage({
         {FEATURES.map((f) => (
           <div
             key={f.label}
-            className="grid grid-cols-[1fr_auto_auto] items-center gap-x-5 border-t px-5 py-3 text-sm"
+            className="grid grid-cols-[1fr_2.75rem_2.75rem] items-center gap-x-5 border-t px-5 py-3 text-sm"
           >
             <span>{f.label}</span>
             <span className="text-center text-muted-foreground">
