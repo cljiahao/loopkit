@@ -277,6 +277,30 @@ export interface Database {
         };
         Relationships: [];
       };
+      customers: {
+        Row: {
+          vendor_id: string;
+          phone: string;
+          name: string | null;
+          first_seen_at: string;
+          last_seen_at: string;
+        };
+        Insert: {
+          vendor_id: string;
+          phone: string;
+          name?: string | null;
+          first_seen_at?: string;
+          last_seen_at?: string;
+        };
+        Update: {
+          vendor_id?: string;
+          phone?: string;
+          name?: string | null;
+          first_seen_at?: string;
+          last_seen_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {

@@ -128,6 +128,13 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      `owns_program`, since no vendor session exists on this customer-facing
      path. Safe to re-run.
 
+   - apply `0021_loopkit_customers.sql` — adds `loopkit.customers` (one row
+     per unique phone per vendor) and two sync triggers (`AFTER INSERT` on
+     `cards` and on `stamp_events`) that keep it up to date regardless of
+     which RPC created the card. Read-only for `authenticated` — only the
+     triggers ever write to it. Backs the vendor-level Customers view. Safe
+     to re-run.
+
    - **Optional — rate limiting on the public `/c` surface.** The card-check
      action is throttled per-IP only if an Upstash Redis is configured. Create a
      free Upstash Redis and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
