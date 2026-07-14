@@ -133,4 +133,18 @@ describe("plantStrategy", () => {
     expect(s.blooms).toBe(2);
     expect(s.bloomed).toBe(false);
   });
+  it("stays reward-ready after redeem when the carried-over growth still meets the threshold", () => {
+    const s = plantStrategy.redeem(
+      {
+        growth: 16,
+        last_visit_at: day0.toISOString(),
+        blooms: 1,
+        bloomed: true,
+      },
+      cfg,
+    );
+    expect(s.growth).toBe(8);
+    expect(s.bloomed).toBe(true);
+    expect(plantStrategy.progress(s, cfg, day0).rewardReady).toBe(true);
+  });
 });

@@ -31,7 +31,7 @@ async function programFromForm(formData: FormData) {
   return id ? getProgramById(id) : null;
 }
 
-// Add a stamp to the phone's card (capped at the requirement by add_stamp).
+// Add a stamp to the phone's card (add_stamp no longer caps at the requirement — it increments unconditionally).
 export async function stampAction(formData: FormData): Promise<CardResult> {
   await requireVendor();
 
@@ -158,10 +158,11 @@ export async function recordVisitAction(
   };
 }
 
-// Redeem a bloomed Sprout: the pure strategy resets growth to a seed and counts
-// the bloom; record_visit persists the reset state and logs a 'redeem' event so
-// metrics and recent activity see the reward. Reuses the generic write path — no
-// card id needed, just the phone.
+// Redeem a bloomed Sprout: the pure strategy carries over any excess growth
+// past the bloom threshold (instead of resetting to a seed) and counts the
+// bloom; record_visit persists the carried-over state and logs a 'redeem'
+// event so metrics and recent activity see the reward. Reuses the generic
+// write path — no card id needed, just the phone.
 export async function redeemPlantAction(
   formData: FormData,
 ): Promise<ActionResult<{ phone: string; progress: Progress }>> {

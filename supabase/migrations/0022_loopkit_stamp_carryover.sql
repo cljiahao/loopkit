@@ -47,13 +47,15 @@ declare
   v_card     loopkit.cards;
   v_required int;
 begin
-  select c.*, p.stamps_required into v_card, v_required
-    from loopkit.cards c
-    join loopkit.programs p on p.id = c.program_id
-    where c.id = p_card;
+  select * into v_card from loopkit.cards where id = p_card;
   if v_card.id is null or not loopkit.owns_program(v_card.program_id) then
     raise exception 'not authorized';
   end if;
+
+  select stamps_required into v_required
+    from loopkit.programs
+    where id = v_card.program_id;
+
   update loopkit.cards
     set stamp_count = greatest(stamp_count - v_required, 0),
         reward_count = reward_count + 1,

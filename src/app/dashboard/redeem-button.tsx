@@ -19,7 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-/** Redeem control with an AlertDialog confirm — resetting a card is destructive. */
+/** Redeem control with an AlertDialog confirm — consumes exactly one reward's worth of stamps and carries the rest over to the next card. */
 export function RedeemButton({
   card,
   stampsRequired,

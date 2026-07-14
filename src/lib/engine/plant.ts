@@ -83,11 +83,12 @@ export const plantStrategy: Strategy<PlantConfig, PlantState> = {
     };
   },
   redeem(state, config) {
+    const carried = Math.max(0, state.growth - bloomThreshold(config));
     return {
-      growth: Math.max(0, state.growth - bloomThreshold(config)),
+      growth: carried,
       last_visit_at: state.last_visit_at,
       blooms: state.blooms + 1,
-      bloomed: false,
+      bloomed: carried >= bloomThreshold(config),
     };
   },
 };
