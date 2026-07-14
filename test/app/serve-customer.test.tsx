@@ -279,4 +279,41 @@ describe("ServeCustomer", () => {
     await waitFor(() => expect(stampMock).toHaveBeenCalled());
     expect(routerPush).not.toHaveBeenCalled();
   });
+
+  it("shows carryover wording in the plant redeem confirm dialog", async () => {
+    lookupMock.mockResolvedValue({
+      success: true,
+      card: { id: "card-1", phone: "+6591234567", stamp_count: 0 },
+      progress: {
+        view: {
+          kind: "plant",
+          stage: 4,
+          stageName: "Bloom",
+          totalStages: 5,
+          wilting: false,
+        },
+        label: "Bloom",
+        rewardReady: true,
+      },
+    });
+    const user = userEvent.setup();
+    render(
+      <ServeCustomer
+        programId="p1"
+        type="plant"
+        stampsRequired={8}
+        rewardText="A bloom"
+      />,
+    );
+    await user.type(screen.getByLabelText("Customer phone"), "91234567");
+    await user.click(screen.getByRole("button", { name: "Look up" }));
+
+    await waitFor(() => expect(lookupMock).toHaveBeenCalled());
+    await user.click(screen.getByRole("button", { name: "Redeem" }));
+    expect(
+      screen.getByText(
+        "Redeem A bloom for +6591234567? Any extra growth carries over to their next plant.",
+      ),
+    ).toBeInTheDocument();
+  });
 });

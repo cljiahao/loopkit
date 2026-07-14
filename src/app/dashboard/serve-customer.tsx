@@ -481,6 +481,7 @@ export function ServeCustomer({
               </p>
               <RedeemButton
                 card={result.card}
+                stampsRequired={stampsRequired}
                 onRedeemed={(next) =>
                   setResult({
                     mode: "stamp",
@@ -555,8 +556,8 @@ export function ServeCustomer({
                   <AlertDialogHeader>
                     <AlertDialogTitle>Redeem reward?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Redeem {rewardText} for {result.phone}? This resets their
-                      plant to a seed.
+                      Redeem {rewardText} for {result.phone}? Any extra growth
+                      carries over to their next plant.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

@@ -22,9 +22,11 @@ import {
 /** Redeem control with an AlertDialog confirm — resetting a card is destructive. */
 export function RedeemButton({
   card,
+  stampsRequired,
   onRedeemed,
 }: {
   card: StampCard;
+  stampsRequired: number;
   onRedeemed: (card: StampCard) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -58,7 +60,8 @@ export function RedeemButton({
         <AlertDialogHeader>
           <AlertDialogTitle>Redeem reward?</AlertDialogTitle>
           <AlertDialogDescription>
-            Redeem reward for {card.phone}? This resets their card.
+            Redeem reward for {card.phone}? Uses {stampsRequired} stamps — any
+            extra carries over to their next card.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
