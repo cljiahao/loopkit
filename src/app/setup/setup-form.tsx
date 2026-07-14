@@ -11,9 +11,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { buildPreviewProgress } from "@/app/setup/preview-state";
 import { PreviewCard } from "@/app/setup/preview-card";
+import { Tag, SlidersHorizontal } from "lucide-react";
 
 type SegmentInput = { label: string; weight: number; is_reward: boolean };
 
@@ -188,7 +196,7 @@ export function SetupForm({
   }
 
   return (
-    <div className="mt-7 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-start">
+    <div className="mt-7 grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
       <div className="space-y-4">
         <h3 className={labelClass}>Choose a card type</h3>
         {isEdit ? (
@@ -225,411 +233,457 @@ export function SetupForm({
         />
       </div>
 
-      <form action={formAction} className="space-y-5">
+      <form action={formAction} className="space-y-6">
         {program ? <input type="hidden" name="id" value={program.id} /> : null}
         {replacingId ? (
           <input type="hidden" name="replacing" value={replacingId} />
         ) : null}
         <input type="hidden" name="type" value={type} />
 
-        <h3 className={labelClass}>Card details</h3>
-
-        {type === "stamp" ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="name" className={labelClass}>
-                Card name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                required
-                maxLength={60}
-                placeholder="Coffee card"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-11 rounded-xl"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="stamps_required" className={labelClass}>
-                Stamps required
-              </Label>
-              <Input
-                id="stamps_required"
-                name="stamps_required"
-                type="number"
-                required
-                min={2}
-                max={20}
-                placeholder="10"
-                value={stampsRequired}
-                onChange={(e) => setStampsRequired(Number(e.target.value))}
-                className="h-11 rounded-xl"
-              />
-              <div className="flex gap-1.5">
-                {[5, 10, 15].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setStampsRequired(n)}
-                    className={cn(
-                      "h-7 rounded-lg border px-2.5 text-xs font-semibold transition-colors",
-                      stampsRequired === n
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "bg-card text-muted-foreground hover:bg-muted/50",
-                    )}
-                  >
-                    {n}
-                  </button>
-                ))}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <Tag className="size-4" />
+              </span>
+              <div>
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Every card needs this
+                </p>
+                <CardTitle className="mt-0.5 text-lg">Basics</CardTitle>
+                <CardDescription className="mt-1">
+                  The name and reward customers see.
+                </CardDescription>
               </div>
             </div>
-          </div>
-        ) : type === "plant" ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="name" className={labelClass}>
-                Card name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                required
-                maxLength={60}
-                placeholder="Grow-a-kopi"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-11 rounded-xl"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="visits_to_bloom" className={labelClass}>
-                Visits to bloom
-              </Label>
-              <Input
-                id="visits_to_bloom"
-                name="visits_to_bloom"
-                type="number"
-                required
-                min={4}
-                max={20}
-                placeholder="6"
-                value={visitsToBloom}
-                onChange={(e) => setVisitsToBloom(Number(e.target.value))}
-                className="h-11 rounded-xl"
-              />
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="name" className={labelClass}>
-                Card name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                required
-                maxLength={60}
-                placeholder={
-                  type === "lucky"
-                    ? "Lucky topping"
-                    : type === "wheel"
-                      ? "Spin to win"
-                      : type === "scratch"
-                        ? "Scratch & win"
-                        : "Weekly regular"
-                }
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-11 rounded-xl"
-              />
-            </div>
-
-            {type === "streak" ? (
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {type === "stamp" ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="period_days" className={labelClass}>
-                    Days per streak window
+                  <Label htmlFor="name" className={labelClass}>
+                    Card name
                   </Label>
                   <Input
-                    id="period_days"
-                    name="period_days"
-                    type="number"
+                    id="name"
+                    name="name"
+                    type="text"
                     required
-                    min={1}
-                    max={30}
-                    placeholder="7"
-                    value={periodDays}
-                    onChange={(e) => setPeriodDays(Number(e.target.value))}
+                    maxLength={60}
+                    placeholder="Coffee card"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="h-11 rounded-xl"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="target_streak" className={labelClass}>
-                    Streak length to earn reward
+                  <Label htmlFor="stamps_required" className={labelClass}>
+                    Stamps required
                   </Label>
                   <Input
-                    id="target_streak"
-                    name="target_streak"
+                    id="stamps_required"
+                    name="stamps_required"
                     type="number"
                     required
                     min={2}
                     max={20}
-                    placeholder="4"
-                    value={targetStreak}
-                    onChange={(e) => setTargetStreak(Number(e.target.value))}
+                    placeholder="10"
+                    value={stampsRequired}
+                    onChange={(e) => setStampsRequired(Number(e.target.value))}
                     className="h-11 rounded-xl"
                   />
-                </div>
-              </div>
-            ) : type === "wheel" || type === "scratch" ? (
-              <>
-                <div className="space-y-2">
-                  <Label className={labelClass}>
-                    {type === "wheel" ? "Wheel segments" : "Scratch prizes"}
-                  </Label>
-                  <div className="space-y-2">
-                    {segments.map((segment, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <Input
-                          type="text"
-                          required
-                          maxLength={40}
-                          value={segment.label}
-                          onChange={(e) =>
-                            updateSegment(i, { label: e.target.value })
-                          }
-                          placeholder="Label"
-                          className="h-11 flex-1 rounded-xl"
-                        />
-                        <Input
-                          type="number"
-                          required
-                          min={1}
-                          max={100}
-                          value={segment.weight}
-                          onChange={(e) =>
-                            updateSegment(i, {
-                              weight: Number(e.target.value),
-                            })
-                          }
-                          aria-label="Odds weight"
-                          title="Odds weight — higher numbers land more often relative to the other prizes"
-                          className="h-11 w-20 rounded-xl"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateSegment(i, { is_reward: !segment.is_reward })
-                          }
-                          className={cn(
-                            "h-11 shrink-0 rounded-xl border px-3 text-xs font-semibold transition-colors",
-                            segment.is_reward
-                              ? "border-gold bg-gold/10 text-gold-accent"
-                              : "bg-card text-muted-foreground hover:bg-muted/50",
-                          )}
-                        >
-                          {segment.is_reward ? "Reward" : "No win"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeSegment(i)}
-                          disabled={segments.length <= 2}
-                          className="h-11 shrink-0 rounded-xl border px-3 text-xs font-semibold text-muted-foreground hover:bg-muted/50 disabled:opacity-40"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                  <div className="flex gap-1.5">
+                    {[5, 10, 15].map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setStampsRequired(n)}
+                        className={cn(
+                          "h-7 rounded-lg border px-2.5 text-xs font-semibold transition-colors",
+                          stampsRequired === n
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "bg-card text-muted-foreground hover:bg-muted/50",
+                        )}
+                      >
+                        {n}
+                      </button>
                     ))}
                   </div>
-                  <button
-                    type="button"
-                    onClick={addSegment}
-                    disabled={segments.length >= 6}
-                    className="h-11 w-full rounded-xl border text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
-                  >
-                    Add segment
-                  </button>
-                  <input
-                    type="hidden"
-                    name="segments"
-                    value={JSON.stringify(segments)}
-                  />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pity_ceiling" className={labelClass}>
-                    Guaranteed win by (optional)
-                  </Label>
-                  <Input
-                    id="pity_ceiling"
-                    name="pity_ceiling"
-                    type="number"
-                    min={2}
-                    max={20}
-                    placeholder="No guarantee"
-                    value={pityCeiling ?? ""}
-                    onChange={(e) =>
-                      setPityCeiling(
-                        e.target.value === ""
-                          ? undefined
-                          : Number(e.target.value),
-                      )
-                    }
-                    className="h-11 rounded-xl"
-                  />
-                </div>
-              </>
-            ) : (
+              </div>
+            ) : type === "plant" ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="win_percent" className={labelClass}>
-                    Win chance (%)
+                  <Label htmlFor="name" className={labelClass}>
+                    Card name
                   </Label>
                   <Input
-                    id="win_percent"
-                    name="win_percent"
-                    type="number"
+                    id="name"
+                    name="name"
+                    type="text"
                     required
-                    min={2}
-                    max={100}
-                    placeholder="20"
-                    value={winPercent}
-                    onChange={(e) => setWinPercent(Number(e.target.value))}
+                    maxLength={60}
+                    placeholder="Grow-a-kopi"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="h-11 rounded-xl"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pity_ceiling" className={labelClass}>
-                    Guaranteed win by
+                  <Label htmlFor="visits_to_bloom" className={labelClass}>
+                    Visits to bloom
                   </Label>
                   <Input
-                    id="pity_ceiling"
-                    name="pity_ceiling"
+                    id="visits_to_bloom"
+                    name="visits_to_bloom"
                     type="number"
                     required
-                    min={2}
+                    min={4}
                     max={20}
-                    placeholder="8"
-                    value={pityCeiling ?? 8}
-                    onChange={(e) => setPityCeiling(Number(e.target.value))}
+                    placeholder="6"
+                    value={visitsToBloom}
+                    onChange={(e) => setVisitsToBloom(Number(e.target.value))}
                     className="h-11 rounded-xl"
                   />
                 </div>
               </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="name" className={labelClass}>
+                    Card name
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    maxLength={60}
+                    placeholder={
+                      type === "lucky"
+                        ? "Lucky topping"
+                        : type === "wheel"
+                          ? "Spin to win"
+                          : type === "scratch"
+                            ? "Scratch & win"
+                            : "Weekly regular"
+                    }
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+
+                {type === "streak" ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="period_days" className={labelClass}>
+                        Days per streak window
+                      </Label>
+                      <Input
+                        id="period_days"
+                        name="period_days"
+                        type="number"
+                        required
+                        min={1}
+                        max={30}
+                        placeholder="7"
+                        value={periodDays}
+                        onChange={(e) => setPeriodDays(Number(e.target.value))}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="target_streak" className={labelClass}>
+                        Streak length to earn reward
+                      </Label>
+                      <Input
+                        id="target_streak"
+                        name="target_streak"
+                        type="number"
+                        required
+                        min={2}
+                        max={20}
+                        placeholder="4"
+                        value={targetStreak}
+                        onChange={(e) =>
+                          setTargetStreak(Number(e.target.value))
+                        }
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                ) : type === "wheel" || type === "scratch" ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label className={labelClass}>
+                        {type === "wheel" ? "Wheel segments" : "Scratch prizes"}
+                      </Label>
+                      <div className="space-y-2">
+                        {segments.map((segment, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <Input
+                              type="text"
+                              required
+                              maxLength={40}
+                              value={segment.label}
+                              onChange={(e) =>
+                                updateSegment(i, { label: e.target.value })
+                              }
+                              placeholder="Label"
+                              className="h-11 flex-1 rounded-xl"
+                            />
+                            <Input
+                              type="number"
+                              required
+                              min={1}
+                              max={100}
+                              value={segment.weight}
+                              onChange={(e) =>
+                                updateSegment(i, {
+                                  weight: Number(e.target.value),
+                                })
+                              }
+                              aria-label="Odds weight"
+                              title="Odds weight — higher numbers land more often relative to the other prizes"
+                              className="h-11 w-20 rounded-xl"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateSegment(i, {
+                                  is_reward: !segment.is_reward,
+                                })
+                              }
+                              className={cn(
+                                "h-11 shrink-0 rounded-xl border px-3 text-xs font-semibold transition-colors",
+                                segment.is_reward
+                                  ? "border-gold bg-gold/10 text-gold-accent"
+                                  : "bg-card text-muted-foreground hover:bg-muted/50",
+                              )}
+                            >
+                              {segment.is_reward ? "Reward" : "No win"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeSegment(i)}
+                              disabled={segments.length <= 2}
+                              className="h-11 shrink-0 rounded-xl border px-3 text-xs font-semibold text-muted-foreground hover:bg-muted/50 disabled:opacity-40"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addSegment}
+                        disabled={segments.length >= 6}
+                        className="h-11 w-full rounded-xl border text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
+                      >
+                        Add segment
+                      </button>
+                      <input
+                        type="hidden"
+                        name="segments"
+                        value={JSON.stringify(segments)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pity_ceiling" className={labelClass}>
+                        Guaranteed win by (optional)
+                      </Label>
+                      <Input
+                        id="pity_ceiling"
+                        name="pity_ceiling"
+                        type="number"
+                        min={2}
+                        max={20}
+                        placeholder="No guarantee"
+                        value={pityCeiling ?? ""}
+                        onChange={(e) =>
+                          setPityCeiling(
+                            e.target.value === ""
+                              ? undefined
+                              : Number(e.target.value),
+                          )
+                        }
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="win_percent" className={labelClass}>
+                        Win chance (%)
+                      </Label>
+                      <Input
+                        id="win_percent"
+                        name="win_percent"
+                        type="number"
+                        required
+                        min={2}
+                        max={100}
+                        placeholder="20"
+                        value={winPercent}
+                        onChange={(e) => setWinPercent(Number(e.target.value))}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pity_ceiling" className={labelClass}>
+                        Guaranteed win by
+                      </Label>
+                      <Input
+                        id="pity_ceiling"
+                        name="pity_ceiling"
+                        type="number"
+                        required
+                        min={2}
+                        max={20}
+                        placeholder="8"
+                        value={pityCeiling ?? 8}
+                        onChange={(e) => setPityCeiling(Number(e.target.value))}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
 
-        <div className="space-y-2">
-          <Label htmlFor="reward_text" className={labelClass}>
-            Reward
-          </Label>
-          <Input
-            id="reward_text"
-            name="reward_text"
-            type="text"
-            required
-            maxLength={80}
-            placeholder="Free kopi"
-            value={rewardText}
-            onChange={(e) => setRewardText(e.target.value)}
-            className="h-11 rounded-xl"
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="reward_text" className={labelClass}>
+                Reward
+              </Label>
+              <Input
+                id="reward_text"
+                name="reward_text"
+                type="text"
+                required
+                maxLength={80}
+                placeholder="Free kopi"
+                value={rewardText}
+                onChange={(e) => setRewardText(e.target.value)}
+                className="h-11 rounded-xl"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        {(type === "stamp" || type === "plant" || type === "streak") && (
-          <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-3">
-            <Switch
-              id="head_start_checkbox"
-              checked={headStart}
-              onCheckedChange={setHeadStart}
-              className="mt-0.5"
-            />
-            <label htmlFor="head_start_checkbox" className="text-sm">
-              <span className="font-medium">
-                Give new customers a head start
+        <Card>
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <SlidersHorizontal className="size-4" />
               </span>
-              <span className="mt-0.5 block text-xs text-muted-foreground">
-                New signups start with a small amount of free progress toward
-                their first reward — shown to measurably increase completion.
-              </span>
-            </label>
-            <input
-              type="hidden"
-              name="head_start"
-              value={headStart ? "true" : "false"}
-            />
-          </div>
-        )}
+              <div>
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  How it works
+                </p>
+                <CardTitle className="mt-0.5 text-lg">Rules</CardTitle>
+                <CardDescription className="mt-1">
+                  Head start, carry-over, and how long a card lasts.
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {(type === "stamp" || type === "plant" || type === "streak") && (
+              <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-3">
+                <Switch
+                  id="head_start_checkbox"
+                  checked={headStart}
+                  onCheckedChange={setHeadStart}
+                  className="mt-0.5"
+                />
+                <label htmlFor="head_start_checkbox" className="text-sm">
+                  <span className="font-medium">
+                    Give new customers a head start
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    New signups start with a small amount of free progress
+                    toward their first reward — shown to measurably increase
+                    completion.
+                  </span>
+                </label>
+                <input
+                  type="hidden"
+                  name="head_start"
+                  value={headStart ? "true" : "false"}
+                />
+              </div>
+            )}
 
-        {showCarryOverOption && (
-          <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-3">
-            <Switch
-              id="carry_over_stamps_checkbox"
-              checked={carryOverStamps}
-              onCheckedChange={setCarryOverStamps}
-              className="mt-0.5"
-            />
-            <label htmlFor="carry_over_stamps_checkbox" className="text-sm">
-              <span className="font-medium">
-                Carry over customers&apos; current stamp count onto the new card
-              </span>
-              <span className="mt-0.5 block text-xs text-muted-foreground">
-                Left unchecked, everyone starts the new card from zero.
-              </span>
-            </label>
-            <input
-              type="hidden"
-              name="carry_over_stamps"
-              value={carryOverStamps ? "true" : "false"}
-            />
-          </div>
-        )}
+            {showCarryOverOption && (
+              <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-3">
+                <Switch
+                  id="carry_over_stamps_checkbox"
+                  checked={carryOverStamps}
+                  onCheckedChange={setCarryOverStamps}
+                  className="mt-0.5"
+                />
+                <label htmlFor="carry_over_stamps_checkbox" className="text-sm">
+                  <span className="font-medium">
+                    Carry over customers&apos; current stamp count onto the new
+                    card
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Left unchecked, everyone starts the new card from zero.
+                  </span>
+                </label>
+                <input
+                  type="hidden"
+                  name="carry_over_stamps"
+                  value={carryOverStamps ? "true" : "false"}
+                />
+              </div>
+            )}
 
-        <div className="space-y-2">
-          <Label htmlFor="expiry_days" className={labelClass}>
-            Card expires after (days, optional)
-          </Label>
-          <Input
-            id="expiry_days"
-            name="expiry_days"
-            type="number"
-            min={1}
-            max={3650}
-            placeholder="Never expires"
-            defaultValue={program?.expiry_days ?? ""}
-            className="h-11 rounded-xl"
-          />
-          <p className="text-xs text-muted-foreground">
-            Counted from each customer&apos;s current cycle — resets whenever
-            their card is regenerated. Leave blank for a card that never
-            expires.
-          </p>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="expiry_days" className={labelClass}>
+                Card expires after (days, optional)
+              </Label>
+              <Input
+                id="expiry_days"
+                name="expiry_days"
+                type="number"
+                min={1}
+                max={3650}
+                placeholder="Never expires"
+                defaultValue={program?.expiry_days ?? ""}
+                className="h-11 rounded-xl"
+              />
+              <p className="text-xs text-muted-foreground">
+                Counted from each customer&apos;s current cycle — resets
+                whenever their card is regenerated. Leave blank for a card that
+                never expires.
+              </p>
+            </div>
 
-        {state.error ? (
-          <p className="text-sm font-medium text-destructive">{state.error}</p>
-        ) : null}
+            {state.error ? (
+              <p className="text-sm font-medium text-destructive">
+                {state.error}
+              </p>
+            ) : null}
 
-        <Button
-          type="submit"
-          size="lg"
-          disabled={pending}
-          className="h-12 w-full rounded-xl text-base font-semibold"
-        >
-          {isEdit
-            ? "Save changes"
-            : replacingId
-              ? "Change type"
-              : prepping
-                ? "Save as draft"
-                : "Create card"}
-        </Button>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={pending}
+              className="h-12 w-full rounded-xl text-base font-semibold"
+            >
+              {isEdit
+                ? "Save changes"
+                : replacingId
+                  ? "Change type"
+                  : prepping
+                    ? "Save as draft"
+                    : "Create card"}
+            </Button>
+          </CardContent>
+        </Card>
       </form>
     </div>
   );

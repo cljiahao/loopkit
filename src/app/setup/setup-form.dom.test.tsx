@@ -139,7 +139,7 @@ describe("SetupForm type picker", () => {
     expect(screen.getByText("0/15 stamps")).toBeInTheDocument();
   });
 
-  it("shows both section headings, type picker and preview in the left column", () => {
+  it("shows the type-picker heading and both card-details cards", () => {
     render(
       <SetupForm
         program={null}
@@ -149,7 +149,8 @@ describe("SetupForm type picker", () => {
       />,
     );
     expect(screen.getByText("Choose a card type")).toBeInTheDocument();
-    expect(screen.getByText("Card details")).toBeInTheDocument();
+    expect(screen.getByText("Basics")).toBeInTheDocument();
+    expect(screen.getByText("Rules")).toBeInTheDocument();
   });
 
   it("edit mode shows the locked type label and preview together, no type grid", () => {
