@@ -29,9 +29,10 @@ if (typeof Element !== "undefined") {
       get: () => 1,
     });
   }
-  // jsdom doesn't implement ResizeObserver — Radix's Switch (via
-  // @radix-ui/react-use-size, used to measure the thumb) calls it internally
-  // and throws without a stub.
+  // jsdom doesn't implement ResizeObserver — Radix's Switch calls it (via
+  // @radix-ui/react-use-size inside SwitchBubbleInput, to size the hidden
+  // native input that mirrors the switch for form submission) and throws
+  // without a stub.
   if (typeof ResizeObserver === "undefined") {
     globalThis.ResizeObserver = class {
       observe() {}
