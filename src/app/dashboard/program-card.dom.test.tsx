@@ -2,7 +2,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import type { Program } from "@/lib/program";
-import type { ProgramStats } from "@/lib/stats";
 import { ProgramCard } from "./program-card";
 
 const program: Program = {
@@ -19,35 +18,23 @@ const program: Program = {
   carry_over_stamps: false,
 };
 
-const stats = { active: 12 } as ProgramStats;
-
 describe("ProgramCard", () => {
   it("renders the program name, type badge, and description", () => {
-    render(<ProgramCard program={program} stats={stats} />);
+    render(<ProgramCard program={program} />);
     expect(screen.getByText("Coffee Stamps")).toBeInTheDocument();
     expect(screen.getByText("Stamp")).toBeInTheDocument();
     expect(screen.getByText(/buy 8, get 1 a free coffee/i)).toBeInTheDocument();
   });
 
   it("links Edit to /setup?edit=<id>", () => {
-    render(<ProgramCard program={program} stats={stats} />);
+    render(<ProgramCard program={program} />);
     expect(
       screen.getByRole("link", { name: /edit coffee stamps/i }),
     ).toHaveAttribute("href", "/setup?edit=p1");
   });
 
-  it("shows the active-count stat when stats are available", () => {
-    render(<ProgramCard program={program} stats={stats} />);
-    expect(screen.getByText(/12 active/i)).toBeInTheDocument();
-  });
-
-  it("falls back to a dash when stats are null (fetch failed)", () => {
-    render(<ProgramCard program={program} stats={null} />);
-    expect(screen.getByText("—")).toBeInTheDocument();
-  });
-
   it("scopes footer links to this program via ?p=", () => {
-    render(<ProgramCard program={program} stats={stats} />);
+    render(<ProgramCard program={program} />);
     expect(screen.getByRole("link", { name: "Customers" })).toHaveAttribute(
       "href",
       "/dashboard/customers?p=p1",
@@ -63,7 +50,7 @@ describe("ProgramCard", () => {
   });
 
   it("links Open Counter to /dashboard/counter?p=<id>", () => {
-    render(<ProgramCard program={program} stats={stats} />);
+    render(<ProgramCard program={program} />);
     expect(screen.getByRole("link", { name: /open counter/i })).toHaveAttribute(
       "href",
       "/dashboard/counter?p=p1",

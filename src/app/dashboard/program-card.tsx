@@ -6,20 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PROGRAM_TYPE_BADGE, describeProgram } from "./program-display";
 import type { Program } from "@/lib/program";
-import type { ProgramStats } from "@/lib/stats";
 
 // One card per active program. Field order is fixed across every card
 // (header -> stat -> Open Counter -> footer links) so scanning a grid of
 // several cards stays fast regardless of how many a vendor has. Serve/
 // lookup lives on the dedicated Counter page now (see
 // app/dashboard/counter/page.tsx), not embedded here.
-export function ProgramCard({
-  program,
-  stats,
-}: {
-  program: Program;
-  stats: ProgramStats | null;
-}) {
+export function ProgramCard({ program }: { program: Program }) {
   const badge = PROGRAM_TYPE_BADGE[program.type] ?? PROGRAM_TYPE_BADGE.stamp;
   const scoped = (href: string) => `${href}?p=${program.id}`;
 
@@ -45,10 +38,6 @@ export function ProgramCard({
           <Pencil className="size-4" />
         </Link>
       </div>
-
-      <p className="text-xs font-medium text-muted-foreground">
-        {stats ? `${stats.active} active (30d)` : "—"}
-      </p>
 
       <Button asChild className="h-11 w-full rounded-xl font-semibold">
         <Link href={scoped("/dashboard/counter")}>Open Counter</Link>

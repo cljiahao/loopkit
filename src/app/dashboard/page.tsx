@@ -7,7 +7,6 @@ import {
   getEntitlement,
   applyDueCutovers,
 } from "@/lib/program";
-import { getProgramStats, type ProgramStats } from "@/lib/stats";
 import { requireVendor } from "@/lib/auth";
 import { qrSvg } from "@/lib/qr";
 import { createServerClient } from "@/lib/supabase/server";
@@ -37,18 +36,6 @@ export default async function DashboardPage() {
     .select("program_id, enabled")
     .eq("vendor_id", user.id)
     .maybeSingle();
-
-  // One program's stats failing shouldn't take down the whole grid — each
-  // card falls back to a "—" stat line (see ProgramCard).
-  const statsSettled = await Promise.allSettled(
-    activePrograms.map((prog) => getProgramStats(prog.id)),
-  );
-  const statsByProgramId: Record<string, ProgramStats | null> = {};
-  activePrograms.forEach((prog, i) => {
-    const settled = statsSettled[i];
-    statsByProgramId[prog.id] =
-      settled.status === "fulfilled" ? settled.value : null;
-  });
 
   // The QR must encode an absolute URL — a host-less path is unscannable. Fall
   // back to the request host when NEXT_PUBLIC_BASE_URL is unset.
@@ -86,11 +73,7 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {activePrograms.map((prog) => (
-              <ProgramCard
-                key={prog.id}
-                program={prog}
-                stats={statsByProgramId[prog.id]}
-              />
+              <ProgramCard key={prog.id} program={prog} />
             ))}
             <NewProgramTile canCreate={canCreate} />
           </div>
