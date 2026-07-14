@@ -77,7 +77,7 @@ export default async function SetupPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-5">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-5 sm:max-w-2xl">
       <div className="w-full">
         <div className="mb-4">
           <BackButton href="/dashboard" label="Back to dashboard" />
