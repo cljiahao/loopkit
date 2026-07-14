@@ -87,7 +87,7 @@ export default async function ActivityPage({
         <div>
           <ProgramSwitcher
             programs={programs}
-            currentId={programs[0]?.id ?? ""}
+            currentId=""
             basePath="/dashboard/activity"
           />
           <h1 className="text-2xl font-bold tracking-tight">Activity</h1>

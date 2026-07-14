@@ -84,7 +84,7 @@ export default async function CustomersPage({
         <div>
           <ProgramSwitcher
             programs={programs}
-            currentId={programs[0]?.id ?? ""}
+            currentId=""
             basePath="/dashboard/customers"
           />
           <h1 className="text-2xl font-bold tracking-tight">Customers</h1>

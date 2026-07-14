@@ -69,7 +69,7 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
         <div>
           <ProgramSwitcher
             programs={programs}
-            currentId={programs[0]?.id ?? ""}
+            currentId=""
             basePath="/dashboard/stats"
           />
           <h1 className="text-2xl font-bold tracking-tight">Stats</h1>
