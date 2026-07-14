@@ -135,6 +135,12 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      triggers ever write to it. Backs the vendor-level Customers view. Safe
      to re-run.
 
+   - apply `0022_loopkit_stamp_carryover.sql` — removes the stamp ceiling
+     (`add_stamp` now increments unconditionally) and changes `redeem` to
+     carry over any stamps beyond `stamps_required` instead of resetting to
+     zero (`reward_count` still increments by exactly one per call, no
+     reward-stacking). No schema change. Safe to re-run.
+
    - **Optional — rate limiting on the public `/c` surface.** The card-check
      action is throttled per-IP only if an Upstash Redis is configured. Create a
      free Upstash Redis and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
