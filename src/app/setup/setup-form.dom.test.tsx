@@ -138,4 +138,46 @@ describe("SetupForm type picker", () => {
     expect(screen.getByLabelText("Stamps required")).toHaveValue(15);
     expect(screen.getByText("0/15 stamps")).toBeInTheDocument();
   });
+
+  it("shows both section headings, type picker and preview in the left column", () => {
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    expect(screen.getByText("Choose a card type")).toBeInTheDocument();
+    expect(screen.getByText("Card details")).toBeInTheDocument();
+  });
+
+  it("edit mode shows the locked type label and preview together, no type grid", () => {
+    render(
+      <SetupForm
+        program={
+          {
+            id: "p1",
+            name: "Coffee card",
+            stamps_required: 10,
+            reward_text: "Free kopi",
+            type: "stamp",
+            config: {},
+            active: true,
+            head_start: false,
+            replaced_by: null,
+            carry_over_stamps: false,
+          } as never
+        }
+        isEdit
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    expect(screen.getByText("Stamp card")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Lucky Tap" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("0/10 stamps")).toBeInTheDocument();
+  });
 });

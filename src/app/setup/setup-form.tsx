@@ -188,43 +188,51 @@ export function SetupForm({
   }
 
   return (
-    <div className="mt-7 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+    <div className="mt-7 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-start">
+      <div className="space-y-4">
+        <h3 className={labelClass}>Choose a card type</h3>
+        {isEdit ? (
+          <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
+            {typeLabels[type]}
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {TYPE_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-label={option.label}
+                onClick={() => pickType(option.value)}
+                className={cn(
+                  "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
+                  type === option.value
+                    ? "border-primary bg-primary/10"
+                    : "bg-card hover:bg-muted/50",
+                )}
+              >
+                <span className="text-sm font-semibold">{option.label}</span>
+                <span className="text-xs text-muted-foreground">
+                  {option.description}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+        <PreviewCard
+          progress={previewProgress}
+          name={name}
+          rewardText={rewardText}
+        />
+      </div>
+
       <form action={formAction} className="space-y-5">
         {program ? <input type="hidden" name="id" value={program.id} /> : null}
         {replacingId ? (
           <input type="hidden" name="replacing" value={replacingId} />
         ) : null}
-        <div className="space-y-2">
-          <Label className={labelClass}>Card type</Label>
-          {isEdit ? (
-            <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
-              {typeLabels[type]}
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {TYPE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  aria-label={option.label}
-                  onClick={() => pickType(option.value)}
-                  className={cn(
-                    "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
-                    type === option.value
-                      ? "border-primary bg-primary/10"
-                      : "bg-card hover:bg-muted/50",
-                  )}
-                >
-                  <span className="text-sm font-semibold">{option.label}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {option.description}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-          <input type="hidden" name="type" value={type} />
-        </div>
+        <input type="hidden" name="type" value={type} />
+
+        <h3 className={labelClass}>Card details</h3>
 
         {type === "stamp" ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -621,11 +629,6 @@ export function SetupForm({
                 : "Create card"}
         </Button>
       </form>
-      <PreviewCard
-        progress={previewProgress}
-        name={name}
-        rewardText={rewardText}
-      />
     </div>
   );
 }
