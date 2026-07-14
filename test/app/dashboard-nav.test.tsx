@@ -5,6 +5,10 @@ import userEvent from "@testing-library/user-event";
 
 import { DashboardNav } from "@/app/dashboard/dashboard-nav";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/dashboard",
+}));
+
 const baseProps = {
   signOut: vi.fn(async () => {}),
   tier: "free" as const,

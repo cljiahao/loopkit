@@ -4,6 +4,10 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DashboardNav } from "./dashboard-nav";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/dashboard/activity",
+}));
+
 describe("DashboardNav", () => {
   const baseProps = {
     signOut: vi.fn(async () => {}),
@@ -13,35 +17,52 @@ describe("DashboardNav", () => {
     tier: "free" as const,
   };
 
-  it("renders brand and account menu, no program switcher", () => {
+  it("renders Customers, Activity, and Stats as inline nav links", () => {
+    render(<DashboardNav {...baseProps} />);
+    expect(screen.getByRole("link", { name: "Customers" })).toHaveAttribute(
+      "href",
+      "/dashboard/customers",
+    );
+    expect(screen.getByRole("link", { name: "Activity" })).toHaveAttribute(
+      "href",
+      "/dashboard/activity",
+    );
+    expect(screen.getByRole("link", { name: "Stats" })).toHaveAttribute(
+      "href",
+      "/dashboard/stats",
+    );
+  });
+
+  it("renders a mobile menu toggle", () => {
     render(<DashboardNav {...baseProps} />);
     expect(
-      screen.queryByRole("button", { name: /program/i }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /account menu/i }),
+      screen.getByRole("button", { name: /open menu/i }),
     ).toBeInTheDocument();
   });
 
-  it("does not render the scoped page links or mobile burger", () => {
-    render(<DashboardNav {...baseProps} />);
-    expect(screen.queryByText("Counter")).not.toBeInTheDocument();
-    expect(screen.queryByText("Customers")).not.toBeInTheDocument();
-    expect(screen.queryByText("Activity")).not.toBeInTheDocument();
-    expect(screen.queryByText("Stats")).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /open menu/i }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("includes Customers, Plan, Profile, and Sign out in the account menu", async () => {
+  it("toggles the mobile link panel open and closed", async () => {
     const user = userEvent.setup();
     render(<DashboardNav {...baseProps} />);
-    const accountButton = screen.getByRole("button", { name: /account menu/i });
+    const toggle = screen.getByRole("button", { name: /open menu/i });
+    await user.click(toggle);
+    expect(
+      screen.getByRole("button", { name: /close menu/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("account menu has Plan, Profile, Sign out, and no separate Customers item", async () => {
+    const user = userEvent.setup();
+    render(<DashboardNav {...baseProps} />);
+    const accountButton = screen.getByRole("button", {
+      name: /account menu/i,
+    });
     await user.click(accountButton);
-    expect(screen.getByText("Customers")).toBeInTheDocument();
     expect(screen.getByText("Plan")).toBeInTheDocument();
     expect(screen.getByText("Profile")).toBeInTheDocument();
     expect(screen.getByText("Sign out")).toBeInTheDocument();
+    // "Customers" appears exactly once — the inline nav link (asserted by
+    // role "link" above) — proving the account-dropdown item was removed,
+    // not merely hidden.
+    expect(screen.getAllByText("Customers")).toHaveLength(1);
   });
 });
