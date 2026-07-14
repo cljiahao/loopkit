@@ -6,9 +6,14 @@ import { StreakFlame } from "@/components/streak-flame";
 import { StampDots } from "@/components/stamp-dots";
 
 // Mirrors ProgramCardStatus's view-kind switch (src/app/c/program-card-status.tsx)
-// exactly, so the /setup preview can never visually drift from a real
-// customer card. No redeem/regenerate interactivity — this is a static
-// snapshot of the current form values, not a live card.
+// — same components, same props — so the /setup preview can never visually
+// drift from a real customer card. No redeem/regenerate interactivity —
+// this is a static snapshot of the current form values, not a live card.
+//
+// Unlike ProgramCardStatus, every visual sits in one fixed-height, centered
+// box (h-36) here: switching card type in /setup shouldn't make the preview
+// panel jump around in height between a wide stamp grid, a square plant/
+// wheel, or a short streak flame.
 export function PreviewCard({
   progress,
   name,
@@ -25,33 +30,29 @@ export function PreviewCard({
         Customer preview
       </p>
       <p className="text-sm font-semibold">{name || "Your card"}</p>
-      {view.kind === "plant" ? (
-        <div className="flex flex-col items-center gap-2">
+      <div className="flex h-36 items-center justify-center">
+        {view.kind === "plant" ? (
           <Plant
             stage={view.stage}
             totalStages={view.totalStages}
             wilting={view.wilting}
           />
-        </div>
-      ) : view.kind === "streak" ? (
-        <div className="flex flex-col items-center gap-2">
+        ) : view.kind === "streak" ? (
           <StreakFlame
             current={view.current}
             target={view.target}
             status={view.status}
           />
-        </div>
-      ) : view.kind === "chance" ? (
-        <div className="flex flex-col items-center gap-2">
-          {view.variant === "wheel" ? (
+        ) : view.kind === "chance" ? (
+          view.variant === "wheel" ? (
             <Wheel segments={view.segments} landedId={view.landedId} />
           ) : (
             <ScratchCard revealed={false} label="" reward={false} />
-          )}
-        </div>
-      ) : view.kind === "dots" ? (
-        <StampDots filled={view.filled} total={view.total} />
-      ) : null}
+          )
+        ) : view.kind === "dots" ? (
+          <StampDots filled={view.filled} total={view.total} />
+        ) : null}
+      </div>
       <p className="font-mono text-sm font-medium">{progress.label}</p>
       <p className="text-sm text-muted-foreground">
         Reward: {rewardText || "—"}

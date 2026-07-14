@@ -11,7 +11,7 @@ export function StampDots({
   className?: string;
 }) {
   return (
-    <div className={cn("grid grid-cols-5 gap-2", className)}>
+    <div className={cn("grid w-fit grid-cols-5 gap-2", className)}>
       {Array.from({ length: total }, (_, i) => {
         const isReward = i === total - 1;
         const stamped = i < filled;
