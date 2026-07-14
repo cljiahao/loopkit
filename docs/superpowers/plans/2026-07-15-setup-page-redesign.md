@@ -403,6 +403,7 @@ with:
         <button
           key={option.value}
           type="button"
+          aria-label={option.label}
           onClick={() => pickType(option.value)}
           className={cn(
             "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
@@ -606,6 +607,7 @@ In `src/app/setup/setup-form.tsx`, the current return statement is:
                 <button
                   key={option.value}
                   type="button"
+                  aria-label={option.label}
                   onClick={() => pickType(option.value)}
                   className={cn(
                     "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
@@ -657,6 +659,7 @@ Replace the whole return statement with:
               <button
                 key={option.value}
                 type="button"
+                aria-label={option.label}
                 onClick={() => pickType(option.value)}
                 className={cn(
                   "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
