@@ -14,6 +14,7 @@ import { ProgramCard } from "@/app/dashboard/program-card";
 import { NewProgramTile } from "@/app/dashboard/new-program-tile";
 import { ShopQrBlock } from "@/app/dashboard/shop-qr-block";
 import { QkitEarnSettings } from "@/app/dashboard/qkit-earn-settings";
+import { shouldShowQr } from "@/app/dashboard/dashboard-view";
 
 export default async function DashboardPage() {
   const { user } = await requireVendor();
@@ -62,13 +63,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 p-5 py-10">
-      <ShopQrBlock
-        qrSvgMarkup={cardQr}
-        link={cardLink}
-        programNames={activePrograms.map((prog) => prog.name)}
-      />
-
-      {activePrograms.length === 0 ? (
+      {!shouldShowQr(activePrograms.length) ? (
         <div className="rounded-2xl border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
           None of your programs are active right now.{" "}
           <a href="/setup" className="font-medium text-primary hover:underline">
@@ -77,16 +72,24 @@ export default async function DashboardPage() {
           to reactivate one.
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
-          {activePrograms.map((prog) => (
-            <ProgramCard
-              key={prog.id}
-              program={prog}
-              stats={statsByProgramId[prog.id]}
-            />
-          ))}
-          <NewProgramTile canCreate={canCreate} />
-        </div>
+        <>
+          <ShopQrBlock
+            qrSvgMarkup={cardQr}
+            link={cardLink}
+            programNames={activePrograms.map((prog) => prog.name)}
+          />
+
+          <div className="grid grid-cols-1 gap-4 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
+            {activePrograms.map((prog) => (
+              <ProgramCard
+                key={prog.id}
+                program={prog}
+                stats={statsByProgramId[prog.id]}
+              />
+            ))}
+            <NewProgramTile canCreate={canCreate} />
+          </div>
+        </>
       )}
 
       <details className="group rounded-2xl border bg-card shadow-sm">
