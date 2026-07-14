@@ -18,7 +18,7 @@ function Cell({ on }: { on: boolean }) {
 }
 
 const FEATURES = [
-  { label: "Loyalty programs", free: "1", pro: "Unlimited" },
+  { label: "Loyalty programs", free: "1", pro: "∞" },
   { label: "Loyalty card templates", free: true, pro: true },
   { label: "Change card type", free: true, pro: true },
   { label: "Stats dashboard", free: true, pro: true },
