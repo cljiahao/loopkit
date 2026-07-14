@@ -8,10 +8,12 @@ import { PROGRAM_TYPE_BADGE, describeProgram } from "./program-display";
 import type { Program } from "@/lib/program";
 
 // One card per active program. Field order is fixed across every card
-// (header -> Open Counter -> footer links) so scanning a grid of
-// several cards stays fast regardless of how many a vendor has. Serve/
-// lookup lives on the dedicated Counter page now (see
-// app/dashboard/counter/page.tsx), not embedded here.
+// (header -> Open Counter) so scanning a grid of several cards stays
+// fast regardless of how many a vendor has. Serve/lookup lives on the
+// dedicated Counter page now (see app/dashboard/counter/page.tsx), not
+// embedded here. Customers/Activity/Stats for this program are reached
+// via each of those pages' own merged-view program picker instead of a
+// per-card link.
 export function ProgramCard({ program }: { program: Program }) {
   const badge = PROGRAM_TYPE_BADGE[program.type] ?? PROGRAM_TYPE_BADGE.stamp;
   const scoped = (href: string) => `${href}?p=${program.id}`;
@@ -42,27 +44,6 @@ export function ProgramCard({ program }: { program: Program }) {
       <Button asChild className="h-11 w-full rounded-xl font-semibold">
         <Link href={scoped("/dashboard/counter")}>Open Counter</Link>
       </Button>
-
-      <div className="flex gap-4 border-t pt-3 text-sm font-medium text-muted-foreground">
-        <Link
-          href={scoped("/dashboard/customers")}
-          className="hover:text-foreground"
-        >
-          Customers
-        </Link>
-        <Link
-          href={scoped("/dashboard/activity")}
-          className="hover:text-foreground"
-        >
-          Activity
-        </Link>
-        <Link
-          href={scoped("/dashboard/stats")}
-          className="hover:text-foreground"
-        >
-          Stats
-        </Link>
-      </div>
     </div>
   );
 }

@@ -33,27 +33,24 @@ describe("ProgramCard", () => {
     ).toHaveAttribute("href", "/setup?edit=p1");
   });
 
-  it("scopes footer links to this program via ?p=", () => {
-    render(<ProgramCard program={program} />);
-    expect(screen.getByRole("link", { name: "Customers" })).toHaveAttribute(
-      "href",
-      "/dashboard/customers?p=p1",
-    );
-    expect(screen.getByRole("link", { name: "Activity" })).toHaveAttribute(
-      "href",
-      "/dashboard/activity?p=p1",
-    );
-    expect(screen.getByRole("link", { name: "Stats" })).toHaveAttribute(
-      "href",
-      "/dashboard/stats?p=p1",
-    );
-  });
-
   it("links Open Counter to /dashboard/counter?p=<id>", () => {
     render(<ProgramCard program={program} />);
     expect(screen.getByRole("link", { name: /open counter/i })).toHaveAttribute(
       "href",
       "/dashboard/counter?p=p1",
     );
+  });
+
+  it("does not render Customers, Activity, or Stats links", () => {
+    render(<ProgramCard program={program} />);
+    expect(
+      screen.queryByRole("link", { name: "Customers" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Activity" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Stats" }),
+    ).not.toBeInTheDocument();
   });
 });
