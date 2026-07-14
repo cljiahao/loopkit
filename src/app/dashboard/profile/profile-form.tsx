@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Store, UserRound, IdCard, KeyRound } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,7 +128,20 @@ export function ProfileForm({
     <div className="md:columns-2 md:gap-5 [&>*]:mb-5 [&>*]:break-inside-avoid-column">
       <Card>
         <CardHeader>
-          <CardTitle>Stall name</CardTitle>
+          <div className="flex items-start gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <Store className="size-4" />
+            </span>
+            <div>
+              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Shown to customers
+              </p>
+              <CardTitle className="mt-0.5 text-lg">Stall name</CardTitle>
+              <CardDescription className="mt-1">
+                The name on your customers&apos; card and at the counter.
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -152,27 +172,47 @@ export function ProfileForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Photo</CardTitle>
+          <div className="flex items-start gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <UserRound className="size-4" />
+            </span>
+            <div>
+              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Your account menu
+              </p>
+              <CardTitle className="mt-0.5 text-lg">Profile icon</CardTitle>
+              <CardDescription className="mt-1">
+                A small image for your account menu. Defaults to your initials.
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
-            <ImageUploader
-              bucket="vendor-images"
-              pathPrefix={vendorId}
-              value={avatar}
-              onChange={handleAvatarChange}
-            />
-            <p className="text-xs text-muted-foreground">
-              Shown in your account menu. Falls back to your initials when
-              empty.
-            </p>
-          </div>
+          <ImageUploader
+            bucket="vendor-images"
+            pathPrefix={vendorId}
+            value={avatar}
+            onChange={handleAvatarChange}
+          />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Display name</CardTitle>
+          <div className="flex items-start gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <IdCard className="size-4" />
+            </span>
+            <div>
+              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Just for you
+              </p>
+              <CardTitle className="mt-0.5 text-lg">Display name</CardTitle>
+              <CardDescription className="mt-1">
+                How loopkit addresses you. Customers never see this.
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -187,9 +227,6 @@ export function ProfileForm({
               placeholder="e.g. Aisha"
               className="h-11 rounded-xl"
             />
-            <p className="text-xs text-muted-foreground">
-              How we address you. Customers never see this.
-            </p>
           </div>
           <div className="flex justify-end">
             <Button
@@ -208,7 +245,20 @@ export function ProfileForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Change password</CardTitle>
+          <div className="flex items-start gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <KeyRound className="size-4" />
+            </span>
+            <div>
+              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Sign-in security
+              </p>
+              <CardTitle className="mt-0.5 text-lg">Change password</CardTitle>
+              <CardDescription className="mt-1">
+                Set a new password. At least 8 characters.
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
