@@ -71,3 +71,71 @@ describe("SetupForm live preview", () => {
     expect(submitted.get("stamps_required")).toBe("10");
   });
 });
+
+describe("SetupForm type picker", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("shows a single flat grid of all six types with no template/custom toggle", () => {
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Stamp card" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Lucky Tap" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sprout" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Spin the Wheel" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Scratch Card" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Streak Club" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Custom — start from scratch"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("resets name and reward to blank when a new type is picked", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.type(screen.getByLabelText("Card name"), "My card");
+    await user.type(screen.getByLabelText("Reward"), "Free item");
+
+    await user.click(screen.getByRole("button", { name: "Streak Club" }));
+
+    expect(screen.getByLabelText("Card name")).toHaveValue("");
+    expect(screen.getByLabelText("Reward")).toHaveValue("");
+  });
+
+  it("stamp quick-pick chips set stamps required", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "15" }));
+    expect(screen.getByLabelText("Stamps required")).toHaveValue(15);
+    expect(screen.getByText("0/15 stamps")).toBeInTheDocument();
+  });
+});

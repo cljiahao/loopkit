@@ -7,7 +7,6 @@ import {
   prepProgramAction,
 } from "@/app/setup/actions";
 import type { Program, ProgramType } from "@/lib/program";
-import { TEMPLATES } from "@/lib/templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +28,39 @@ const typeLabels: Record<ProgramType, string> = {
   scratch: "Scratch Card",
   streak: "Streak Club",
 };
+
+const TYPE_OPTIONS = [
+  {
+    value: "stamp",
+    label: "Stamp card",
+    description: "Collect stamps toward a reward",
+  },
+  {
+    value: "lucky",
+    label: "Lucky Tap",
+    description: "A chance to win on every visit",
+  },
+  {
+    value: "plant",
+    label: "Sprout",
+    description: "Grow a plant with every visit",
+  },
+  {
+    value: "wheel",
+    label: "Spin the Wheel",
+    description: "Spin for a prize on every visit",
+  },
+  {
+    value: "scratch",
+    label: "Scratch Card",
+    description: "Scratch for a prize on every visit",
+  },
+  {
+    value: "streak",
+    label: "Streak Club",
+    description: "Reward a consecutive visit streak",
+  },
+] as const;
 
 const DEFAULT_SEGMENTS: SegmentInput[] = [
   { label: "Try again", weight: 5, is_reward: false },
@@ -65,18 +97,6 @@ export function SetupForm({
       ? program.type
       : "stamp";
   const [type, setType] = useState<ProgramType>(initialType);
-  // "template" shows the curated grid (the default for both plain create and
-  // migrate flows); "custom" falls back to today's raw type grid. Only
-  // meaningful when !isEdit — isEdit always shows the locked static label.
-  const [pickerMode, setPickerMode] = useState<"template" | "custom">(
-    "template",
-  );
-  // Which template tile is selected, or null (custom mode, or no pick yet) —
-  // used only to highlight the selected tile. Field values themselves are
-  // set directly by pickTemplate/pickCustomType below, not derived from this.
-  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string | null>(
-    null,
-  );
 
   const config = (program?.config ?? {}) as {
     win_probability?: number;
@@ -135,23 +155,11 @@ export function SetupForm({
     headStart,
   });
 
-  function pickTemplate(template: (typeof TEMPLATES)[number]) {
-    const d = template.defaults;
-    setType(template.type);
-    setSelectedTemplateKey(template.key);
-    setName(d.name);
-    setRewardText(d.reward_text);
-    if (d.stamps_required !== undefined) setStampsRequired(d.stamps_required);
-    if (d.visits_to_bloom !== undefined) setVisitsToBloom(d.visits_to_bloom);
-    if (d.win_percent !== undefined) setWinPercent(d.win_percent);
-    setPityCeiling(d.pity_ceiling);
-    if (d.period_days !== undefined) setPeriodDays(d.period_days);
-    if (d.target_streak !== undefined) setTargetStreak(d.target_streak);
-  }
-
-  function pickCustomType(value: ProgramType) {
+  // Sets the type plus its sensible numeric defaults, and always resets
+  // name/rewardText to blank — the vendor types both themselves, no
+  // suggested copy is ever prefilled on the create flow.
+  function pickType(value: ProgramType) {
     setType(value);
-    setSelectedTemplateKey(null);
     setName("");
     setRewardText("");
     setStampsRequired(10);
@@ -193,70 +201,26 @@ export function SetupForm({
               {typeLabels[type]}
             </p>
           ) : (
-            <div className="space-y-3">
-              {pickerMode === "template" ? (
-                <>
-                  <div className="grid grid-cols-2 gap-2">
-                    {TEMPLATES.map((template) => (
-                      <button
-                        key={template.key}
-                        type="button"
-                        onClick={() => pickTemplate(template)}
-                        className={cn(
-                          "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
-                          selectedTemplateKey === template.key
-                            ? "border-primary bg-primary/10"
-                            : "bg-card hover:bg-muted/50",
-                        )}
-                      >
-                        <span className="text-sm font-semibold">
-                          {template.label}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {template.description}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPickerMode("custom");
-                      setSelectedTemplateKey(null);
-                    }}
-                    className="h-11 w-full rounded-xl border text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/50"
-                  >
-                    Custom — start from scratch
-                  </button>
-                </>
-              ) : (
-                <div className="grid grid-cols-3 gap-2">
-                  {(
-                    [
-                      { value: "stamp", label: "Stamp card" },
-                      { value: "lucky", label: "Lucky Tap" },
-                      { value: "plant", label: "Sprout" },
-                      { value: "wheel", label: "Spin the Wheel" },
-                      { value: "scratch", label: "Scratch Card" },
-                      { value: "streak", label: "Streak Club" },
-                    ] as const
-                  ).map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => pickCustomType(option.value)}
-                      className={cn(
-                        "h-11 rounded-xl border text-sm font-semibold transition-colors",
-                        type === option.value
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "bg-card text-muted-foreground hover:bg-muted/50",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="grid grid-cols-2 gap-2">
+              {TYPE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-label={option.label}
+                  onClick={() => pickType(option.value)}
+                  className={cn(
+                    "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
+                    type === option.value
+                      ? "border-primary bg-primary/10"
+                      : "bg-card hover:bg-muted/50",
+                  )}
+                >
+                  <span className="text-sm font-semibold">{option.label}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {option.description}
+                  </span>
+                </button>
+              ))}
             </div>
           )}
           <input type="hidden" name="type" value={type} />
@@ -296,6 +260,23 @@ export function SetupForm({
                 onChange={(e) => setStampsRequired(Number(e.target.value))}
                 className="h-11 rounded-xl"
               />
+              <div className="flex gap-1.5">
+                {[5, 10, 15].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setStampsRequired(n)}
+                    className={cn(
+                      "h-7 rounded-lg border px-2.5 text-xs font-semibold transition-colors",
+                      stampsRequired === n
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "bg-card text-muted-foreground hover:bg-muted/50",
+                    )}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ) : type === "plant" ? (
