@@ -11,6 +11,7 @@ import { TEMPLATES } from "@/lib/templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 type SegmentInput = { label: string; weight: number; is_reward: boolean };
@@ -516,12 +517,11 @@ export function SetupForm({
 
       {(type === "stamp" || type === "plant" || type === "streak") && (
         <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-3">
-          <input
-            type="checkbox"
+          <Switch
             id="head_start_checkbox"
             checked={headStart}
-            onChange={(e) => setHeadStart(e.target.checked)}
-            className="mt-0.5 size-4 rounded border-input"
+            onCheckedChange={setHeadStart}
+            className="mt-0.5"
           />
           <label htmlFor="head_start_checkbox" className="text-sm">
             <span className="font-medium">Give new customers a head start</span>
@@ -540,12 +540,11 @@ export function SetupForm({
 
       {showCarryOverOption && (
         <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-3">
-          <input
-            type="checkbox"
+          <Switch
             id="carry_over_stamps_checkbox"
             checked={carryOverStamps}
-            onChange={(e) => setCarryOverStamps(e.target.checked)}
-            className="mt-0.5 size-4 rounded border-input"
+            onCheckedChange={setCarryOverStamps}
+            className="mt-0.5"
           />
           <label htmlFor="carry_over_stamps_checkbox" className="text-sm">
             <span className="font-medium">
