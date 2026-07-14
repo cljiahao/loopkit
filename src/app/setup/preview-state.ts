@@ -3,7 +3,7 @@ import {
   buildPlantConfig,
   buildStreakConfig,
   type ProgramType,
-} from "@/lib/program";
+} from "@/lib/program-config";
 import { getProgress, type CardLike, type ProgramLike } from "@/lib/engine";
 import type { Progress } from "@/lib/engine/types";
 
