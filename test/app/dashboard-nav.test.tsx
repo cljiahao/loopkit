@@ -3,18 +3,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/dashboard",
-  useSearchParams: () => new URLSearchParams(),
-}));
-
 import { DashboardNav } from "@/app/dashboard/dashboard-nav";
 
 const baseProps = {
   signOut: vi.fn(async () => {}),
   tier: "free" as const,
-  programs: [],
-  activeByProgramId: {},
 };
 
 // Radix's dropdown positioning relies on pointer-capture / scrollIntoView
