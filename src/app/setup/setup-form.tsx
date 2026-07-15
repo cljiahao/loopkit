@@ -30,13 +30,14 @@ const labelClass =
   "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
 
 type TypeOptionValue =
-  "stamp" | "flame" | "lucky" | "plant" | "wheel" | "scratch";
+  "stamp" | "flame" | "lucky" | "plant" | "cup" | "wheel" | "scratch";
 
 const typeLabels: Record<TypeOptionValue, string> = {
   stamp: "Stamp card",
   flame: "Flame Club",
   lucky: "Lucky Tap",
   plant: "Sprout",
+  cup: "Fill the Cup",
   wheel: "Spin the Wheel",
   scratch: "Scratch Card",
 };
@@ -61,6 +62,11 @@ const TYPE_OPTIONS = [
     value: "plant",
     label: "Sprout",
     description: "Grow a plant with every visit",
+  },
+  {
+    value: "cup",
+    label: "Fill the Cup",
+    description: "Fill a cup with every visit",
   },
   {
     value: "wheel",
@@ -118,13 +124,19 @@ export function SetupForm({
     variant?: string;
   };
 
-  const [variant, setVariant] = useState<"dots" | "flame">(
-    config.variant === "flame" ? "flame" : "dots",
+  const [variant, setVariant] = useState<"dots" | "flame" | "plant" | "cup">(
+    () => {
+      if (config.variant === "flame") return "flame";
+      if (config.variant === "cup") return "cup";
+      return initialType === "plant" ? "plant" : "dots";
+    },
   );
   const selectedOptionKey: TypeOptionValue =
     type === "stamp" && variant === "flame"
       ? "flame"
-      : (type as TypeOptionValue);
+      : type === "plant" && variant === "cup"
+        ? "cup"
+        : (type as TypeOptionValue);
 
   // Every field below is controlled — the same state drives both form
   // submission and the live preview, updated on every keystroke.
@@ -180,8 +192,18 @@ export function SetupForm({
   // tile maps to type "stamp" + variant "flame" — it is never a distinct
   // ProgramType (see program-config.ts).
   function pickType(value: TypeOptionValue) {
-    setType(value === "flame" ? "stamp" : value);
-    setVariant(value === "flame" ? "flame" : "dots");
+    setType(value === "flame" ? "stamp" : value === "cup" ? "plant" : value);
+    setVariant(
+      value === "flame"
+        ? "flame"
+        : value === "cup"
+          ? "cup"
+          : value === "stamp"
+            ? "dots"
+            : value === "plant"
+              ? "plant"
+              : "dots",
+    );
     setName("");
     setRewardText("");
     setStampsRequired(10);
@@ -253,7 +275,7 @@ export function SetupForm({
           <input type="hidden" name="replacing" value={replacingId} />
         ) : null}
         <input type="hidden" name="type" value={type} />
-        {type === "stamp" ? (
+        {type === "stamp" || type === "plant" ? (
           <input type="hidden" name="variant" value={variant} />
         ) : null}
 
@@ -350,7 +372,7 @@ export function SetupForm({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="visits_to_bloom" className={labelClass}>
-                    Visits to bloom
+                    {variant === "cup" ? "Visits to fill" : "Visits to bloom"}
                   </Label>
                   <Input
                     id="visits_to_bloom"

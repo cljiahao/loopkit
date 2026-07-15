@@ -127,6 +127,30 @@ describe("saveProgramSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts a plant program with variant=cup", () => {
+    const result = saveProgramSchema.safeParse({
+      type: "plant",
+      name: "Fill-a-kopi",
+      reward_text: "Free kopi",
+      visits_to_bloom: "6",
+      head_start: "false",
+      variant: "cup",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a plant program with an invalid variant", () => {
+    const result = saveProgramSchema.safeParse({
+      type: "plant",
+      name: "Fill-a-kopi",
+      reward_text: "Free kopi",
+      visits_to_bloom: "6",
+      head_start: "false",
+      variant: "bogus",
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("accepts a stamp program with variant flame", () => {
     const result = saveProgramSchema.safeParse({
       type: "stamp",

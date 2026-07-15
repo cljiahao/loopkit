@@ -97,6 +97,10 @@ export const saveProgramSchema = z.discriminatedUnion("type", [
       emptyToUndefined,
       z.coerce.number().int().min(5).max(50).optional(),
     ),
+    variant: z.preprocess(
+      emptyToUndefined,
+      z.enum(["plant", "cup"]).optional(),
+    ),
     expiry_days: expiryDaysSchema,
   }),
   z.object({
@@ -180,7 +184,11 @@ export function buildProgramFields(data: SaveProgramInput): {
       stampsRequired: data.visits_to_bloom,
       headStart: data.head_start,
       headStartPercent: data.head_start_percent ?? 20,
-      config: buildPlantConfig(data.visits_to_bloom, data.reward_text) as Json,
+      config: buildPlantConfig(
+        data.visits_to_bloom,
+        data.reward_text,
+        data.variant ?? "plant",
+      ) as Json,
     };
   }
   return {

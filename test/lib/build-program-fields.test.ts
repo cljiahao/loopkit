@@ -101,6 +101,43 @@ describe("buildProgramFields", () => {
     expect(result.config).toMatchObject({ reward_text: "Free kopi" });
   });
 
+  it("builds a cup-variant plant program's config with the cup stage names", () => {
+    const result = buildProgramFields({
+      type: "plant",
+      name: "Fill-a-kopi",
+      reward_text: "Free kopi",
+      visits_to_bloom: 8,
+      head_start: false,
+      expiry_days: undefined,
+      variant: "cup",
+    } as SaveProgramInput);
+
+    expect(result.type).toBe("plant");
+    expect(result.config).toMatchObject({
+      variant: "cup",
+      stages: [
+        { name: "Empty", threshold: 0 },
+        { name: "Sip", threshold: 2 },
+        { name: "Quarter Full", threshold: 4 },
+        { name: "Nearly Full", threshold: 6 },
+        { name: "Full", threshold: 8 },
+      ],
+    });
+  });
+
+  it("defaults plant variant to 'plant' when absent", () => {
+    const result = buildProgramFields({
+      type: "plant",
+      name: "Grow-a-kopi",
+      reward_text: "Free kopi",
+      visits_to_bloom: 6,
+      head_start: false,
+      expiry_days: undefined,
+    } as SaveProgramInput);
+
+    expect(result.config).toMatchObject({ variant: "plant" });
+  });
+
   it("builds a stamp program's config with variant flame", () => {
     const result = buildProgramFields({
       type: "stamp",

@@ -147,6 +147,52 @@ describe("SetupForm type picker", () => {
     expect(submitted.get("variant")).toBe("flame");
   });
 
+  it("Fill the Cup tile saves type=plant with variant=cup and the fill-specific label", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Fill the Cup" }));
+    expect(screen.getByText("Visits to fill")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Card name"), "Fill-a-kopi");
+    await user.type(screen.getByLabelText("Reward"), "Free kopi");
+    await user.click(screen.getByRole("button", { name: "Create card" }));
+
+    expect(saveMock).toHaveBeenCalled();
+    const submitted = saveMock.mock.calls[0][1] as FormData;
+    expect(submitted.get("type")).toBe("plant");
+    expect(submitted.get("variant")).toBe("cup");
+  });
+
+  it("Sprout tile still saves type=plant with variant=plant and the bloom-specific label", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Sprout" }));
+    expect(screen.getByText("Visits to bloom")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Card name"), "Grow-a-kopi");
+    await user.type(screen.getByLabelText("Reward"), "Free kopi");
+    await user.click(screen.getByRole("button", { name: "Create card" }));
+
+    expect(saveMock).toHaveBeenCalled();
+    const submitted = saveMock.mock.calls[0][1] as FormData;
+    expect(submitted.get("type")).toBe("plant");
+    expect(submitted.get("variant")).toBe("plant");
+  });
+
   it("stamp quick-pick chips set stamps required", async () => {
     const user = userEvent.setup();
     render(
