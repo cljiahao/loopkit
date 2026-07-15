@@ -131,6 +131,7 @@ describe("dashboard actions thread program_id", () => {
         kind: "dots",
         filled: 10,
         total: 10,
+        variant: "dots",
       });
     }
   });

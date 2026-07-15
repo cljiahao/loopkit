@@ -115,7 +115,7 @@ describe("checkStatusAction", () => {
           programId: "p1",
           name: "Kaya Toast Co.",
           label: "3/10 stamps",
-          view: { kind: "dots", filled: 3, total: 10 },
+          view: { kind: "dots", filled: 3, total: 10, variant: "dots" },
           rewardReady: false,
           reward_text: "Free kopi",
           qr: '<svg data-token="tok_abc"></svg>',

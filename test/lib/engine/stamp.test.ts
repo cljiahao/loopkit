@@ -46,7 +46,7 @@ describe("stampStrategy", () => {
     expect(
       stampStrategy.progress({ stamp_count: 3, reward_count: 0 }, cfg, now)
         .view,
-    ).toEqual({ kind: "dots", filled: 3, total: 5 });
+    ).toEqual({ kind: "dots", filled: 3, total: 5, variant: "dots" });
   });
 });
 
@@ -128,6 +128,77 @@ describe("stampStrategy flame variant", () => {
       cfg,
       now,
     );
-    expect(p.view).toEqual({ kind: "dots", filled: 3, total: 5 });
+    expect(p.view).toEqual({
+      kind: "dots",
+      filled: 3,
+      total: 5,
+      variant: "dots",
+    });
+  });
+});
+
+describe("stampStrategy points variant", () => {
+  const pointsCfg = {
+    stamps_required: 100,
+    reward_text: "free kopi",
+    variant: "points" as const,
+    points_per_visit: 10,
+  };
+
+  it("apply() increments by points_per_visit instead of 1", () => {
+    const r = stampStrategy.apply(
+      { kind: "visit" },
+      { stamp_count: 40, reward_count: 0 },
+      pointsCfg,
+      now,
+    );
+    expect(r.state.stamp_count).toBe(50);
+  });
+
+  it("apply() caps at stamps_required even when points_per_visit overshoots", () => {
+    const r = stampStrategy.apply(
+      { kind: "visit" },
+      { stamp_count: 95, reward_count: 0 },
+      pointsCfg,
+      now,
+    );
+    expect(r.state.stamp_count).toBe(100);
+    expect(r.rewardUnlocked).toBe(true);
+  });
+
+  it("apply() defaults to +1 when points_per_visit is absent, even with variant points", () => {
+    const cfgNoAmount = {
+      stamps_required: 100,
+      reward_text: "free kopi",
+      variant: "points" as const,
+    };
+    const r = stampStrategy.apply(
+      { kind: "visit" },
+      { stamp_count: 40, reward_count: 0 },
+      cfgNoAmount,
+      now,
+    );
+    expect(r.state.stamp_count).toBe(41);
+  });
+
+  it("progress() tags the dots view with variant: points and uses a points-worded label", () => {
+    const p = stampStrategy.progress(
+      { stamp_count: 40, reward_count: 0 },
+      pointsCfg,
+      now,
+    );
+    expect(p.view).toEqual({
+      kind: "dots",
+      filled: 40,
+      total: 100,
+      variant: "points",
+    });
+    expect(p.label).toBe("40/100 points");
+  });
+
+  it("redeem() is unaffected by points_per_visit — still resets to 0 and increments reward_count", () => {
+    expect(
+      stampStrategy.redeem({ stamp_count: 100, reward_count: 1 }, pointsCfg),
+    ).toEqual({ stamp_count: 0, reward_count: 2 });
   });
 });

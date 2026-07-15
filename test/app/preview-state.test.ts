@@ -25,7 +25,12 @@ describe("buildPreviewProgress", () => {
   it("stamp: fresh card shows zero-filled dots", () => {
     const progress = buildPreviewProgress({ ...base, type: "stamp" });
     expect(progress.label).toBe("0/10 stamps");
-    expect(progress.view).toEqual({ kind: "dots", filled: 0, total: 10 });
+    expect(progress.view).toEqual({
+      kind: "dots",
+      filled: 0,
+      total: 10,
+      variant: "dots",
+    });
   });
 
   it("stamp: head start seeds ~20% of stamps_required, capped below the requirement", () => {
@@ -35,7 +40,12 @@ describe("buildPreviewProgress", () => {
       headStart: true,
     });
     expect(progress.label).toBe("2/10 stamps");
-    expect(progress.view).toEqual({ kind: "dots", filled: 2, total: 10 });
+    expect(progress.view).toEqual({
+      kind: "dots",
+      filled: 2,
+      total: 10,
+      variant: "dots",
+    });
   });
 
   it("plant: fresh card starts at Seed", () => {

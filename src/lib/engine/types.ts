@@ -4,7 +4,12 @@ export type EngineEvent = {
 };
 
 export type ProgressView =
-  | { kind: "dots"; filled: number; total: number }
+  | {
+      kind: "dots";
+      filled: number;
+      total: number;
+      variant?: "dots" | "points";
+    }
   | {
       kind: "flame";
       filled: number;

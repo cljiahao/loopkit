@@ -3,7 +3,8 @@ import type { Strategy } from "@/lib/engine/types";
 export type StampConfig = {
   stamps_required: number;
   reward_text: string;
-  variant?: "dots" | "flame";
+  variant?: "dots" | "flame" | "points";
+  points_per_visit?: number;
 };
 export type StampState = { stamp_count: number; reward_count: number };
 
@@ -40,16 +41,24 @@ export const stampStrategy: Strategy<StampConfig, StampState> = {
         rewardReady,
       };
     }
+    const isPoints = config.variant === "points";
+    const unitLabel = isPoints ? "points" : "stamps";
     return {
       stage: rewardReady ? "ready" : "collecting",
-      label: `${filled}/${total} stamps`,
-      view: { kind: "dots", filled, total },
+      label: `${filled}/${total} ${unitLabel}`,
+      view: {
+        kind: "dots",
+        filled,
+        total,
+        variant: isPoints ? "points" : "dots",
+      },
       rewardReady,
     };
   },
   apply(event, state, config) {
     if (event.kind !== "visit") return { state, rewardUnlocked: false };
-    const next = Math.min(state.stamp_count + 1, config.stamps_required);
+    const inc = config.points_per_visit ?? 1;
+    const next = Math.min(state.stamp_count + inc, config.stamps_required);
     return {
       state: { ...state, stamp_count: next },
       rewardUnlocked:

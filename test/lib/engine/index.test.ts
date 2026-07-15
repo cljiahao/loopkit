@@ -13,7 +13,12 @@ describe("getProgress", () => {
     };
     const card = { state: { stamp_count: 3 }, stamp_count: 3, reward_count: 0 };
     const p = getProgress(program, card, now);
-    expect(p.view).toEqual({ kind: "dots", filled: 3, total: 8 });
+    expect(p.view).toEqual({
+      kind: "dots",
+      filled: 3,
+      total: 8,
+      variant: "dots",
+    });
     expect(p.rewardReady).toBe(false);
   });
   it("falls back to legacy columns when config is empty", () => {
@@ -25,7 +30,12 @@ describe("getProgress", () => {
     };
     const card = { state: {}, stamp_count: 5, reward_count: 0 };
     const p = getProgress(program, card, now);
-    expect(p.view).toEqual({ kind: "dots", filled: 5, total: 5 });
+    expect(p.view).toEqual({
+      kind: "dots",
+      filled: 5,
+      total: 5,
+      variant: "dots",
+    });
     expect(p.rewardReady).toBe(true);
   });
 });
