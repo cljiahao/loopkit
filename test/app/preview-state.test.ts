@@ -12,14 +12,13 @@ const base = {
   visitsToBloom: 6,
   winPercent: 20,
   pityCeiling: 8 as number | undefined,
-  periodDays: 7,
-  targetStreak: 4,
   segments: [
     { label: "Try again", weight: 5, is_reward: false },
     { label: "Free item", weight: 1, is_reward: true },
   ],
   headStart: false,
   headStartPercent: 20,
+  variant: "dots" as const,
 };
 
 describe("buildPreviewProgress", () => {
@@ -62,30 +61,6 @@ describe("buildPreviewProgress", () => {
       stageName: "Sprout",
       totalStages: 5,
       wilting: false,
-    });
-  });
-
-  it("streak: fresh card has no active window", () => {
-    const progress = buildPreviewProgress({ ...base, type: "streak" });
-    expect(progress.view).toEqual({
-      kind: "streak",
-      current: 0,
-      target: 4,
-      status: "none",
-    });
-  });
-
-  it("streak: head start banks one full period", () => {
-    const progress = buildPreviewProgress({
-      ...base,
-      type: "streak",
-      headStart: true,
-    });
-    expect(progress.view).toEqual({
-      kind: "streak",
-      current: 1,
-      target: 4,
-      status: "active",
     });
   });
 
@@ -148,19 +123,14 @@ describe("buildPreviewProgress", () => {
     });
   });
 
-  it("streak: head-start amount is ignored, always one full period regardless of the percent", () => {
+  it("stamp: variant flame renders a flame view in progress", () => {
     const progress = buildPreviewProgress({
       ...base,
-      type: "streak",
+      type: "stamp",
+      variant: "flame",
       headStart: true,
-      headStartPercent: 50,
     });
-    expect(progress.view).toEqual({
-      kind: "streak",
-      current: 1,
-      target: 4,
-      status: "active",
-    });
+    expect(progress.view.kind).toBe("flame");
   });
 });
 
@@ -171,8 +141,21 @@ describe("buildPreviewProgram", () => {
       type: "stamp",
       stamps_required: 10,
       reward_text: "Free kopi",
-      config: { stamps_required: 10, reward_text: "Free kopi" },
+      config: {
+        stamps_required: 10,
+        reward_text: "Free kopi",
+        variant: "dots",
+      },
     });
+  });
+
+  it("stamp: variant flame flows into the built program's config", () => {
+    const program = buildPreviewProgram({
+      ...base,
+      type: "stamp",
+      variant: "flame",
+    });
+    expect(program.config).toMatchObject({ variant: "flame" });
   });
 
   it("builds a lucky program, defaulting the pity ceiling to 8", () => {
@@ -223,14 +206,6 @@ describe("buildInitialCard", () => {
       now,
     );
     expect(card.state).toMatchObject({ growth: 2 });
-  });
-
-  it("seeds the streak head-start position at one banked period", () => {
-    const card = buildInitialCard(
-      { ...base, type: "streak", headStart: true },
-      now,
-    );
-    expect(card.state).toMatchObject({ current_streak: 1 });
   });
 
   it("never seeds a head start for lucky, even when the toggle is on", () => {

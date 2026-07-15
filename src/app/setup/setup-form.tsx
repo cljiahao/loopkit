@@ -168,15 +168,10 @@ export function SetupForm({
     visitsToBloom,
     winPercent,
     pityCeiling,
-    // Streak is no longer reachable from the type picker (Flame Club takes
-    // its place, at type "stamp"), so these are inert placeholders that
-    // only exist to satisfy PreviewInput's shape — Task 5 drops them once
-    // preview-state.ts's streak branch is retired.
-    periodDays: 7,
-    targetStreak: 4,
     segments,
     headStart,
     headStartPercent,
+    variant,
   });
 
   // Sets the type plus its sensible numeric defaults, and always resets

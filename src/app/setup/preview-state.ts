@@ -1,7 +1,6 @@
 import {
   buildChanceConfig,
   buildPlantConfig,
-  buildStreakConfig,
   type ProgramType,
 } from "@/lib/program-config";
 import { getProgress, type CardLike, type ProgramLike } from "@/lib/engine";
@@ -15,11 +14,10 @@ export type PreviewInput = {
   visitsToBloom: number;
   winPercent: number;
   pityCeiling: number | undefined;
-  periodDays: number;
-  targetStreak: number;
   segments: { label: string; weight: number; is_reward: boolean }[];
   headStart: boolean;
   headStartPercent: number;
+  variant: "dots" | "flame";
 };
 
 // Mirrors enroll_card's seed math (supabase/migrations/0014_loopkit_head_start.sql)
@@ -54,6 +52,7 @@ export function buildPreviewProgram(
       config: {
         stamps_required: input.stampsRequired,
         reward_text: input.rewardText,
+        variant: input.variant,
       },
     };
   }
@@ -64,19 +63,6 @@ export function buildPreviewProgram(
       stamps_required: input.visitsToBloom,
       reward_text: input.rewardText,
       config: buildPlantConfig(input.visitsToBloom, input.rewardText),
-    };
-  }
-
-  if (input.type === "streak") {
-    return {
-      type: "streak",
-      stamps_required: input.targetStreak,
-      reward_text: input.rewardText,
-      config: buildStreakConfig(
-        input.periodDays,
-        input.targetStreak,
-        input.rewardText,
-      ),
     };
   }
 
@@ -95,13 +81,17 @@ export function buildPreviewProgram(
     };
   }
 
-  // wheel / scratch
+  // wheel / scratch — "streak" is unreachable here (no PreviewInput caller
+  // ever sets type to "streak"; the type picker's Flame Club tile maps to
+  // type "stamp" + variant "flame" instead), but ProgramType still includes
+  // it until Task 6 shrinks the shared union, so a narrowing cast is needed.
+  const chanceType = input.type as "wheel" | "scratch";
   return {
-    type: input.type,
+    type: chanceType,
     stamps_required: input.pityCeiling ?? 10,
     reward_text: input.rewardText,
     config: buildChanceConfig(
-      input.type,
+      chanceType,
       input.segments,
       input.pityCeiling,
       input.rewardText,
@@ -124,8 +114,6 @@ export function buildInitialCard(
     | "type"
     | "stampsRequired"
     | "visitsToBloom"
-    | "periodDays"
-    | "targetStreak"
     | "headStart"
     | "headStartPercent"
   >,
@@ -154,18 +142,6 @@ export function buildInitialCard(
         last_visit_at: now.toISOString(),
         blooms: 0,
         bloomed: false,
-      },
-      stamp_count: 0,
-      reward_count: 0,
-    };
-  }
-
-  if (input.type === "streak") {
-    return {
-      state: {
-        current_streak: 1,
-        window_start: now.toISOString(),
-        reward_banked: false,
       },
       stamp_count: 0,
       reward_count: 0,

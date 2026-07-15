@@ -12,7 +12,6 @@ import {
 
 const TICK_MS = 3000;
 const CELEBRATE_MS = 2000;
-const MS_PER_DAY = 86_400_000;
 
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined" || !window.matchMedia) return false;
@@ -37,11 +36,10 @@ export function usePreviewAnimation(input: PreviewInput): {
     visitsToBloom,
     winPercent,
     pityCeiling,
-    periodDays,
-    targetStreak,
     segments,
     headStart,
     headStartPercent,
+    variant,
   } = input;
 
   // Every field is part of the "recipe" — any edit (including name, which
@@ -55,11 +53,10 @@ export function usePreviewAnimation(input: PreviewInput): {
     visitsToBloom,
     winPercent,
     pityCeiling,
-    periodDays,
-    targetStreak,
     segments,
     headStart,
     headStartPercent,
+    variant,
   ]);
 
   const [reducedMotion, setReducedMotion] = useState(prefersReducedMotion);
@@ -116,10 +113,7 @@ export function usePreviewAnimation(input: PreviewInput): {
         setPhase("ticking");
         return;
       }
-      const nextNow =
-        type === "streak"
-          ? new Date(simulatedNow.getTime() + periodDays * 1.5 * MS_PER_DAY)
-          : new Date();
+      const nextNow = new Date();
       const event: EngineEvent = {
         kind: "visit",
         payload: { roll: Math.random() },
@@ -135,16 +129,7 @@ export function usePreviewAnimation(input: PreviewInput): {
       if (rewardUnlocked) setPhase("celebrating");
     }, delay);
     return () => clearTimeout(timer);
-  }, [
-    reducedMotion,
-    phase,
-    card,
-    simulatedNow,
-    program,
-    initialCard,
-    type,
-    periodDays,
-  ]);
+  }, [reducedMotion, phase, card, simulatedNow, program, initialCard]);
 
   if (reducedMotion) {
     return { progress: buildPreviewProgress(input), celebrating: false };

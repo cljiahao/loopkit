@@ -11,14 +11,13 @@ const base: Omit<PreviewInput, "type"> = {
   visitsToBloom: 6,
   winPercent: 20,
   pityCeiling: 8,
-  periodDays: 7,
-  targetStreak: 4,
   segments: [
     { label: "Try again", weight: 5, is_reward: false },
     { label: "Free item", weight: 1, is_reward: true },
   ],
   headStart: false,
   headStartPercent: 20,
+  variant: "dots",
 };
 
 function mockMatchMedia(matches: boolean) {
@@ -151,30 +150,6 @@ describe("usePreviewAnimation", () => {
     });
     expect(result.current.celebrating).toBe(false);
     rollSpy.mockRestore();
-  });
-
-  it("streak advances one period per tick via a synthetic clock jump", () => {
-    const { result } = renderHook(() =>
-      usePreviewAnimation({
-        ...base,
-        type: "streak",
-        periodDays: 7,
-        targetStreak: 2,
-      }),
-    );
-
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
-    expect(result.current.progress.view).toMatchObject({
-      kind: "streak",
-      current: 1,
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
-    expect(result.current.celebrating).toBe(true);
   });
 
   it("falls back to a static, non-ticking snapshot under prefers-reduced-motion", () => {
