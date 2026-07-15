@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { buildPreviewProgress } from "@/app/setup/preview-state";
+import {
+  buildPreviewProgress,
+  buildPreviewProgram,
+  buildInitialCard,
+} from "@/app/setup/preview-state";
 
 const base = {
   name: "Coffee card",
@@ -113,5 +117,83 @@ describe("buildPreviewProgress", () => {
       { label: "Try again", reward: false },
       { label: "Free item", reward: true },
     ]);
+  });
+});
+
+describe("buildPreviewProgram", () => {
+  it("builds a stamp program", () => {
+    const program = buildPreviewProgram({ ...base, type: "stamp" });
+    expect(program).toEqual({
+      type: "stamp",
+      stamps_required: 10,
+      reward_text: "Free kopi",
+      config: { stamps_required: 10, reward_text: "Free kopi" },
+    });
+  });
+
+  it("builds a lucky program, defaulting the pity ceiling to 8", () => {
+    const program = buildPreviewProgram({
+      ...base,
+      type: "lucky",
+      pityCeiling: undefined,
+    });
+    expect(program.stamps_required).toBe(8);
+    expect(program.config).toMatchObject({
+      win_probability: 0.2,
+      pity_ceiling: 8,
+      cooldown_visits: 0,
+    });
+  });
+
+  it("builds a wheel program from the configured segments", () => {
+    const program = buildPreviewProgram({
+      ...base,
+      type: "wheel",
+      pityCeiling: undefined,
+    });
+    expect(program.type).toBe("wheel");
+    expect(program.stamps_required).toBe(10);
+  });
+});
+
+describe("buildInitialCard", () => {
+  const now = new Date("2026-07-15T00:00:00Z");
+
+  it("returns the fresh card when head start is off", () => {
+    expect(
+      buildInitialCard({ ...base, type: "stamp", headStart: false }, now),
+    ).toEqual({ state: {}, stamp_count: 0, reward_count: 0 });
+  });
+
+  it("seeds the stamp head-start position", () => {
+    const card = buildInitialCard(
+      { ...base, type: "stamp", headStart: true },
+      now,
+    );
+    expect(card.stamp_count).toBe(2);
+  });
+
+  it("seeds the plant head-start position at the Sprout floor", () => {
+    const card = buildInitialCard(
+      { ...base, type: "plant", headStart: true },
+      now,
+    );
+    expect(card.state).toMatchObject({ growth: 2 });
+  });
+
+  it("seeds the streak head-start position at one banked period", () => {
+    const card = buildInitialCard(
+      { ...base, type: "streak", headStart: true },
+      now,
+    );
+    expect(card.state).toMatchObject({ current_streak: 1 });
+  });
+
+  it("never seeds a head start for lucky, even when the toggle is on", () => {
+    const card = buildInitialCard(
+      { ...base, type: "lucky", headStart: true },
+      now,
+    );
+    expect(card).toEqual({ state: {}, stamp_count: 0, reward_count: 0 });
   });
 });

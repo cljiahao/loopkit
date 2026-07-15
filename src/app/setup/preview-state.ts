@@ -36,14 +36,17 @@ function headStartPlantGrowth(visitsToBloom: number): number {
 
 const FRESH_CARD: CardLike = { state: {}, stamp_count: 0, reward_count: 0 };
 
-// Assembles a synthetic program+card from the form's current field values and
-// calls the real getProgress() — the same function src/app/c's customer page
-// uses — so the preview can never drift from what a real card renders.
-export function buildPreviewProgress(input: PreviewInput): Progress {
-  const now = new Date();
-
+// Assembles a synthetic program (config only, no card/state) from the form's
+// current field values — the same type-appropriate config shape
+// buildProgramFields (src/lib/program.ts) builds at save time. Shared by
+// buildPreviewProgress (the static snapshot) and usePreviewAnimation (the
+// ticking loop, src/app/setup/preview-animation.ts) so both build their
+// program identically, with no duplicated per-type logic.
+export function buildPreviewProgram(
+  input: Omit<PreviewInput, "headStart">,
+): ProgramLike {
   if (input.type === "stamp") {
-    const program: ProgramLike = {
+    return {
       type: "stamp",
       stamps_required: input.stampsRequired,
       reward_text: input.rewardText,
@@ -52,68 +55,33 @@ export function buildPreviewProgress(input: PreviewInput): Progress {
         reward_text: input.rewardText,
       },
     };
-    const card: CardLike = input.headStart
-      ? {
-          state: {},
-          stamp_count: headStartStampSeed(input.stampsRequired),
-          reward_count: 0,
-        }
-      : FRESH_CARD;
-    return getProgress(program, card, now);
   }
 
   if (input.type === "plant") {
-    const config = buildPlantConfig(input.visitsToBloom, input.rewardText);
-    const program: ProgramLike = {
+    return {
       type: "plant",
       stamps_required: input.visitsToBloom,
       reward_text: input.rewardText,
-      config,
+      config: buildPlantConfig(input.visitsToBloom, input.rewardText),
     };
-    const card: CardLike = input.headStart
-      ? {
-          state: {
-            growth: headStartPlantGrowth(input.visitsToBloom),
-            last_visit_at: now.toISOString(),
-            blooms: 0,
-            bloomed: false,
-          },
-          stamp_count: 0,
-          reward_count: 0,
-        }
-      : FRESH_CARD;
-    return getProgress(program, card, now);
   }
 
   if (input.type === "streak") {
-    const config = buildStreakConfig(
-      input.periodDays,
-      input.targetStreak,
-      input.rewardText,
-    );
-    const program: ProgramLike = {
+    return {
       type: "streak",
       stamps_required: input.targetStreak,
       reward_text: input.rewardText,
-      config,
+      config: buildStreakConfig(
+        input.periodDays,
+        input.targetStreak,
+        input.rewardText,
+      ),
     };
-    const card: CardLike = input.headStart
-      ? {
-          state: {
-            current_streak: 1,
-            window_start: now.toISOString(),
-            reward_banked: false,
-          },
-          stamp_count: 0,
-          reward_count: 0,
-        }
-      : FRESH_CARD;
-    return getProgress(program, card, now);
   }
 
   if (input.type === "lucky") {
     const pityCeiling = input.pityCeiling ?? 8;
-    const program: ProgramLike = {
+    return {
       type: "lucky",
       stamps_required: pityCeiling,
       reward_text: input.rewardText,
@@ -124,21 +92,87 @@ export function buildPreviewProgress(input: PreviewInput): Progress {
         reward_text: input.rewardText,
       },
     };
-    return getProgress(program, FRESH_CARD, now);
   }
 
-  // wheel / scratch — never offer head start, always the zero/unplayed state.
-  const config = buildChanceConfig(
-    input.type,
-    input.segments,
-    input.pityCeiling,
-    input.rewardText,
-  );
-  const program: ProgramLike = {
+  // wheel / scratch
+  return {
     type: input.type,
     stamps_required: input.pityCeiling ?? 10,
     reward_text: input.rewardText,
-    config,
+    config: buildChanceConfig(
+      input.type,
+      input.segments,
+      input.pityCeiling,
+      input.rewardText,
+    ),
   };
-  return getProgress(program, FRESH_CARD, now);
+}
+
+// Assembles the head-start-aware initial CardLike for the form's current
+// field values — the position a fresh preview starts at, and what an
+// animation loop resets back to. `now` is threaded in explicitly (rather
+// than each call site making its own `new Date()`) so a caller can share
+// one instant between the seed timestamp and a subsequent getProgress()
+// call — buildPreviewProgress below relies on this to match its
+// pre-refactor behavior exactly. Lucky/wheel/scratch never offer head
+// start, always the zero/unplayed state, matching the toggle's own
+// conditional rendering in SetupForm (only shown for stamp/plant/streak).
+export function buildInitialCard(
+  input: Pick<
+    PreviewInput,
+    | "type"
+    | "stampsRequired"
+    | "visitsToBloom"
+    | "periodDays"
+    | "targetStreak"
+    | "headStart"
+  >,
+  now: Date,
+): CardLike {
+  if (!input.headStart) return FRESH_CARD;
+
+  if (input.type === "stamp") {
+    return {
+      state: {},
+      stamp_count: headStartStampSeed(input.stampsRequired),
+      reward_count: 0,
+    };
+  }
+
+  if (input.type === "plant") {
+    return {
+      state: {
+        growth: headStartPlantGrowth(input.visitsToBloom),
+        last_visit_at: now.toISOString(),
+        blooms: 0,
+        bloomed: false,
+      },
+      stamp_count: 0,
+      reward_count: 0,
+    };
+  }
+
+  if (input.type === "streak") {
+    return {
+      state: {
+        current_streak: 1,
+        window_start: now.toISOString(),
+        reward_banked: false,
+      },
+      stamp_count: 0,
+      reward_count: 0,
+    };
+  }
+
+  return FRESH_CARD;
+}
+
+// Assembles a synthetic program+card from the form's current field values and
+// calls the real getProgress() — the same function src/app/c's customer page
+// uses — so the preview can never drift from what a real card renders.
+export function buildPreviewProgress(input: PreviewInput): Progress {
+  const now = new Date();
+  const program = buildPreviewProgram(input);
+  const card = buildInitialCard(input, now);
+  return getProgress(program, card, now);
 }
