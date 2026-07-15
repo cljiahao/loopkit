@@ -40,6 +40,19 @@ if (typeof Element !== "undefined") {
       disconnect() {}
     };
   }
+  // jsdom doesn't implement matchMedia — usePreviewAnimation
+  // (src/app/setup/preview-animation.ts) calls it to detect
+  // prefers-reduced-motion. Default to "no preference" (matches: false) so
+  // existing tests exercise the animated path; a test that needs to
+  // simulate reduced motion overrides window.matchMedia itself.
+  if (!window.matchMedia) {
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as typeof window.matchMedia;
+  }
 }
 
 afterEach(async () => {
