@@ -271,7 +271,7 @@ export function SetupForm({
             {typeLabels[selectedOptionKey]}
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {TYPE_OPTIONS.map((option) => (
               <button
                 key={option.value}
@@ -480,7 +480,10 @@ export function SetupForm({
                       </Label>
                       <div className="space-y-2">
                         {segments.map((segment, i) => (
-                          <div key={i} className="flex items-center gap-2">
+                          <div
+                            key={i}
+                            className="flex flex-wrap items-center gap-2"
+                          >
                             <Input
                               type="text"
                               required

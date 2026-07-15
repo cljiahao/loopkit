@@ -121,7 +121,7 @@ export default async function SetupPage({
                 {programs.map((program) => (
                   <li
                     key={program.id}
-                    className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                    className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ export default async function SetupPage({
                         {typeLabel[program.type] ?? program.type}
                       </p>
                     </div>
-                    <div className="flex shrink-0 items-center gap-3 text-sm font-medium">
+                    <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
                       <Link
                         href={`/setup?edit=${program.id}`}
                         className="text-muted-foreground hover:text-foreground"
