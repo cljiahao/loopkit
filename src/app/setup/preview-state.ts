@@ -19,17 +19,18 @@ export type PreviewInput = {
   targetStreak: number;
   segments: { label: string; weight: number; is_reward: boolean }[];
   headStart: boolean;
+  headStartPercent: number;
 };
 
 // Mirrors enroll_card's seed math (supabase/migrations/0014_loopkit_head_start.sql)
 // exactly, so the preview never shows a head start that the real card wouldn't.
-function headStartStampSeed(stampsRequired: number): number {
-  const seed = Math.max(1, Math.round(stampsRequired * 0.2));
+function headStartStampSeed(stampsRequired: number, percent: number): number {
+  const seed = Math.max(1, Math.round((stampsRequired * percent) / 100));
   return Math.min(seed, stampsRequired - 1);
 }
 
-function headStartPlantGrowth(visitsToBloom: number): number {
-  const seed = Math.max(1, Math.round(visitsToBloom * 0.2));
+function headStartPlantGrowth(visitsToBloom: number, percent: number): number {
+  const seed = Math.max(1, Math.round((visitsToBloom * percent) / 100));
   const floored = Math.max(seed, Math.round(visitsToBloom * 0.25));
   return Math.min(floored, visitsToBloom - 1);
 }
@@ -126,6 +127,7 @@ export function buildInitialCard(
     | "periodDays"
     | "targetStreak"
     | "headStart"
+    | "headStartPercent"
   >,
   now: Date,
 ): CardLike {
@@ -134,7 +136,10 @@ export function buildInitialCard(
   if (input.type === "stamp") {
     return {
       state: {},
-      stamp_count: headStartStampSeed(input.stampsRequired),
+      stamp_count: headStartStampSeed(
+        input.stampsRequired,
+        input.headStartPercent,
+      ),
       reward_count: 0,
     };
   }
@@ -142,7 +147,10 @@ export function buildInitialCard(
   if (input.type === "plant") {
     return {
       state: {
-        growth: headStartPlantGrowth(input.visitsToBloom),
+        growth: headStartPlantGrowth(
+          input.visitsToBloom,
+          input.headStartPercent,
+        ),
         last_visit_at: now.toISOString(),
         blooms: 0,
         bloomed: false,

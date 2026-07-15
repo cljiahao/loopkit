@@ -146,6 +146,9 @@ export function SetupForm({
     })) ?? DEFAULT_SEGMENTS,
   );
   const [headStart, setHeadStart] = useState(program?.head_start ?? false);
+  const [headStartPercent, setHeadStartPercent] = useState(
+    program?.head_start_percent ?? 20,
+  );
   const [carryOverStamps, setCarryOverStamps] = useState(false);
   const showCarryOverOption =
     replacingId !== null && replacingType === "stamp" && type === "stamp";
@@ -162,6 +165,7 @@ export function SetupForm({
     targetStreak,
     segments,
     headStart,
+    headStartPercent,
   });
 
   // Sets the type plus its sensible numeric defaults, and always resets
@@ -177,6 +181,7 @@ export function SetupForm({
     setPityCeiling(value === "lucky" ? 8 : undefined);
     setPeriodDays(7);
     setTargetStreak(4);
+    setHeadStartPercent(20);
   }
 
   function updateSegment(index: number, patch: Partial<SegmentInput>) {
@@ -600,21 +605,52 @@ export function SetupForm({
                   onCheckedChange={setHeadStart}
                   className="mt-0.5"
                 />
-                <label htmlFor="head_start_checkbox" className="text-sm">
-                  <span className="font-medium">
-                    Give new customers a head start
-                  </span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    New signups start with a small amount of free progress
-                    toward their first reward — shown to measurably increase
-                    completion.
-                  </span>
-                </label>
+                <div className="flex-1 space-y-2">
+                  <label htmlFor="head_start_checkbox" className="text-sm">
+                    <span className="font-medium">
+                      Give new customers a head start
+                    </span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      New signups start with a small amount of free progress
+                      toward their first reward — shown to measurably increase
+                      completion.
+                    </span>
+                  </label>
+                  {headStart && (type === "stamp" || type === "plant") && (
+                    <div className="flex items-center gap-2">
+                      <Label
+                        htmlFor="head_start_percent"
+                        className="text-xs font-semibold text-muted-foreground"
+                      >
+                        Head start amount
+                      </Label>
+                      <Input
+                        id="head_start_percent"
+                        type="number"
+                        min={5}
+                        max={50}
+                        value={headStartPercent}
+                        onChange={(e) =>
+                          setHeadStartPercent(Number(e.target.value))
+                        }
+                        className="h-9 w-20 rounded-lg"
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                  )}
+                </div>
                 <input
                   type="hidden"
                   name="head_start"
                   value={headStart ? "true" : "false"}
                 />
+                {headStart && (type === "stamp" || type === "plant") && (
+                  <input
+                    type="hidden"
+                    name="head_start_percent"
+                    value={headStartPercent}
+                  />
+                )}
               </div>
             )}
 

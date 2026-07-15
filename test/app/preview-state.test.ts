@@ -19,6 +19,7 @@ const base = {
     { label: "Free item", weight: 1, is_reward: true },
   ],
   headStart: false,
+  headStartPercent: 20,
 };
 
 describe("buildPreviewProgress", () => {
@@ -117,6 +118,49 @@ describe("buildPreviewProgress", () => {
       { label: "Try again", reward: false },
       { label: "Free item", reward: true },
     ]);
+  });
+
+  it("stamp: a custom head-start percent scales the seed", () => {
+    const progress = buildPreviewProgress({
+      ...base,
+      type: "stamp",
+      headStart: true,
+      headStartPercent: 30,
+    });
+    // round(10 * 30 / 100) = 3
+    expect(progress.label).toBe("3/10 stamps");
+  });
+
+  it("plant: a low head-start percent still floors at the Sprout stage", () => {
+    const progress = buildPreviewProgress({
+      ...base,
+      type: "plant",
+      headStart: true,
+      headStartPercent: 10,
+    });
+    // round(6 * 10 / 100) = 1, floored to the Sprout threshold round(6*0.25)=2
+    expect(progress.view).toEqual({
+      kind: "plant",
+      stage: 1,
+      stageName: "Sprout",
+      totalStages: 5,
+      wilting: false,
+    });
+  });
+
+  it("streak: head-start amount is ignored, always one full period regardless of the percent", () => {
+    const progress = buildPreviewProgress({
+      ...base,
+      type: "streak",
+      headStart: true,
+      headStartPercent: 50,
+    });
+    expect(progress.view).toEqual({
+      kind: "streak",
+      current: 1,
+      target: 4,
+      status: "active",
+    });
   });
 });
 

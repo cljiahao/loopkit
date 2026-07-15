@@ -181,4 +181,33 @@ describe("SetupForm type picker", () => {
     ).not.toBeInTheDocument();
     expect(screen.getByText("0/10 stamps")).toBeInTheDocument();
   });
+
+  it("shows the head-start percent input only for stamp/plant with the toggle on, and submits it", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    expect(
+      screen.queryByLabelText("Head start amount"),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText(/give new customers a head start/i));
+    const percentInput = screen.getByLabelText("Head start amount");
+    expect(percentInput).toHaveValue(20);
+
+    await user.clear(percentInput);
+    await user.type(percentInput, "35");
+    await user.type(screen.getByLabelText("Card name"), "Coffee card");
+    await user.type(screen.getByLabelText("Reward"), "Free kopi");
+    await user.click(screen.getByRole("button", { name: "Create card" }));
+
+    expect(saveMock).toHaveBeenCalled();
+    const submitted = saveMock.mock.calls[0][1] as FormData;
+    expect(submitted.get("head_start_percent")).toBe("35");
+  });
 });

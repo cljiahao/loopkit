@@ -18,6 +18,7 @@ const base: Omit<PreviewInput, "type"> = {
     { label: "Free item", weight: 1, is_reward: true },
   ],
   headStart: false,
+  headStartPercent: 20,
 };
 
 function mockMatchMedia(matches: boolean) {
