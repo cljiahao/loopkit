@@ -23,7 +23,6 @@ const typeLabel: Record<string, string> = {
   plant: "Sprout",
   wheel: "Spin the Wheel",
   scratch: "Scratch Card",
-  streak: "Streak Club",
 };
 
 export default async function SetupPage({

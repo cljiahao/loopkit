@@ -29,13 +29,16 @@ type SegmentInput = { label: string; weight: number; is_reward: boolean };
 const labelClass =
   "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
 
-const typeLabels: Record<ProgramType, string> = {
+type TypeOptionValue =
+  "stamp" | "flame" | "lucky" | "plant" | "wheel" | "scratch";
+
+const typeLabels: Record<TypeOptionValue, string> = {
   stamp: "Stamp card",
+  flame: "Flame Club",
   lucky: "Lucky Tap",
   plant: "Sprout",
   wheel: "Spin the Wheel",
   scratch: "Scratch Card",
-  streak: "Streak Club",
 };
 
 const TYPE_OPTIONS = [
@@ -43,6 +46,11 @@ const TYPE_OPTIONS = [
     value: "stamp",
     label: "Stamp card",
     description: "Collect stamps toward a reward",
+  },
+  {
+    value: "flame",
+    label: "Flame Club",
+    description: "Build a flame with every visit",
   },
   {
     value: "lucky",
@@ -63,11 +71,6 @@ const TYPE_OPTIONS = [
     value: "scratch",
     label: "Scratch Card",
     description: "Scratch for a prize on every visit",
-  },
-  {
-    value: "streak",
-    label: "Streak Club",
-    description: "Reward a consecutive visit streak",
   },
 ] as const;
 
@@ -101,8 +104,7 @@ export function SetupForm({
     program?.type === "lucky" ||
     program?.type === "plant" ||
     program?.type === "wheel" ||
-    program?.type === "scratch" ||
-    program?.type === "streak"
+    program?.type === "scratch"
       ? program.type
       : "stamp";
   const [type, setType] = useState<ProgramType>(initialType);
@@ -113,9 +115,16 @@ export function SetupForm({
     reward_text?: string;
     stages?: { threshold: number }[];
     segments?: { label: string; weight: number; reward_text?: string }[];
-    period_days?: number;
-    target_streak?: number;
+    variant?: string;
   };
+
+  const [variant, setVariant] = useState<"dots" | "flame">(
+    config.variant === "flame" ? "flame" : "dots",
+  );
+  const selectedOptionKey: TypeOptionValue =
+    type === "stamp" && variant === "flame"
+      ? "flame"
+      : (type as TypeOptionValue);
 
   // Every field below is controlled — the same state drives both form
   // submission and the live preview, updated on every keystroke.
@@ -135,8 +144,6 @@ export function SetupForm({
   const [pityCeiling, setPityCeiling] = useState<number | undefined>(
     config.pity_ceiling,
   );
-  const [periodDays, setPeriodDays] = useState(config.period_days ?? 7);
-  const [targetStreak, setTargetStreak] = useState(config.target_streak ?? 4);
 
   const [segments, setSegments] = useState<SegmentInput[]>(
     config.segments?.map((s) => ({
@@ -161,8 +168,12 @@ export function SetupForm({
     visitsToBloom,
     winPercent,
     pityCeiling,
-    periodDays,
-    targetStreak,
+    // Streak is no longer reachable from the type picker (Flame Club takes
+    // its place, at type "stamp"), so these are inert placeholders that
+    // only exist to satisfy PreviewInput's shape — Task 5 drops them once
+    // preview-state.ts's streak branch is retired.
+    periodDays: 7,
+    targetStreak: 4,
     segments,
     headStart,
     headStartPercent,
@@ -170,17 +181,18 @@ export function SetupForm({
 
   // Sets the type plus its sensible numeric defaults, and always resets
   // name/rewardText to blank — the vendor types both themselves, no
-  // suggested copy is ever prefilled on the create flow.
-  function pickType(value: ProgramType) {
-    setType(value);
+  // suggested copy is ever prefilled on the create flow. The Flame Club
+  // tile maps to type "stamp" + variant "flame" — it is never a distinct
+  // ProgramType (see program-config.ts).
+  function pickType(value: TypeOptionValue) {
+    setType(value === "flame" ? "stamp" : value);
+    setVariant(value === "flame" ? "flame" : "dots");
     setName("");
     setRewardText("");
     setStampsRequired(10);
     setVisitsToBloom(6);
     setWinPercent(20);
     setPityCeiling(value === "lucky" ? 8 : undefined);
-    setPeriodDays(7);
-    setTargetStreak(4);
     setHeadStartPercent(20);
   }
 
@@ -207,7 +219,7 @@ export function SetupForm({
         <h3 className={labelClass}>Choose a card type</h3>
         {isEdit ? (
           <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
-            {typeLabels[type]}
+            {typeLabels[selectedOptionKey]}
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-2">
@@ -219,7 +231,7 @@ export function SetupForm({
                 onClick={() => pickType(option.value)}
                 className={cn(
                   "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
-                  type === option.value
+                  selectedOptionKey === option.value
                     ? "border-primary bg-primary/10"
                     : "bg-card hover:bg-muted/50",
                 )}
@@ -246,6 +258,9 @@ export function SetupForm({
           <input type="hidden" name="replacing" value={replacingId} />
         ) : null}
         <input type="hidden" name="type" value={type} />
+        {type === "stamp" ? (
+          <input type="hidden" name="variant" value={variant} />
+        ) : null}
 
         <Card>
           <CardHeader>
@@ -285,7 +300,9 @@ export function SetupForm({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="stamps_required" className={labelClass}>
-                    Stamps required
+                    {variant === "flame"
+                      ? "Visits for full blaze"
+                      : "Stamps required"}
                   </Label>
                   <Input
                     id="stamps_required"
@@ -371,9 +388,7 @@ export function SetupForm({
                         ? "Lucky topping"
                         : type === "wheel"
                           ? "Spin to win"
-                          : type === "scratch"
-                            ? "Scratch & win"
-                            : "Weekly regular"
+                          : "Scratch & win"
                     }
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -381,46 +396,7 @@ export function SetupForm({
                   />
                 </div>
 
-                {type === "streak" ? (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="period_days" className={labelClass}>
-                        Days per streak window
-                      </Label>
-                      <Input
-                        id="period_days"
-                        name="period_days"
-                        type="number"
-                        required
-                        min={1}
-                        max={30}
-                        placeholder="7"
-                        value={periodDays}
-                        onChange={(e) => setPeriodDays(Number(e.target.value))}
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="target_streak" className={labelClass}>
-                        Streak length to earn reward
-                      </Label>
-                      <Input
-                        id="target_streak"
-                        name="target_streak"
-                        type="number"
-                        required
-                        min={2}
-                        max={20}
-                        placeholder="4"
-                        value={targetStreak}
-                        onChange={(e) =>
-                          setTargetStreak(Number(e.target.value))
-                        }
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-                  </div>
-                ) : type === "wheel" || type === "scratch" ? (
+                {type === "wheel" || type === "scratch" ? (
                   <>
                     <div className="space-y-2">
                       <Label className={labelClass}>
@@ -597,7 +573,7 @@ export function SetupForm({
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
-            {(type === "stamp" || type === "plant" || type === "streak") && (
+            {(type === "stamp" || type === "plant") && (
               <div className="flex items-start gap-3 rounded-xl border bg-muted/40 p-3">
                 <Switch
                   id="head_start_checkbox"

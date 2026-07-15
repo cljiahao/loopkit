@@ -98,7 +98,7 @@ describe("SetupForm type picker", () => {
       screen.getByRole("button", { name: "Scratch Card" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Streak Club" }),
+      screen.getByRole("button", { name: "Flame Club" }),
     ).toBeInTheDocument();
     expect(
       screen.queryByText("Custom — start from scratch"),
@@ -118,10 +118,33 @@ describe("SetupForm type picker", () => {
     await user.type(screen.getByLabelText("Card name"), "My card");
     await user.type(screen.getByLabelText("Reward"), "Free item");
 
-    await user.click(screen.getByRole("button", { name: "Streak Club" }));
+    await user.click(screen.getByRole("button", { name: "Flame Club" }));
 
     expect(screen.getByLabelText("Card name")).toHaveValue("");
     expect(screen.getByLabelText("Reward")).toHaveValue("");
+  });
+
+  it("Flame Club tile saves type=stamp with variant=flame and the flame-specific label", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Flame Club" }));
+    expect(screen.getByText("Visits for full blaze")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Card name"), "Coffee card");
+    await user.type(screen.getByLabelText("Reward"), "Free kopi");
+    await user.click(screen.getByRole("button", { name: "Create card" }));
+
+    expect(saveMock).toHaveBeenCalled();
+    const submitted = saveMock.mock.calls[0][1] as FormData;
+    expect(submitted.get("type")).toBe("stamp");
+    expect(submitted.get("variant")).toBe("flame");
   });
 
   it("stamp quick-pick chips set stamps required", async () => {

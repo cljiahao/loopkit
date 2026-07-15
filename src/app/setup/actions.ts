@@ -51,11 +51,10 @@ export async function saveProgramAction(
     pity_ceiling: formData.get("pity_ceiling"),
     visits_to_bloom: formData.get("visits_to_bloom"),
     segments: formData.get("segments"),
-    period_days: formData.get("period_days"),
-    target_streak: formData.get("target_streak"),
     expiry_days: formData.get("expiry_days"),
     head_start: formData.get("head_start"),
     head_start_percent: formData.get("head_start_percent"),
+    variant: formData.get("variant"),
   });
   if (!parsed.success) {
     return { error: "Check the card details and try again." };
@@ -151,11 +150,10 @@ export async function changeTypeAction(
     pity_ceiling: formData.get("pity_ceiling"),
     visits_to_bloom: formData.get("visits_to_bloom"),
     segments: formData.get("segments"),
-    period_days: formData.get("period_days"),
-    target_streak: formData.get("target_streak"),
     expiry_days: formData.get("expiry_days"),
     head_start: formData.get("head_start"),
     head_start_percent: formData.get("head_start_percent"),
+    variant: formData.get("variant"),
   });
   if (!parsed.success) {
     return { error: "Check the card details and try again." };
@@ -246,11 +244,10 @@ export async function prepProgramAction(
     pity_ceiling: formData.get("pity_ceiling"),
     visits_to_bloom: formData.get("visits_to_bloom"),
     segments: formData.get("segments"),
-    period_days: formData.get("period_days"),
-    target_streak: formData.get("target_streak"),
     expiry_days: formData.get("expiry_days"),
     head_start: formData.get("head_start"),
     head_start_percent: formData.get("head_start_percent"),
+    variant: formData.get("variant"),
   });
   if (!parsed.success) {
     return { error: "Check the card details and try again." };

@@ -5,14 +5,13 @@ import type { Json } from "@/lib/types";
 import {
   buildChanceConfig,
   buildPlantConfig,
-  buildStreakConfig,
   segmentInputSchema,
   type ProgramType,
   type SegmentInput,
 } from "@/lib/program-config";
 
 export type { ProgramType, SegmentInput };
-export { buildChanceConfig, buildPlantConfig, buildStreakConfig };
+export { buildChanceConfig, buildPlantConfig };
 
 const PROGRAM_COLUMNS =
   "id,name,stamps_required,reward_text,type,config,active,expiry_days,head_start,head_start_percent,replaced_by,carry_over_stamps";
@@ -74,6 +73,10 @@ export const saveProgramSchema = z.discriminatedUnion("type", [
       emptyToUndefined,
       z.coerce.number().int().min(5).max(50).optional(),
     ),
+    variant: z.preprocess(
+      emptyToUndefined,
+      z.enum(["dots", "flame"]).optional(),
+    ),
     expiry_days: expiryDaysSchema,
   }),
   z.object({
@@ -124,15 +127,6 @@ export const saveProgramSchema = z.discriminatedUnion("type", [
     ),
     expiry_days: expiryDaysSchema,
   }),
-  z.object({
-    type: z.literal("streak"),
-    name: z.string().trim().min(1).max(60),
-    reward_text: z.string().trim().min(1).max(80),
-    period_days: z.coerce.number().int().min(1).max(30),
-    target_streak: z.coerce.number().int().min(2).max(20),
-    head_start: z.enum(["true", "false"]).transform((v) => v === "true"),
-    expiry_days: expiryDaysSchema,
-  }),
 ]);
 
 export type SaveProgramInput = z.infer<typeof saveProgramSchema>;
@@ -162,6 +156,7 @@ export function buildProgramFields(data: SaveProgramInput): {
       config: {
         stamps_required: data.stamps_required,
         reward_text: data.reward_text,
+        variant: data.variant ?? "dots",
       },
     };
   }
@@ -186,19 +181,6 @@ export function buildProgramFields(data: SaveProgramInput): {
       headStart: data.head_start,
       headStartPercent: data.head_start_percent ?? 20,
       config: buildPlantConfig(data.visits_to_bloom, data.reward_text) as Json,
-    };
-  }
-  if (data.type === "streak") {
-    return {
-      type: "streak",
-      stampsRequired: data.target_streak,
-      headStart: data.head_start,
-      headStartPercent: 20,
-      config: buildStreakConfig(
-        data.period_days,
-        data.target_streak,
-        data.reward_text,
-      ) as Json,
     };
   }
   return {

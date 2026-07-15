@@ -17,7 +17,11 @@ describe("buildProgramFields", () => {
       stampsRequired: 10,
       headStart: true,
       headStartPercent: 20,
-      config: { stamps_required: 10, reward_text: "Free kopi" },
+      config: {
+        stamps_required: 10,
+        reward_text: "Free kopi",
+        variant: "dots",
+      },
     });
   });
 
@@ -97,20 +101,35 @@ describe("buildProgramFields", () => {
     expect(result.config).toMatchObject({ reward_text: "Free kopi" });
   });
 
-  it("builds a streak program's fields via buildStreakConfig", () => {
+  it("builds a stamp program's config with variant flame", () => {
     const result = buildProgramFields({
-      type: "streak",
+      type: "stamp",
       name: "Weekly regular",
+      stamps_required: 8,
       reward_text: "Free item",
-      period_days: 7,
-      target_streak: 4,
       head_start: false,
+      variant: "flame",
       expiry_days: undefined,
     } as SaveProgramInput);
 
-    expect(result.type).toBe("streak");
-    expect(result.stampsRequired).toBe(4);
-    expect(result.config).toMatchObject({ period_days: 7, target_streak: 4 });
+    expect(result.config).toMatchObject({
+      stamps_required: 8,
+      reward_text: "Free item",
+      variant: "flame",
+    });
+  });
+
+  it("defaults a stamp program's config variant to dots when absent", () => {
+    const result = buildProgramFields({
+      type: "stamp",
+      name: "Coffee card",
+      stamps_required: 10,
+      reward_text: "Free kopi",
+      head_start: true,
+      expiry_days: undefined,
+    } as SaveProgramInput);
+
+    expect(result.config).toMatchObject({ variant: "dots" });
   });
 
   it("builds a wheel/scratch program's fields via buildChanceConfig, defaulting the pity ceiling", () => {

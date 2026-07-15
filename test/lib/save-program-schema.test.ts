@@ -127,26 +127,37 @@ describe("saveProgramSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("accepts a valid streak program", () => {
+  it("accepts a stamp program with variant flame", () => {
     const result = saveProgramSchema.safeParse({
-      type: "streak",
+      type: "stamp",
       name: "Weekly regular",
+      stamps_required: "8",
+      reward_text: "Free item",
+      head_start: "false",
+      variant: "flame",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a stamp program with variant absent (defaults to dots at buildProgramFields)", () => {
+    const result = saveProgramSchema.safeParse({
+      type: "stamp",
+      name: "Coffee card",
+      stamps_required: "10",
       reward_text: "Free kopi",
-      period_days: "7",
-      target_streak: "4",
       head_start: "false",
     });
     expect(result.success).toBe(true);
   });
 
-  it("rejects a streak program with a target below the two-streak minimum", () => {
+  it("rejects a stamp program with an invalid variant value", () => {
     const result = saveProgramSchema.safeParse({
-      type: "streak",
-      name: "Weekly regular",
+      type: "stamp",
+      name: "Coffee card",
+      stamps_required: "10",
       reward_text: "Free kopi",
-      period_days: "7",
-      target_streak: "1",
       head_start: "false",
+      variant: "sparkles",
     });
     expect(result.success).toBe(false);
   });
