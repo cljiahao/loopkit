@@ -19,8 +19,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { buildPreviewProgress } from "@/app/setup/preview-state";
+import { usePreviewAnimation } from "@/app/setup/preview-animation";
 import { PreviewCard } from "@/app/setup/preview-card";
+import { ConfettiBurst } from "@/components/confetti-burst";
 import { Tag, SlidersHorizontal } from "lucide-react";
 
 type SegmentInput = { label: string; weight: number; is_reward: boolean };
@@ -149,7 +150,7 @@ export function SetupForm({
   const showCarryOverOption =
     replacingId !== null && replacingType === "stamp" && type === "stamp";
 
-  const previewProgress = buildPreviewProgress({
+  const { progress: previewProgress, celebrating } = usePreviewAnimation({
     type,
     name,
     rewardText,
@@ -231,6 +232,7 @@ export function SetupForm({
           name={name}
           rewardText={rewardText}
         />
+        <ConfettiBurst active={celebrating} />
       </div>
 
       <form action={formAction} className="space-y-6">
