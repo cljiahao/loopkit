@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { regenerateCardAction } from "@/app/c/actions";
 import type { CardStatus } from "@/app/c/status-state";
 import { Plant } from "@/components/plant";
+import { Cup } from "@/components/cup";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
 import { FlameLayers } from "@/components/flame-layers";
@@ -84,11 +85,19 @@ export function ProgramCardStatus({
       <p className="text-sm font-semibold">{card.name}</p>
       {view?.kind === "plant" ? (
         <div className="flex flex-col items-center gap-2">
-          <Plant
-            stage={view.stage}
-            totalStages={view.totalStages}
-            wilting={view.wilting}
-          />
+          {view.variant === "cup" ? (
+            <Cup
+              stage={view.stage}
+              totalStages={view.totalStages}
+              wilting={view.wilting}
+            />
+          ) : (
+            <Plant
+              stage={view.stage}
+              totalStages={view.totalStages}
+              wilting={view.wilting}
+            />
+          )}
         </div>
       ) : view?.kind === "flame" ? (
         <div className="flex flex-col items-center gap-2">

@@ -1,5 +1,6 @@
 import type { Progress } from "@/lib/engine/types";
 import { Plant } from "@/components/plant";
+import { Cup } from "@/components/cup";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
 import { FlameLayers } from "@/components/flame-layers";
@@ -32,11 +33,19 @@ export function PreviewCard({
       <p className="text-sm font-semibold">{name || "Your card"}</p>
       <div className="flex h-36 items-center justify-center">
         {view.kind === "plant" ? (
-          <Plant
-            stage={view.stage}
-            totalStages={view.totalStages}
-            wilting={view.wilting}
-          />
+          view.variant === "cup" ? (
+            <Cup
+              stage={view.stage}
+              totalStages={view.totalStages}
+              wilting={view.wilting}
+            />
+          ) : (
+            <Plant
+              stage={view.stage}
+              totalStages={view.totalStages}
+              wilting={view.wilting}
+            />
+          )
         ) : view.kind === "flame" ? (
           <FlameLayers
             filled={view.filled}

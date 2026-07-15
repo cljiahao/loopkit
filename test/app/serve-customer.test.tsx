@@ -317,4 +317,37 @@ describe("ServeCustomer", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("renders the Cup visual for a cup-variant plant program", async () => {
+    lookupMock.mockResolvedValue({
+      success: true,
+      card: { id: "card-1", phone: "+6591234567", stamp_count: 0 },
+      progress: {
+        view: {
+          kind: "plant",
+          stage: 2,
+          stageName: "Quarter Full",
+          totalStages: 5,
+          wilting: false,
+          variant: "cup",
+        },
+        label: "Quarter Full",
+        rewardReady: false,
+      },
+    });
+    const user = userEvent.setup();
+    const { container } = render(
+      <ServeCustomer
+        programId="p1"
+        type="plant"
+        stampsRequired={8}
+        rewardText="Free kopi"
+      />,
+    );
+    await user.type(screen.getByLabelText("Customer phone"), "91234567");
+    await user.click(screen.getByRole("button", { name: "Look up" }));
+    await waitFor(() =>
+      expect(container.querySelector("#cup-body-clip")).toBeInTheDocument(),
+    );
+  });
 });

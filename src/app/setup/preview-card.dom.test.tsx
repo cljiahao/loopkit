@@ -101,6 +101,30 @@ describe("PreviewCard", () => {
     expect(container.querySelector("svg")).toBeInTheDocument();
   });
 
+  it("renders the cup visual for a cup-variant plant view", () => {
+    const progress: Progress = {
+      stage: "Sip",
+      label: "Sip",
+      view: {
+        kind: "plant",
+        stage: 1,
+        stageName: "Sip",
+        totalStages: 5,
+        wilting: false,
+        variant: "cup",
+      },
+      rewardReady: false,
+    };
+    const { container } = render(
+      <PreviewCard
+        progress={progress}
+        name="Fill-a-kopi"
+        rewardText="Free kopi"
+      />,
+    );
+    expect(container.querySelector("#cup-body-clip")).toBeInTheDocument();
+  });
+
   it("falls back to placeholder name and reward text when both are blank", () => {
     const progress: Progress = {
       stage: "collecting",

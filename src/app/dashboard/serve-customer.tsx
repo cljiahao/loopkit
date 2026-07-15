@@ -14,6 +14,7 @@ import {
 import { RedeemButton } from "@/app/dashboard/redeem-button";
 import { ScanButton } from "@/app/dashboard/scan-button";
 import { Plant } from "@/components/plant";
+import { Cup } from "@/components/cup";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
 import { RewardCelebration } from "@/components/reward-celebration";
@@ -39,6 +40,7 @@ type PlantView = {
   stageName: string;
   totalStages: number;
   wilting: boolean;
+  variant: "plant" | "cup";
 };
 
 type ChanceView = {
@@ -447,12 +449,21 @@ export function ServeCustomer({
           }
         >
           <div className="flex items-center gap-4">
-            <Plant
-              stage={result.view.stage}
-              totalStages={result.view.totalStages}
-              wilting={result.view.wilting}
-              className="size-24 shrink-0"
-            />
+            {result.view.variant === "cup" ? (
+              <Cup
+                stage={result.view.stage}
+                totalStages={result.view.totalStages}
+                wilting={result.view.wilting}
+                className="size-24 shrink-0"
+              />
+            ) : (
+              <Plant
+                stage={result.view.stage}
+                totalStages={result.view.totalStages}
+                wilting={result.view.wilting}
+                className="size-24 shrink-0"
+              />
+            )}
             <div className="min-w-0 space-y-1">
               <p className="text-sm font-medium">{result.phone}</p>
               <p className="text-sm text-muted-foreground">{result.label}</p>
