@@ -27,6 +27,7 @@ export interface Database {
           head_start: boolean;
           replaced_by: string | null;
           carry_over_stamps: boolean;
+          head_start_percent: number;
           scheduled_deactivate_at: string | null;
           created_at: string;
         };
@@ -43,6 +44,7 @@ export interface Database {
           head_start?: boolean;
           replaced_by?: string | null;
           carry_over_stamps?: boolean;
+          head_start_percent?: number;
           scheduled_deactivate_at?: string | null;
           created_at?: string;
         };
@@ -59,6 +61,7 @@ export interface Database {
           head_start?: boolean;
           replaced_by?: string | null;
           carry_over_stamps?: boolean;
+          head_start_percent?: number;
           scheduled_deactivate_at?: string | null;
           created_at?: string;
         };
@@ -340,6 +343,7 @@ export interface Database {
           p_head_start?: boolean;
           p_carry_over_stamps?: boolean;
           p_active?: boolean;
+          p_head_start_percent?: number;
         };
         Returns: string;
       };
