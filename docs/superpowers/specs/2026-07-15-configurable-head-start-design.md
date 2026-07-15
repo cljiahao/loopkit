@@ -67,12 +67,16 @@ int default 20` param (matches the existing pattern for prior additive
   params like `p_expiry_days`/`p_active`), inserting it into the new
   column.
 - Recreate `enroll_card`: stamp's `v_seed` computation changes from
-  `round(v_program.stamps_required * 0.2)` to `round(v_program.stamps_required
-  - v_program.head_start_percent / 100.0)`. Plant's floor computation
-(`round(v_program.stamps_required * 0.25)`) is unchanged — stays a fixed
-literal, per the Decisions section. Streak's branch is unchanged entirely
-(still the literal one-period seed, doesn't read `head_start_percent` at
-    all).
+  `round(v_program.stamps_required * 0.2)` to:
+
+  ```sql
+  round(v_program.stamps_required * v_program.head_start_percent / 100.0)
+  ```
+
+  Plant's floor computation (`round(v_program.stamps_required * 0.25)`) is
+  unchanged — stays a fixed literal, per the Decisions section. Streak's
+  branch is unchanged entirely (still the literal one-period seed, doesn't
+  read `head_start_percent` at all).
 
 ## B. `src/lib/program.ts`
 
