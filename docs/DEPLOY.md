@@ -158,6 +158,15 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      floor (25%) and streak's fixed one-period seed are unchanged. Safe to
      re-run.
 
+   - apply `0025_loopkit_remove_streak_type.sql` — removes the Streak Club
+     program type entirely (replaced by Flame Club, a visual variant of
+     Stamp — see `src/lib/engine/stamp.ts`). Narrows the `programs.type`
+     check constraint back to `stamp`/`lucky`/`plant`/`wheel`/`scratch` and
+     recreates `enroll_card` without the streak branch (stamp/plant seeding
+     unchanged). No vendors had been onboarded to Streak Club, so this is a
+     straight removal rather than the usual additive-only migration. Safe
+     to re-run.
+
    - **Optional — rate limiting on the public `/c` surface.** The card-check
      action is throttled per-IP only if an Upstash Redis is configured. Create a
      free Upstash Redis and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`

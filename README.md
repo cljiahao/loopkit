@@ -5,7 +5,7 @@ Digital stamp-card loyalty for SG small vendors. A Merqo kit — owns the
 merqo over HTTP.
 
 Vendors run a stamp/points program from `/dashboard` (programs, cards,
-stamping, streaks, "lucky" chance rewards); customers collect and view
+stamping, flame progress, "lucky" chance rewards); customers collect and view
 cards from a phone-friendly `/c` flow via QR. Includes a scratch-card /
 wheel reward layer, tiered plans, and an admin console for vendor
 management.
@@ -31,7 +31,7 @@ pnpm format         # prettier --write
 ## File layout
 
 ```
-src/app/dashboard/     — vendor console (programs, cards, stats, streaks)
+src/app/dashboard/     — vendor console (programs, cards, stats)
 src/app/c/              — customer-facing card view (QR entry point)
 src/app/admin/          — Merqo-team admin console
 src/app/setup/          — vendor onboarding
