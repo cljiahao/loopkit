@@ -28,9 +28,8 @@ import {
   stampAction,
   lookupAction,
   redeemPlantAction,
-  redeemStreakAction,
 } from "@/app/dashboard/actions";
-import { buildPlantConfig, buildStreakConfig } from "@/lib/program";
+import { buildPlantConfig } from "@/lib/program";
 
 function form(fields: Record<string, string>): FormData {
   const fd = new FormData();
@@ -180,50 +179,6 @@ describe("redeemPlantAction returns fresh progress", () => {
         totalStages: 5,
         wilting: false,
       });
-      expect(res.progress.rewardReady).toBe(false);
-    }
-  });
-});
-
-describe("redeemStreakAction returns fresh progress", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    requireVendorMock.mockResolvedValue({ user: { id: "v1" } });
-  });
-
-  it("shows the reset streak count immediately after redeeming", async () => {
-    const streakProgram = {
-      id: "p3",
-      name: "Regulars",
-      stamps_required: 4,
-      reward_text: "Free item",
-      type: "streak",
-      config: buildStreakConfig(7, 4, "Free item"),
-      active: true,
-    };
-    getProgramByIdMock.mockResolvedValue(streakProgram);
-    maybeSingleMock.mockResolvedValue({
-      data: {
-        state: {
-          current_streak: 4,
-          window_start: "2026-01-01T00:00:00Z",
-          reward_banked: true,
-        },
-      },
-      error: null,
-    });
-    rpcMock.mockResolvedValue({ data: null, error: null });
-
-    const res = await redeemStreakAction(
-      form({ program_id: "p3", phone: "91234567" }),
-    );
-
-    expect(res.success).toBe(true);
-    if (res.success) {
-      expect(res.progress.view.kind).toBe("streak");
-      if (res.progress.view.kind === "streak") {
-        expect(res.progress.view.current).toBe(0);
-      }
       expect(res.progress.rewardReady).toBe(false);
     }
   });

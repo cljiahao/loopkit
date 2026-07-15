@@ -43,7 +43,7 @@ src/lib/loyalty.ts      — stamping/redemption flow
 src/lib/stats.ts        — vendor-facing metrics
 src/lib/merqo-vendor-status.ts — reports status/metrics to merqo over HTTP
 src/lib/supabase/       — browser / server / service clients (schema: loopkit)
-src/components/         — wheel, scratch-card, streak-flame, stamp-dots, etc.
+src/components/         — wheel, scratch-card, flame-layers, stamp-dots, etc.
 supabase/migrations/    — SQL schema + RLS
 ```
 

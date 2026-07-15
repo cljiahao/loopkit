@@ -50,7 +50,6 @@ vi.mock("@/app/dashboard/actions", () => ({
   recordVisitAction: vi.fn(),
   lookupAction: vi.fn(),
   redeemPlantAction: vi.fn(),
-  redeemStreakAction: vi.fn(),
   regenerateCardAction: vi.fn(),
   resolveTokenAction: vi.fn(),
 }));

@@ -9,7 +9,6 @@ import {
   recordVisitAction,
   lookupAction,
   redeemPlantAction,
-  redeemStreakAction,
   regenerateCardAction,
 } from "@/app/dashboard/actions";
 import { RedeemButton } from "@/app/dashboard/redeem-button";
@@ -17,7 +16,6 @@ import { ScanButton } from "@/app/dashboard/scan-button";
 import { Plant } from "@/components/plant";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
-import { StreakFlame } from "@/components/streak-flame";
 import { RewardCelebration } from "@/components/reward-celebration";
 import type { StampCard } from "@/app/dashboard/card";
 import { Button } from "@/components/ui/button";
@@ -50,13 +48,6 @@ type ChanceView = {
   landedId: string | null;
 };
 
-type StreakView = {
-  kind: "streak";
-  current: number;
-  target: number;
-  status: "active" | "grace" | "broken" | "none";
-};
-
 type ServeResult =
   | { mode: "stamp"; phone: string; card: StampCard; rewardReady: boolean }
   | {
@@ -81,14 +72,6 @@ type ServeResult =
       label: string;
       wonThisTime: boolean;
       rewardText: string;
-    }
-  | {
-      mode: "streak";
-      phone: string;
-      view: StreakView;
-      label: string;
-      rewardReady: boolean;
-      rewardUnlocked: boolean;
     };
 
 const ACTION_COPY: Record<string, { idle: string; pending: string }> = {
@@ -97,7 +80,6 @@ const ACTION_COPY: Record<string, { idle: string; pending: string }> = {
   stamp: { idle: "Add stamp", pending: "Stamping…" },
   wheel: { idle: "Spin", pending: "Spinning…" },
   scratch: { idle: "Scratch", pending: "Scratching…" },
-  streak: { idle: "Check in", pending: "Checking in…" },
 };
 
 export function ServeCustomer({
@@ -169,29 +151,6 @@ export function ServeCustomer({
         }
         setResult({
           mode: "plant",
-          phone: res.phone,
-          view: res.progress.view,
-          label: res.progress.label,
-          rewardReady: res.progress.rewardReady,
-          rewardUnlocked: res.rewardUnlocked,
-        });
-      } else if (type === "streak") {
-        const res = await recordVisitAction(formData);
-        if (!res.success) {
-          toast.error(res.error);
-          return;
-        }
-        if (res.progress.view.kind !== "streak") return;
-        if (res.rewardUnlocked) {
-          toast.success(`🔥 ${res.phone} unlocked ${res.reward_text}!`);
-          setCelebration({ phone: res.phone, rewardText: res.reward_text });
-        } else {
-          toast(
-            `Checked in ${res.phone} — streak at ${res.progress.view.current}.`,
-          );
-        }
-        setResult({
-          mode: "streak",
           phone: res.phone,
           view: res.progress.view,
           label: res.progress.label,
@@ -289,16 +248,6 @@ export function ServeCustomer({
             wonThisTime: false,
             rewardText,
           });
-        } else if (type === "streak") {
-          if (res.progress.view.kind !== "streak") return;
-          setResult({
-            mode: "streak",
-            phone: res.card.phone,
-            view: res.progress.view,
-            label: res.progress.label,
-            rewardReady: res.progress.rewardReady,
-            rewardUnlocked: false,
-          });
         } else {
           setResult({
             mode: "stamp",
@@ -329,36 +278,6 @@ export function ServeCustomer({
       if (res.progress.view.kind === "plant") {
         setResult({
           mode: "plant",
-          phone: res.phone,
-          view: res.progress.view,
-          label: res.progress.label,
-          rewardReady: res.progress.rewardReady,
-          rewardUnlocked: false,
-        });
-      } else {
-        setResult(null);
-      }
-      setRedeemOpen(false);
-      router.refresh();
-    });
-  }
-
-  function confirmRedeemStreak() {
-    if (!result || result.mode !== "streak") return;
-    const phone = result.phone;
-    run(async () => {
-      const fd = new FormData();
-      fd.set("phone", phone);
-      fd.set("program_id", programId);
-      const res = await redeemStreakAction(fd);
-      if (!res.success) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success(`Reward redeemed for ${res.phone}.`);
-      if (res.progress.view.kind === "streak") {
-        setResult({
-          mode: "streak",
           phone: res.phone,
           view: res.progress.view,
           label: res.progress.label,
@@ -622,68 +541,6 @@ export function ServeCustomer({
               )}
             </div>
           </div>
-        </div>
-      )}
-
-      {result?.mode === "streak" && (
-        <div
-          className={
-            result.rewardReady
-              ? "rounded-xl border border-gold bg-gold/10 p-4"
-              : "rounded-xl border bg-muted/40 p-4"
-          }
-        >
-          <div className="flex items-center gap-4">
-            <StreakFlame
-              current={result.view.current}
-              target={result.view.target}
-              status={result.view.status}
-              className="shrink-0"
-            />
-            <div className="min-w-0 space-y-1">
-              <p className="text-sm font-medium">{result.phone}</p>
-              <p className="text-sm text-muted-foreground">{result.label}</p>
-              {result.rewardUnlocked && (
-                <p className="text-sm font-semibold text-gold-accent">
-                  🔥 Streak hit! {rewardText} unlocked.
-                </p>
-              )}
-            </div>
-          </div>
-          {result.rewardReady && (
-            <div className="mt-4">
-              <AlertDialog open={redeemOpen} onOpenChange={setRedeemOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="rounded-xl">
-                    Redeem
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Redeem reward?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Redeem {rewardText} for {result.phone}? This resets their
-                      streak.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={pending}>
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      disabled={pending}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        confirmRedeemStreak();
-                      }}
-                    >
-                      {pending ? "Redeeming…" : "Redeem"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          )}
         </div>
       )}
 

@@ -7,7 +7,7 @@ import type { CardStatus } from "@/app/c/status-state";
 import { Plant } from "@/components/plant";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
-import { StreakFlame } from "@/components/streak-flame";
+import { FlameLayers } from "@/components/flame-layers";
 import { StampDots } from "@/components/stamp-dots";
 import { Button } from "@/components/ui/button";
 import {
@@ -90,12 +90,13 @@ export function ProgramCardStatus({
             wilting={view.wilting}
           />
         </div>
-      ) : view?.kind === "streak" ? (
+      ) : view?.kind === "flame" ? (
         <div className="flex flex-col items-center gap-2">
-          <StreakFlame
-            current={view.current}
-            target={view.target}
-            status={view.status}
+          <FlameLayers
+            filled={view.filled}
+            total={view.total}
+            stage={view.stage}
+            stageName={view.stageName}
           />
         </div>
       ) : view?.kind === "chance" ? (

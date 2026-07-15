@@ -2,7 +2,7 @@ import type { Progress } from "@/lib/engine/types";
 import { Plant } from "@/components/plant";
 import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
-import { StreakFlame } from "@/components/streak-flame";
+import { FlameLayers } from "@/components/flame-layers";
 import { StampDots } from "@/components/stamp-dots";
 
 // Mirrors ProgramCardStatus's view-kind switch (src/app/c/program-card-status.tsx)
@@ -13,7 +13,7 @@ import { StampDots } from "@/components/stamp-dots";
 // Unlike ProgramCardStatus, every visual sits in one fixed-height, centered
 // box (h-36) here: switching card type in /setup shouldn't make the preview
 // panel jump around in height between a wide stamp grid, a square plant/
-// wheel, or a short streak flame.
+// wheel, or a compact flame layer.
 export function PreviewCard({
   progress,
   name,
@@ -37,11 +37,12 @@ export function PreviewCard({
             totalStages={view.totalStages}
             wilting={view.wilting}
           />
-        ) : view.kind === "streak" ? (
-          <StreakFlame
-            current={view.current}
-            target={view.target}
-            status={view.status}
+        ) : view.kind === "flame" ? (
+          <FlameLayers
+            filled={view.filled}
+            total={view.total}
+            stage={view.stage}
+            stageName={view.stageName}
           />
         ) : view.kind === "chance" ? (
           view.variant === "wheel" ? (

@@ -7,7 +7,6 @@ export const PROGRAM_TYPE_BADGE: Record<
   plant: { label: "Sprout", variant: "gold" },
   wheel: { label: "Wheel", variant: "default" },
   scratch: { label: "Scratch", variant: "default" },
-  streak: { label: "Streak", variant: "default" },
 };
 
 type DescribableProgram = {
@@ -37,9 +36,6 @@ export function describeProgram(program: DescribableProgram): string {
   }
   if (type === "scratch") {
     return `Scratch for a chance to win ${reward_text}`;
-  }
-  if (type === "streak") {
-    return `Check in ${stamps_required} times in a row to unlock ${reward_text}`;
   }
   return `Buy ${stamps_required}, get 1 ${reward_text}`;
 }

@@ -48,11 +48,18 @@ describe("PreviewCard", () => {
     expect(screen.getByText("Sprout")).toBeInTheDocument();
   });
 
-  it("renders the streak flame for a streak view", () => {
+  it("renders the flame layers for a flame view", () => {
     const progress: Progress = {
-      stage: "active",
-      label: "Streak active — visit again to keep it",
-      view: { kind: "streak", current: 1, target: 4, status: "active" },
+      stage: "collecting",
+      label: "Inner Flame — 4/8",
+      view: {
+        kind: "flame",
+        filled: 4,
+        total: 8,
+        stage: 1,
+        stageName: "Inner Flame",
+        totalStages: 3,
+      },
       rewardReady: false,
     };
     render(
@@ -62,7 +69,10 @@ describe("PreviewCard", () => {
         rewardText="Free item"
       />,
     );
-    expect(screen.getByText("1 / 4 week streak")).toBeInTheDocument();
+    // FlameLayers renders its own "{stageName} — {filled}/{total}" text
+    // alongside the identical progress.label below it, so both instances
+    // are expected here.
+    expect(screen.getAllByText("Inner Flame — 4/8")).toHaveLength(2);
   });
 
   it("renders the wheel for a chance view with variant wheel", () => {

@@ -6,14 +6,8 @@ import { requireVendor } from "@/lib/auth";
 import { getProgramById, isPro } from "@/lib/program";
 import { normalizePhone } from "@/lib/phone";
 import { rewardReady } from "@/lib/loyalty";
-import {
-  applyVisit,
-  getProgress,
-  resolvePlantState,
-  resolveStreakState,
-} from "@/lib/engine";
+import { applyVisit, getProgress, resolvePlantState } from "@/lib/engine";
 import { plantStrategy, type PlantConfig } from "@/lib/engine/plant";
-import { streakStrategy, type StreakConfig } from "@/lib/engine/streak";
 import { isCardExpired } from "@/lib/expiry";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
@@ -192,62 +186,6 @@ export async function redeemPlantAction(
     reward_count: 0,
   });
   const reset = plantStrategy.redeem(state, config);
-
-  const { error } = await supabase.rpc("record_visit", {
-    p_program: program.id,
-    p_phone: normalized.phone,
-    p_state: reset as unknown as Json,
-    p_kind: "redeem",
-    p_payload: { reward: program.reward_text },
-  });
-  if (error) {
-    console.error("record_visit redeem failed", error.message);
-    return { success: false, error: "Something went wrong. Try again." };
-  }
-
-  const progress = getProgress(
-    program,
-    { state: reset, stamp_count: 0, reward_count: 0 },
-    new Date(),
-  );
-
-  revalidatePath("/dashboard");
-  return { success: true, phone: normalized.phone, progress };
-}
-
-// Redeem a maxed-out Streak Club card: the pure strategy clears the banked
-// reward and resets the streak counter; record_visit persists the reset state
-// and logs a 'redeem' event so metrics and recent activity see the reward.
-// Reuses the generic write path — no card id needed, just the phone.
-export async function redeemStreakAction(
-  formData: FormData,
-): Promise<ActionResult<{ phone: string; progress: Progress }>> {
-  await requireVendor();
-  const program = await programFromForm(formData);
-  if (!program) return { success: false, error: "Set up your card first." };
-  const normalized = normalizePhone(String(formData.get("phone") ?? ""));
-  if (!normalized.ok) {
-    return { success: false, error: "Enter a valid Singapore phone number." };
-  }
-
-  const supabase = await createServerClient();
-  const { data: existing } = await supabase
-    .from("cards")
-    .select("state")
-    .eq("program_id", program.id)
-    .eq("phone", normalized.phone)
-    .maybeSingle();
-  if (!existing) {
-    return { success: false, error: "No card yet for that number." };
-  }
-
-  const config = program.config as StreakConfig;
-  const state = resolveStreakState({
-    state: existing.state,
-    stamp_count: 0,
-    reward_count: 0,
-  });
-  const reset = streakStrategy.redeem(state, config);
 
   const { error } = await supabase.rpc("record_visit", {
     p_program: program.id,

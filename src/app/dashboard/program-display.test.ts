@@ -7,14 +7,7 @@ import {
 
 describe("PROGRAM_TYPE_BADGE", () => {
   it("has an entry for every program type", () => {
-    for (const type of [
-      "stamp",
-      "lucky",
-      "plant",
-      "wheel",
-      "scratch",
-      "streak",
-    ]) {
+    for (const type of ["stamp", "lucky", "plant", "wheel", "scratch"]) {
       expect(PROGRAM_TYPE_BADGE[type]).toBeDefined();
     }
   });
@@ -74,17 +67,6 @@ describe("describeProgram", () => {
         config: {},
       }),
     ).toBe("Scratch for a chance to win a free side");
-  });
-
-  it("describes a streak program", () => {
-    expect(
-      describeProgram({
-        type: "streak",
-        stamps_required: 5,
-        reward_text: "a free meal",
-        config: {},
-      }),
-    ).toBe("Check in 5 times in a row to unlock a free meal");
   });
 });
 
