@@ -5,6 +5,7 @@ import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
 import { FlameLayers } from "@/components/flame-layers";
 import { StampDots } from "@/components/stamp-dots";
+import { PointsBar } from "@/components/points-bar";
 
 // Mirrors ProgramCardStatus's view-kind switch (src/app/c/program-card-status.tsx)
 // — same components, same props — so the /setup preview can never visually
@@ -60,7 +61,11 @@ export function PreviewCard({
             <ScratchCard revealed={false} label="" reward={false} />
           )
         ) : view.kind === "dots" ? (
-          <StampDots filled={view.filled} total={view.total} />
+          view.variant === "points" ? (
+            <PointsBar filled={view.filled} total={view.total} />
+          ) : (
+            <StampDots filled={view.filled} total={view.total} />
+          )
         ) : null}
       </div>
       <p className="font-mono text-sm font-medium">{progress.label}</p>

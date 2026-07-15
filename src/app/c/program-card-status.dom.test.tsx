@@ -28,6 +28,33 @@ function baseCard(overrides: Partial<CardStatus>): CardStatus {
   } as CardStatus;
 }
 
+describe("ProgramCardStatus points variant", () => {
+  it("renders PointsBar when view.variant is points", () => {
+    const { getByText } = render(
+      <ProgramCardStatus
+        card={baseCard({
+          view: { kind: "dots", filled: 40, total: 100, variant: "points" },
+        })}
+        phone="+6591234567"
+      />,
+    );
+    expect(getByText("40 / 100 points")).toBeInTheDocument();
+  });
+
+  it("still renders StampDots (not PointsBar) when view.variant is dots", () => {
+    const { container, queryByText } = render(
+      <ProgramCardStatus
+        card={baseCard({
+          view: { kind: "dots", filled: 3, total: 5, variant: "dots" },
+        })}
+        phone="+6591234567"
+      />,
+    );
+    expect(queryByText(/points$/)).not.toBeInTheDocument();
+    expect(container.querySelectorAll("span[aria-hidden]").length).toBe(5);
+  });
+});
+
 describe("ProgramCardStatus cup variant", () => {
   it("renders the Cup visual (not Plant) when view.variant is cup", () => {
     const { container } = render(

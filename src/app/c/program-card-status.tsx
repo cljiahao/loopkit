@@ -10,6 +10,7 @@ import { Wheel } from "@/components/wheel";
 import { ScratchCard } from "@/components/scratch-card";
 import { FlameLayers } from "@/components/flame-layers";
 import { StampDots } from "@/components/stamp-dots";
+import { PointsBar } from "@/components/points-bar";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -126,7 +127,11 @@ export function ProgramCardStatus({
           )}
         </div>
       ) : view?.kind === "dots" ? (
-        <StampDots filled={view.filled} total={view.total} />
+        view.variant === "points" ? (
+          <PointsBar filled={view.filled} total={view.total} />
+        ) : (
+          <StampDots filled={view.filled} total={view.total} />
+        )
       ) : null}
       <p className="font-mono text-sm font-medium">{card.label}</p>
       <p className="text-sm text-muted-foreground">

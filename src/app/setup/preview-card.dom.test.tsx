@@ -125,6 +125,22 @@ describe("PreviewCard", () => {
     expect(container.querySelector("#cup-body-clip")).toBeInTheDocument();
   });
 
+  it("renders PointsBar when view.variant is points", () => {
+    render(
+      <PreviewCard
+        progress={{
+          stage: "collecting",
+          label: "40/100 points",
+          rewardReady: false,
+          view: { kind: "dots", filled: 40, total: 100, variant: "points" },
+        }}
+        name="Coffee Points"
+        rewardText="Free drink"
+      />,
+    );
+    expect(screen.getByText("40 / 100 points")).toBeInTheDocument();
+  });
+
   it("falls back to placeholder name and reward text when both are blank", () => {
     const progress: Progress = {
       stage: "collecting",
