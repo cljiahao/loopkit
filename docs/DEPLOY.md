@@ -167,6 +167,16 @@ Do the steps in order: **A (Supabase) → B (Vercel) → C (attach to merqo)**.
      straight removal rather than the usual additive-only migration. Safe
      to re-run.
 
+   - apply `0026_loopkit_points_per_visit.sql` — adds Points Club, a Stamp
+     variant where each visit earns a vendor-configured `points_per_visit`
+     amount instead of an implicit 1. Recreates `add_stamp` to read the
+     amount from `programs.config` (falling back to 1 for every existing
+     program, reproducing today's exact behavior). Widens the
+     `stamps_required` column's `CHECK` constraint from `2..20` to
+     `2..100000` so a Points target can be set in the hundreds or
+     thousands — Stamp/Flame Club stay capped at 20 by the application
+     layer, not this constraint. Safe to re-run.
+
    - **Optional — rate limiting on the public `/c` surface.** The card-check
      action is throttled per-IP only if an Upstash Redis is configured. Create a
      free Upstash Redis and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
