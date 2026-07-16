@@ -16,6 +16,8 @@ import { Wordmark } from "@/components/landing/wordmark";
 import { ProLock } from "@/components/pro-lock";
 import { BackButton } from "@/components/back-button";
 import { cn } from "@/lib/utils";
+import { createServerClient } from "@/lib/supabase/server";
+import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 
 const typeLabel: Record<string, string> = {
   stamp: "Stamp card",
@@ -35,8 +37,14 @@ export default async function SetupPage({
     schedule?: string;
   }>;
 }) {
-  await requireVendor();
+  const { user } = await requireVendor();
   await applyDueCutovers();
+  const supabase = await createServerClient();
+  const vendorProfile = await getOrCreateVendorProfile(
+    supabase,
+    user.id,
+    user.email ?? null,
+  );
   const { edit, migrate, schedule, prep } = await searchParams;
   const programs = await listPrograms();
   const editing = edit ? currentProgram(programs, edit) : null;
@@ -83,6 +91,9 @@ export default async function SetupPage({
         </div>
         <div className="mb-8 text-center">
           <Wordmark className="text-3xl" />
+          <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {vendorProfile.stall_name}
+          </p>
           <h1 className="mt-3 font-display text-2xl font-bold tracking-tight">
             {migrating
               ? `Change ${migrating.name}'s type`
