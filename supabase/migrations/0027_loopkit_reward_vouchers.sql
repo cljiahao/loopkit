@@ -206,14 +206,16 @@ begin
     from loopkit.programs where id = p_program;
   v_amount := coalesce((v_config->>'points_per_visit')::int, 1);
 
-  select id into v_card_id from loopkit.cards
-    where program_id = p_program and phone = p_phone;
-
-  if v_card_id is null then
-    -- First stamp for this phone: create the card and log it.
-    insert into loopkit.cards (program_id, phone, stamp_count)
-      values (p_program, p_phone, v_amount)
-    returning * into v_card;
+  -- First stamp for this phone: create the card and log it. on conflict
+  -- do nothing absorbs a race between two concurrent first-ever calls for
+  -- the same phone — the loser falls through to the existing-card branch
+  -- below (via the re-select by program_id+phone) instead of raising an
+  -- unhandled unique_violation. Same safety net 0026 relied on.
+  insert into loopkit.cards (program_id, phone, stamp_count)
+    values (p_program, p_phone, v_amount)
+  on conflict (program_id, phone) do nothing
+  returning * into v_card;
+  if v_card.id is not null then
     insert into loopkit.stamp_events (card_id, kind) values (v_card.id, 'stamp');
     v_crossings := loopkit.count_threshold_crossings(0, v_amount, v_required);
     if v_crossings > 0 then
@@ -222,8 +224,11 @@ begin
     return v_card;
   end if;
 
-  -- Existing card: sweep expired vouchers first, forfeiting their stamps,
-  -- then always increment by v_amount, no ceiling.
+  -- Existing card (including a just-lost insert race above): sweep
+  -- expired vouchers first, forfeiting their stamps, then always
+  -- increment by v_amount, no ceiling.
+  select id into v_card_id from loopkit.cards
+    where program_id = p_program and phone = p_phone;
   v_expired_count := loopkit.expire_stale_vouchers(v_card_id);
 
   select stamp_count into v_prev from loopkit.cards where id = v_card_id;
