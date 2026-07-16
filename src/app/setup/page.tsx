@@ -18,6 +18,7 @@ import { BackButton } from "@/components/back-button";
 import { cn } from "@/lib/utils";
 import { createServerClient } from "@/lib/supabase/server";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
+import { getVendorProfile } from "@/lib/vendor";
 
 const typeLabel: Record<string, string> = {
   stamp: "Stamp card",
@@ -40,10 +41,16 @@ export default async function SetupPage({
   const { user } = await requireVendor();
   await applyDueCutovers();
   const supabase = await createServerClient();
+  // Prefer the vendor's existing loopkit.vendors name (set via
+  // /dashboard/profile) as the seed for the shared merqo.vendor_profile row
+  // — falling back to email only if they've never set one — so a vendor who
+  // already has a real stall name doesn't get overwritten with their raw
+  // email on first /setup visit after this table's introduction.
+  const localProfile = await getVendorProfile();
   const vendorProfile = await getOrCreateVendorProfile(
     supabase,
     user.id,
-    user.email ?? null,
+    localProfile.name ?? user.email ?? null,
   );
   const { edit, migrate, schedule, prep } = await searchParams;
   const programs = await listPrograms();
