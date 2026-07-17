@@ -1,0 +1,30 @@
+# Git-hook layer. Install once: pnpm exec lefthook install (auto-run by the "prepare" script).
+pre-commit:
+  parallel: true
+  commands:
+    format-lint:
+      glob: "*.{ts,tsx,js,mjs,cjs}"
+      exclude:
+        - .claude/hooks/*
+        - .claude/.harness-base/**
+      run: pnpm exec prettier --write {staged_files} && pnpm exec eslint --fix --max-warnings=0 --no-warn-ignored {staged_files}
+      stage_fixed: true
+    typecheck:
+      run: pnpm exec tsc --noEmit
+    lockfile:
+      glob: "package.json"
+      run: pnpm install --frozen-lockfile
+    secret-scan:
+      run: command -v gitleaks >/dev/null 2>&1 && gitleaks protect --staged --redact --no-banner || true
+    readme-coupling:
+      run: bash .lefthook/readme-coupling.sh
+commit-msg:
+  scripts:
+    "commit-msg.sh":
+      runner: bash
+pre-push:
+  commands:
+    harness-integrity:
+      run: bash .claude/verify-harness.sh
+    verify:
+      run: pnpm run check && pnpm test -- --run
