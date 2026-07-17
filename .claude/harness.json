@@ -8,7 +8,7 @@
   "richReadme": true,
   "seeded_files": {
     "AGENTS.md": {
-      "origin_hash": "68b650a5199ad27865f7265c23947f4db744db9e5dd2442e8e73b0aea21c6c48",
+      "origin_hash": "e0c5b36198b687f76d0bc3592162294a2cf0fa3780c39a4d31048a4ba7c1fe43",
       "path": "AGENTS.md"
     },
     ".claude/settings.json": {
@@ -16,7 +16,7 @@
       "path": ".claude/settings.json"
     },
     ".claude/skills/next-verify/SKILL.md": {
-      "origin_hash": "c05a03648c172cb6aa8ee200a8cede2f50fe2311db5a9f39ad15f63c2b651cf8",
+      "origin_hash": "bce9095dcc32ca4e80409d009e99c3980d9cf52664bfbe8ba74d97e48fe31a80",
       "path": ".claude/skills/next-verify/SKILL.md"
     },
     ".claude/skills/skill-audit/SKILL.md": {
@@ -32,7 +32,7 @@
       "path": ".claude/hooks/block-no-verify.sh"
     },
     ".claude/hooks/user-prompt-guard.cjs": {
-      "origin_hash": "a195df8e37bb6309480971dce74f734ea6cfd63b466156aa6e2185aa17b484de",
+      "origin_hash": "d1c376ffcbaba440838b52da3114b4671038042958126c4a316b4ef7de4056f6",
       "path": ".claude/hooks/user-prompt-guard.cjs"
     },
     ".claude/hooks/post-edit-typecheck.sh": {
@@ -72,15 +72,15 @@
       "path": ".gitleaks.toml"
     },
     ".github/workflows/ci.yml": {
-      "origin_hash": "71367f0d4a50eb0f271aab8711322b0e9aa06a2e5afa63a5a661ab5fb28edc69",
+      "origin_hash": "494763e76076b4328e3de2d93a1b5458a8bf509eaaedadb21e2666cd14243686",
       "path": ".github/workflows/ci.yml"
     },
     ".claude/verify-harness.sh": {
-      "origin_hash": "a07f898f9fa1b68aa30eb06fa47f769c51e2d75f5d32257ef746c2b4e433c5a1",
+      "origin_hash": "8c50cc319c80fb1b6e4129f149b69a7341803dc078f388fe0e3127e64d7f08bd",
       "path": ".claude/verify-harness.sh"
     },
     ".claude/regen-harness.sh": {
-      "origin_hash": "c7aa1c2a6fc572bfc4b75c1e030e88bd1579f1651793c2aed319e917147ae8de",
+      "origin_hash": "a8c844610843c39550ac920d1d29323244bdecbcdeaa4519c97d8867de1b37a0",
       "path": ".claude/regen-harness.sh"
     }
   }
