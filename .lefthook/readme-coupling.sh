@@ -9,7 +9,9 @@ git diff --cached --name-only > "$tmp"
 missing=""
 while IFS= read -r f; do
   case "$f" in */README.md|README.md) continue ;; esac
+  case "$f" in .claude/.harness-base/*) continue ;; esac
   d=$(dirname "$f")
+  [ -d "$d" ] || continue
   rm_path="README.md"
   [ "$d" != "." ] && rm_path="$d/README.md"
   grep -qxF "$rm_path" "$tmp" || missing="$missing\n  - $d/"
