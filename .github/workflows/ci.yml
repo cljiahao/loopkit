@@ -82,7 +82,9 @@ jobs:
           fetch-depth: 0
       - name: Require CHANGELOG for src changes (apply 'skip-changelog' label to bypass)
         env:
-          { LABELS: "${{ join(github.event.pull_request.labels.*.name, ' ') }}" }
+          {
+            LABELS: "${{ join(github.event.pull_request.labels.*.name, ' ') }}",
+          }
         run: |
           base="origin/${{ github.base_ref }}"
           changed=$(git diff --name-only "$base"...HEAD)
@@ -101,7 +103,9 @@ jobs:
           fetch-depth: 0
       - name: Require README.md update for changed folders (apply 'skip-readme-check' label to bypass)
         env:
-          { LABELS: "${{ join(github.event.pull_request.labels.*.name, ' ') }}" }
+          {
+            LABELS: "${{ join(github.event.pull_request.labels.*.name, ' ') }}",
+          }
         run: |
           base="origin/${{ github.base_ref }}"
           tmp=$(mktemp)
