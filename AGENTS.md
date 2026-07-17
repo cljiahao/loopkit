@@ -1,4 +1,4 @@
-<!-- templateCentral: nextjs@5.8.0 (Supabase variant — shared project, schema per kit) -->
+<!-- templateCentral: nextjs@5.11.0 (Supabase variant — shared project, schema per kit) -->
 
 # AGENTS.md — loopkit
 
@@ -104,30 +104,57 @@ better-auth / Drizzle and will break RLS + realtime.
 
 ## AI Harness
 
-PreToolUse: blocks secret files (exit 2): `.env*` (except `.env.example`),
-cert files (`.pem`/`.key`/`.p12`/`.pfx`/`.secret`), `credentials.json`/`.netrc`/`.secrets`;
-and blocks `--no-verify`. App code, skills, specs, and `.github/workflows/`
-unrestricted.
-UserPromptSubmit: pattern-checks prompts for injection phrases; exit 2 blocks.
-PostToolUse: `tsc --noEmit --incremental` after every Edit/Write. Feedback-only.
-Stop: exits 0 when `stop_hook_active` (no re-entry loop); else runs the test
-suite, exit 2 feeds failures back, exit 0 on pass.
-SessionStart (startup|resume|compact): re-injects first 30 lines of this file —
-the documented inject path (PostCompact stdout is ignored, cannot inject context).
-`permissions`: max-privilege — bare-tool `allow` (Bash/Read/Edit/Write/web/Skill/
-Task) so common work doesn't prompt; `deny` covers secret reads/edits (`.env.local`
-and other `.env.<env>` variants, `./secrets/**` — `.env.example` is the one
-whitelisted env file) and irreversible ops (`rm -rf`, `git push --force`/`-f`,
-`git reset --hard`, `git clean -fd/-fx`, `git filter-branch`, ref-delete). Deny
-always wins (enforced even under bypass); it's a guardrail, not a sandbox.
-Project skills (directory form, `<name>/SKILL.md`): `.claude/skills/` |
-Manifest: `.claude/harness.json`
+PreToolUse: blocks secrets and CI pipeline files only (exit 2): `.env*`
+(except `.env.example`), CI/CD definitions (`.github/workflows/`,
+`.github/actions/`), cert files (`.pem`/`.key`/`.p12`/`.pfx`/`.secret`),
+`credentials.json`/`.netrc`/`.secrets`; a second Bash guard blocks
+`--no-verify`, hook-layer bypasses (`LEFTHOOK=0`, `git -c
+core.hooksPath=…`), and force-pushes to `main`. Skills, specs, and all app
+code are unrestricted. SessionStart (startup/resume/clear/compact):
+re-injects AGENTS.md routing context + `docs/CONSTITUTION.md` +
+universal invariants so they survive compaction (PostCompact is
+observability-only and cannot inject).
+UserPromptSubmit: pattern-checks incoming prompts for injection phrases and
+inline credentials; exit 2 blocks the prompt.
+PostToolUse: incremental type-check (`pnpm exec tsc --noEmit
+--incremental`) after every Edit/Write. Feedback-only.
+Stop hook: runs full test suite (`pnpm test --run`); exit 2 feeds failures
+to Claude via stderr; exit 0 on pass.
+SubagentStop: type-gates a subagent's uncommitted TS changes before it can
+hand back control.
+Git hooks (lefthook): pre-commit runs format/lint/typecheck + gitleaks
+secret-scan on staged files, plus a readme-coupling staleness warning;
+commit-msg enforces Conventional Commits; pre-push runs the harness
+integrity check + quality gate. Hard-local; coverage/changed-line gates
+run in CI.
+CI (GitHub Actions): hard gate on changed-line coverage (`diff-cover`
+≥80%), lockfile-in-sync (`--frozen-lockfile`), a changelog-touched check, a
+readme-freshness check, harness integrity, and (via `security.yml`) a
+full-history gitleaks scan + `pnpm audit`.
+Project skills: `.claude/skills/` | Manifest: `.claude/harness.json`
 
 ## Skills Security
 
 - Review `SKILL.md` before installing any third-party skill — treat skills like packages.
 - Scope `allowed-tools:` to the minimum (e.g. `Bash(git *)` not `Bash`).
 - Never install skills that hardcode secrets or make unlisted outbound calls.
+
+## Git Workflow
+
+**Branch source:** Always fork from an up-to-date `main`.
+Before branching: `git fetch -p` then update `main` (`git checkout main &&
+git pull --ff-only`). Fork the feature FROM the freshly-pulled `main`.
+
+loopkit is a single-branch trunk: `main` is the only long-lived branch, and
+Vercel auto-deploys on every push to it. Every change lands via a
+feature-branch PR into `main` — there is no `uat`/`develop` stage. The
+seeded hooks protect `main` from direct commits and force-push regardless
+of this route (see "AI Harness" above).
+
+## Skill capture
+
+- A workflow done twice → author a `.claude/skills/<name>/` project skill and commit it, so the repo (and teammates) carry it, not just session memory. `/skill-audit` surfaces repeats from `.claude/skill-usage.log`.
+- Don't vendor third-party plugin skills — re-author the workflow as a project skill tuned to this repo.
 
 ## Project-Specific Notes
 
