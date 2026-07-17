@@ -8,7 +8,7 @@
   "richReadme": true,
   "seeded_files": {
     "AGENTS.md": {
-      "origin_hash": "4d918b1672d448f9a8d99d78c546cb7d99df135e85c93c0682c4a7d9d8e8cacc",
+      "origin_hash": "68b650a5199ad27865f7265c23947f4db744db9e5dd2442e8e73b0aea21c6c48",
       "path": "AGENTS.md"
     },
     ".claude/settings.json": {
@@ -72,11 +72,11 @@
       "path": ".gitleaks.toml"
     },
     ".github/workflows/ci.yml": {
-      "origin_hash": "3bf7c3d41f28a6074763ead78974a3fec7c91e1599ad547453709760926bbd6d",
+      "origin_hash": "71367f0d4a50eb0f271aab8711322b0e9aa06a2e5afa63a5a661ab5fb28edc69",
       "path": ".github/workflows/ci.yml"
     },
     ".claude/verify-harness.sh": {
-      "origin_hash": "cd9843806927f7b9f2f5f975f010ef112dd9bf67c0db53201b08e1b41dce2373",
+      "origin_hash": "a07f898f9fa1b68aa30eb06fa47f769c51e2d75f5d32257ef746c2b4e433c5a1",
       "path": ".claude/verify-harness.sh"
     },
     ".claude/regen-harness.sh": {
