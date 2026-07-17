@@ -1206,7 +1206,7 @@ git commit -m "feat: add harness-integrity, coverage-diff, changelog, and readme
 mkdir -p .claude/skills/skill-audit
 ```
 
-````markdown
+`````markdown
 ---
 name: skill-audit
 description: Surface repeated workflows worth capturing as committed project skills, from the skill-usage log.
@@ -1224,7 +1224,6 @@ Find workflows you repeat often that aren't yet committed project skills — so 
 [ -f .claude/skill-usage.log ] || { echo "No skill usage logged yet."; exit 0; }
 awk -F'\t' '{c[$2]++} END{for (k in c) printf "%4d  %s\n", c[k], k}' .claude/skill-usage.log | sort -rn
 ```
-````
 
 ## 2. Filter to capture candidates
 
@@ -1239,15 +1238,14 @@ A skill is a **capture candidate** when it is used **≥ 2 times** AND:
 - **Skip** — note it's intentionally not captured.
 
 Keep each new SKILL.md to one workflow, with a clear trigger description and tightly-scoped `allowed-tools`. See the `## Skill capture` norm in AGENTS.md.
-
-````
+`````
 
 - [ ] **Step 2: Commit**
 
 ```bash
 git add .claude/skills/skill-audit
 git commit -m "feat: add skill-audit project skill"
-````
+```
 
 ---
 
