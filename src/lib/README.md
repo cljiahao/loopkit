@@ -16,7 +16,7 @@ profile/status).
 - `auth.ts` — `requireVendor()`: vendor auth gate for server components/actions, redirects unauthenticated requests to `/login`
 - `cards.ts` — `listCards`: the signed-in vendor's cards for one program, optional phone search, most-recently-updated first
 - `customers.ts` — `aggregateCustomers` (pure phone-keyed merge of customers+cards across programs) and `listVendorCustomers` (impure shell, RLS-scoped)
-- `engine/` (subfolder)
+- `engine/`
 - `expiry.ts` — `isCardExpired`: pure day-elapsed check against a card's cycle start and the program's `expiry_days`
 - `format.ts` — `formatSgtDateTime`/`formatSgtDate`/`sgtDateKey`: Asia/Singapore-pinned timestamp formatters and a calendar-day grouping key
 - `image-resize.ts` — `resizeToWebp`: browser-only Canvas resize + WebP re-encode before upload, falls back to the original file on decode/encode failure
@@ -33,7 +33,7 @@ profile/status).
 - `qr.ts` — `qrSvg`: renders a QR code as an SVG string via the `qrcode` package
 - `rate-limit.ts` — `allowRequest`: per-IP sliding-window rate limit via optional Upstash Redis, dynamically imported and fail-open when unconfigured
 - `stats.ts` — `classifyActivity`/`pctChange`/`bucketVisitsByDay`/`avgDaysBetweenVisits`/`computeCardStats` (pure aggregation pipeline) plus `getProgramStats`/`getVendorStats` (impure shells fetching cards+stamp_events) — powers the vendor stats dashboard
-- `supabase/` (subfolder)
+- `supabase/`
 - `types.ts` — `Json` type and the hand-written `Database["loopkit"]` interface (Row/Insert/Update per table), a manual mirror of `supabase/migrations/` kept in sync by hand (no live DB codegen yet)
 - `utils.ts` — `cn` (clsx+tailwind-merge), `MS_PER_HOUR`/`MS_PER_DAY` constants, `formatPrice`, `centsToDollarString`, `genOrderNumber`, `parseDollarsToCents`, `orderHasPricing`, `count`, `formatOptions` — general-purpose formatting/shared helpers
 - `vendor.ts` — `stallNameSchema`, `getVendorProfile`/`saveStallName`: the vendor's stall-name profile row (RLS-scoped upsert)

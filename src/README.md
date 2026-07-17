@@ -8,10 +8,10 @@ middleware.
 
 ## Contents
 
-- `app/` (subfolder)
-- `components/` (subfolder)
-- `hooks/` (subfolder)
-- `lib/` (subfolder)
+- `app/`
+- `components/`
+- `hooks/`
+- `lib/`
 - `proxy.ts` — Next 16 middleware entry point (`proxy` export, matcher excludes `_next/static`/`_next/image`/`favicon.ico`/image assets); delegates to `updateSession` in `lib/supabase/middleware.ts`
 
 ## Connectivity

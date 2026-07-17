@@ -18,7 +18,7 @@ image uploader, pro-lock, reward celebration), app-wide providers, and the
 - `flame-layers.dom.test.tsx` — jsdom tests: `FlameLayers` renders the correct stage label/count for Spark/Inner Flame/Full Blaze, and always renders two flame icons
 - `flame-layers.tsx` — `FlameLayers`: layered `lucide-react` `Flame` icons (inner+outer, lit by `stage`) with a stage-name/count caption, for stamp-variant "flame" programs
 - `image-uploader.tsx` — `ImageUploader` client component: file-picker button that validates type/size, resizes+WebP-encodes via `resizeToWebp`, uploads to Supabase Storage, and calls `onChange` with the public URL
-- `landing/` (subfolder)
+- `landing/`
 - `plant.tsx` — `Plant`: SVG growing-plant progress visualization (stem height, leaf pairs, bloom petals) driven by `stage`/`totalStages`/`wilting`, for plant-variant "plant" programs
 - `points-bar.tsx` — `PointsBar`: horizontal progress bar with a "filled / total points" caption, for stamp-variant "points" programs
 - `pro-lock.tsx` — `ProLock`: inline pill linking to `/dashboard/plan`, marks a free-tier vendor's Pro-only limit
@@ -27,7 +27,7 @@ image uploader, pro-lock, reward celebration), app-wide providers, and the
 - `reward-celebration.tsx` — `RewardCelebration` client component: `AlertDialog`-based congratulation modal with a `CardBurst` overlay, shows the customer phone and reward text
 - `scratch-card.tsx` — `ScratchCard`: two-layer card (reward/label content beneath an opacity-animated "Scratch to reveal" overlay) for scratch-variant programs
 - `stamp-dots.tsx` — `StampDots`: row of dot/gift icons (filled = stamped, dashed = pending, last slot styled as the reward) with a pop animation on the most recently filled dot
-- `ui/` (subfolder)
+- `ui/`
 - `wheel.tsx` — `Wheel`: SVG spinning-wheel visualization computing per-segment pie slices and a rotation transform that lands on `landedId`, reward segments styled gold
 
 ## Connectivity
