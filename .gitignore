@@ -62,5 +62,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# git worktrees (local scratch)
+# git worktrees (local scratch) — .worktrees/ is the manual-fallback convention,
+# .claude/worktrees/ is what the native EnterWorktree tool actually creates
 .worktrees/
+.claude/worktrees/
