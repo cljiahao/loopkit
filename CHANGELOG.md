@@ -32,6 +32,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `src/features/card-check/` — a pure code-location migration, no
   behavioral change. `src/app/c/page.tsx` now imports `CheckForm` from
   `@/features/card-check`.
+- Sprout (Plant) and Fill the Cup (Cup) progress visualizations now grow
+  smoothly and continuously between visits instead of snapping to each new
+  stage: Cup's liquid-fill transition widens from 500ms to 1600ms, Plant's
+  stem now animates via a `scaleY` transform (previously it didn't animate
+  at all — its old resized-`<line>` approach used non-CSS-animatable
+  endpoint attributes), leaf pairs fade in one at a time without
+  repositioning already-placed leaves, and both components' final-stage
+  treat (bloom / latte-art) fades and scales in instead of popping. Purely
+  visual/timing — no prop or behavioral changes, so this applies wherever
+  these components render (`/setup`'s live preview, the vendor's
+  serve-customer stamp screen, and the customer's `/c` card view).
 
 ### Fixed
 
