@@ -54,6 +54,7 @@ below.
 - `2026-07-18-feature-auth-migration-design.md`
 - `2026-07-18-card-check-migration-design.md`
 - `2026-07-18-plant-cup-growth-animation-design.md`
+- `2026-07-19-dashboard-tappable-card-design.md`
 
 ## Parent
 
