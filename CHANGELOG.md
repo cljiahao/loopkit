@@ -32,6 +32,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `src/features/card-check/` — a pure code-location migration, no
   behavioral change. `src/app/c/page.tsx` now imports `CheckForm` from
   `@/features/card-check`.
+- Dashboard: the vendor's program card is now tappable anywhere to open its
+  counter page, replacing the separate "Open Counter" button. The pencil
+  edit link stays independently tappable. A small chevron signals the card
+  opens something.
 
 ### Fixed
 
