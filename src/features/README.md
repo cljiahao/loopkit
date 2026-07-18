@@ -9,13 +9,13 @@ barrel that is the sole public entry point external code should import from.
 ## Contents
 
 - `auth/`
+- `card-check/`
 
 ## Connectivity
 
 `src/app/` pages compose UI and logic from `src/features/<name>/` via each
 feature's `index.ts` barrel. Features do not import from each other
-directly — not yet exercised with only `auth/` present, but the rule holds
-once later phases add more feature folders.
+directly — `card-check` doesn't import from `auth`, and vice versa.
 
 ## Parent
 
