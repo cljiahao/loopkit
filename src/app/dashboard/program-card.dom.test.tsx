@@ -52,12 +52,24 @@ describe("ProgramCard", () => {
     ).toHaveAttribute("href", "/setup?edit=p1");
   });
 
-  it("links Open Counter to /dashboard/counter?p=<id>", () => {
+  it("links the whole card to /dashboard/counter?p=<id>", () => {
     render(<ProgramCard program={program} />);
-    expect(screen.getByRole("link", { name: /open counter/i })).toHaveAttribute(
-      "href",
-      "/dashboard/counter?p=p1",
-    );
+    expect(
+      screen.getByRole("link", { name: /open counter for coffee stamps/i }),
+    ).toHaveAttribute("href", "/dashboard/counter?p=p1");
+  });
+
+  it("renders exactly 2 links, neither nested inside the other", () => {
+    const { container } = render(<ProgramCard program={program} />);
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      expect(link.parentElement?.closest("a")).toBeNull();
+    }
+    // Sanity: both links are direct descendants of the card root, not of
+    // each other — the root itself is the outermost element rendered.
+    const root = container.firstElementChild;
+    expect(links.every((l) => root?.contains(l))).toBe(true);
   });
 
   it("does not render Customers, Activity, or Stats links", () => {
