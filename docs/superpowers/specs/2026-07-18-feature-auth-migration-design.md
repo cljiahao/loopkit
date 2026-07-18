@@ -26,6 +26,7 @@ out of scope for this spec.
 ## Inventory (verified against the actual repo, not assumed)
 
 **Files today:**
+
 - `src/lib/auth.ts` — exports `requireVendor(): Promise<{ user: User }>`
 - `src/app/login/actions.ts` — exports `vendorPhoneOnboardAction(name, phoneRaw)`, `"use server"`
 - `src/app/login/page.tsx` — default `LoginPage`, plus unexported local `LoginForm` and `GoogleMark`, `"use client"`
@@ -34,7 +35,7 @@ out of scope for this spec.
 - `src/proxy.ts` — **not part of this migration** (see below)
 
 **`requireVendor` is not auth-page-specific** — it's the generic
-authenticated-vendor guard used by 13 call sites across `dashboard/` and
+authenticated-vendor guard used by 14 call sites across `dashboard/` and
 `setup/`, not just login/auth pages:
 `src/lib/program.ts`, `src/lib/vendor.ts`, `src/app/setup/actions.ts`,
 `src/app/setup/page.tsx`, `src/app/dashboard/actions.ts`,
@@ -53,7 +54,7 @@ are — they test code that isn't moving):
 `test/app/resolve-token-action.test.ts`, `test/app/profile-actions.test.ts`.
 
 **`test/app/vendor-onboard-action.test.ts`** tests `vendorPhoneOnboardAction`
-directly (not just mocking it) — this one *does* move, since the code it
+directly (not just mocking it) — this one _does_ move, since the code it
 tests is moving. New location: `test/features/auth/vendor-onboard-action.test.ts`.
 
 **`src/proxy.ts` is confirmed unrelated and out of scope.** It imports
@@ -96,6 +97,7 @@ test/features/auth/
 ```
 
 ### `src/app/` after migration (thin wrappers — Next.js requires routes at
+
 these exact paths, so they can't move into `src/features/`)
 
 - `src/app/login/page.tsx` — shrinks to a `Suspense` wrapper around
@@ -122,16 +124,17 @@ internals (`api/`, `components/`) are private; only `index.ts` is public.
 
 ### Import-path changes (mechanical, no logic changes)
 
-| From | To | Files |
-|---|---|---|
-| `@/lib/auth` (`requireVendor`) | `@/features/auth` | 13 files listed above |
-| `@/app/login/actions` (`vendorPhoneOnboardAction`) | `@/features/auth` | `login-form.tsx` (the file itself moves and becomes the sole importer) |
-| `vi.mock("@/lib/auth", ...)` | `vi.mock("@/features/auth", ...)` | 8 test files listed above (7 stay in place, 1 moves) |
+| From                                               | To                                | Files                                                                  |
+| -------------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
+| `@/lib/auth` (`requireVendor`)                     | `@/features/auth`                 | 14 files listed above                                                  |
+| `@/app/login/actions` (`vendorPhoneOnboardAction`) | `@/features/auth`                 | `login-form.tsx` (the file itself moves and becomes the sole importer) |
+| `vi.mock("@/lib/auth", ...)`                       | `vi.mock("@/features/auth", ...)` | 8 test files listed above (7 stay in place, 1 moves)                   |
 
 ### README fallout
 
 Per Track 1's per-folder README convention (rich mode, enforced by the
 `readme-freshness` CI gate):
+
 - **Regenerate:** `src/app/login/README.md`, `src/app/reset-password/README.md`
   (content shrinks to thin wrappers)
 - **New:** `src/features/README.md`, `src/features/auth/README.md`,
