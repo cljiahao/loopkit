@@ -1,6 +1,6 @@
 import { Wordmark } from "@/components/landing/wordmark";
 import { createServerClient } from "@/lib/supabase/server";
-import { CheckForm } from "@/app/c/check-form";
+import { CheckForm } from "@/features/card-check";
 
 type CheckPageProps = {
   searchParams: Promise<{ v?: string }>;
