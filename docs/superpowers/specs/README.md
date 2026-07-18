@@ -52,6 +52,7 @@ below.
 - `2026-07-16-setup-mobile-wrap-fix-design.md`
 - `2026-07-17-templatecentral-harness-parity-design.md`
 - `2026-07-18-feature-auth-migration-design.md`
+- `2026-07-18-card-check-migration-design.md`
 
 ## Parent
 
