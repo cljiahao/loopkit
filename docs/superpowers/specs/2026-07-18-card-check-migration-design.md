@@ -139,12 +139,13 @@ next to the component it tests (matching `login-form.dom.test.tsx` under
 `test/features/auth/vendor-onboard-action.test.ts`).
 
 ### `src/app/c/` after migration (thin wrapper — Next.js requires the route
+
 at this exact path, so it can't move into `src/features/`)
 
 - `src/app/c/page.tsx` — shrinks to a thin wrapper: same `CheckPageProps`
   type, same `vendor_active_programs` RPC call (this RPC call itself is
-  page-specific — it resolves which programs to *show before the customer
-  types anything*, not part of `checkStatusAction`'s enroll flow — so it
+  page-specific — it resolves which programs to _show before the customer
+  types anything_, not part of `checkStatusAction`'s enroll flow — so it
   stays in the route file, not extracted into `features/card-check/api/`),
   renders `<CheckForm vendorId={v} />` imported from `@/features/card-check`.
 - `src/app/c/actions.ts`, `check-form.tsx`, `program-card-status.tsx`,
@@ -160,12 +161,12 @@ consumer needing exactly one export.
 
 ### Import-path changes (mechanical, no logic changes)
 
-| From | To | Files |
-| --- | --- | --- |
-| `@/app/c/actions` | `../api/actions` (relative, within the feature) | `check-form.tsx`, `program-card-status.tsx` |
-| `@/app/c/status-state` | `../types` (relative) | `actions.ts`, `check-form.tsx`, `program-card-status.tsx` |
-| `@/app/c/check-form` | `@/features/card-check` | `page.tsx` |
-| (dom test's imports of the above) | same relative updates | `program-card-status.dom.test.tsx` |
+| From                              | To                                              | Files                                                     |
+| --------------------------------- | ----------------------------------------------- | --------------------------------------------------------- |
+| `@/app/c/actions`                 | `../api/actions` (relative, within the feature) | `check-form.tsx`, `program-card-status.tsx`               |
+| `@/app/c/status-state`            | `../types` (relative)                           | `actions.ts`, `check-form.tsx`, `program-card-status.tsx` |
+| `@/app/c/check-form`              | `@/features/card-check`                         | `page.tsx`                                                |
+| (dom test's imports of the above) | same relative updates                           | `program-card-status.dom.test.tsx`                        |
 
 ### README fallout
 
