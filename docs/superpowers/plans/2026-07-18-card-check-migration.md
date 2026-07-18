@@ -1481,7 +1481,7 @@ Mirror `test/features/auth/README.md`'s structure and purpose (from Phase 1), ad
 
 - [ ] **Step 6: Add a `card-check/` bullet to `src/features/README.md`'s Contents list**
 
-Read the current `src/features/README.md` (created in Phase 1) — its Contents list is just `- \`auth/\``. Add `- \`card-check/\`` alphabetized after it. Also update its `## Connectivity` section: the current text says "not yet exercised with only `auth/` present" — with a second feature now present, drop that caveat since the "features do not import from each other directly" rule is now real to state without a hedge (still true here — `card-check` doesn't import from `auth`, and vice versa).
+Read the current `src/features/README.md` (created in Phase 1) — its Contents list is just `- \`auth/\``. Add `- \`card-check/\``alphabetized after it. Also update its`## Connectivity`section: the current text says "not yet exercised with only`auth/`present" — with a second feature now present, drop that caveat since the "features do not import from each other directly" rule is now real to state without a hedge (still true here —`card-check`doesn't import from`auth`, and vice versa).
 
 - [ ] **Step 7: Verify every touched/new folder's README is accurate**
 
