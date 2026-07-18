@@ -20,7 +20,13 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "lcov", "cobertura"],
       include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: ["**/*.test.ts", "**/*.d.ts", "**/index.ts"],
+      exclude: [
+        "**/*.test.ts",
+        "**/*.d.ts",
+        "**/index.ts",
+        "src/lib/types.ts",
+        "src/lib/engine/types.ts",
+      ],
     },
   },
 });

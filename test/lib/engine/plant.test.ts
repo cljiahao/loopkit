@@ -97,6 +97,39 @@ describe("plantStrategy", () => {
     expect(later.view).toMatchObject({ kind: "plant", wilting: true });
     expect(later.rewardReady).toBe(true);
   });
+  it("reports rewardsUnlockedCount of 1 when a visit crosses exactly one bloom threshold", () => {
+    const r = plantStrategy.apply(
+      { kind: "visit" },
+      { growth: 7, last_visit_at: day0.toISOString(), blooms: 0 },
+      cfg,
+      day0,
+    );
+    expect(r.rewardsUnlockedCount).toBe(1);
+  });
+  it("reports rewardsUnlockedCount of 0 when growth stays within one already-bloomed cycle", () => {
+    const r = plantStrategy.apply(
+      { kind: "visit" },
+      {
+        growth: 8,
+        last_visit_at: day0.toISOString(),
+        blooms: 0,
+        bloomed: true,
+      },
+      cfg,
+      day0,
+    );
+    expect(r.rewardsUnlockedCount).toBe(0);
+  });
+  it("reports rewardsUnlockedCount of 2 when growth_per_visit is large enough to cross two bloom thresholds at once", () => {
+    const bigCfg: PlantConfig = { ...cfg, growth_per_visit: 20 };
+    const r = plantStrategy.apply(
+      { kind: "visit" },
+      { growth: 0, last_visit_at: day0.toISOString(), blooms: 0 },
+      bigCfg,
+      day0,
+    );
+    expect(r.rewardsUnlockedCount).toBe(2);
+  });
   it("keeps rewardReady false for a pre-bloomed card via the growth fallback", () => {
     const p = plantStrategy.progress(
       { growth: 3, last_visit_at: day0.toISOString(), blooms: 0 },

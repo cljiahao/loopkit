@@ -48,6 +48,6 @@ export interface Strategy<C, S> {
     state: S,
     config: C,
     now: Date,
-  ): { state: S; rewardUnlocked: boolean };
+  ): { state: S; rewardUnlocked: boolean; rewardsUnlockedCount?: number };
   redeem(state: S, config: C): S;
 }

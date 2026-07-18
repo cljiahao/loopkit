@@ -314,3 +314,35 @@ describe("SetupForm type picker", () => {
     expect(submitted.get("head_start_percent")).toBe("35");
   });
 });
+
+describe("SetupForm reward expiry field", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("shows the reward-expiry field for a stamp card", () => {
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    expect(screen.getByLabelText(/reward expires after/i)).toBeInTheDocument();
+  });
+
+  it("hides the reward-expiry field for a lucky card", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Lucky Tap" }));
+    expect(
+      screen.queryByLabelText(/reward expires after/i),
+    ).not.toBeInTheDocument();
+  });
+});

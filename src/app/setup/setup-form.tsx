@@ -755,6 +755,30 @@ export function SetupForm({
               </p>
             </div>
 
+            {(type === "stamp" || type === "plant") && (
+              <div className="space-y-2">
+                <Label htmlFor="reward_expiry_days" className={labelClass}>
+                  Reward expires after (days, optional)
+                </Label>
+                <Input
+                  id="reward_expiry_days"
+                  name="reward_expiry_days"
+                  type="number"
+                  min={1}
+                  max={3650}
+                  placeholder="Never expires"
+                  defaultValue={program?.reward_expiry_days ?? ""}
+                  className="h-11 rounded-xl"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Counted from the moment a customer earns the reward. Left
+                  blank, an earned reward never expires. Different from the
+                  card-expiry setting above, which resets a whole card&apos;s
+                  progress after inactivity.
+                </p>
+              </div>
+            )}
+
             {state.error ? (
               <p className="text-sm font-medium text-destructive">
                 {state.error}

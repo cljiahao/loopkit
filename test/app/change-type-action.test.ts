@@ -165,4 +165,36 @@ describe("changeTypeAction", () => {
       expect.objectContaining({ p_carry_over_stamps: false }),
     );
   });
+
+  it("passes reward_expiry_days through when the new type supports it", async () => {
+    await expect(
+      changeTypeAction({}, form({ ...stampFields, reward_expiry_days: "30" })),
+    ).rejects.toThrow("REDIRECT:/dashboard?p=new-id");
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "create_program",
+      expect.objectContaining({ p_reward_expiry_days: 30 }),
+    );
+  });
+
+  it("sends p_reward_expiry_days=null when the new type doesn't support it", async () => {
+    await expect(
+      changeTypeAction(
+        {},
+        form({
+          replacing: "old-id",
+          type: "lucky",
+          name: "Lucky spin",
+          reward_text: "Free kopi",
+          win_percent: "10",
+          pity_ceiling: "5",
+        }),
+      ),
+    ).rejects.toThrow("REDIRECT:/dashboard?p=new-id");
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "create_program",
+      expect.objectContaining({ p_reward_expiry_days: null }),
+    );
+  });
 });

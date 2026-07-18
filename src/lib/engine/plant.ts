@@ -1,4 +1,5 @@
 import type { Strategy } from "@/lib/engine/types";
+import { countThresholdCrossings } from "@/lib/engine/threshold";
 
 export type PlantStage = { name: string; threshold: number };
 export type PlantConfig = {
@@ -42,7 +43,7 @@ function stageIndexFor(growth: number, stages: PlantStage[]): number {
   return idx;
 }
 
-function bloomThreshold(config: PlantConfig): number {
+export function bloomThreshold(config: PlantConfig): number {
   return config.stages[config.stages.length - 1].threshold;
 }
 
@@ -74,6 +75,11 @@ export const plantStrategy: Strategy<PlantConfig, PlantState> = {
     const bloom = bloomThreshold(config);
     const growth = settled + config.growth_per_visit;
     const bloomed = state.bloomed === true || growth >= bloom;
+    const rewardsUnlockedCount = countThresholdCrossings(
+      settled,
+      growth,
+      bloom,
+    );
     return {
       state: {
         growth,
@@ -81,7 +87,8 @@ export const plantStrategy: Strategy<PlantConfig, PlantState> = {
         blooms: state.blooms,
         bloomed,
       },
-      rewardUnlocked: settled < bloom && growth >= bloom,
+      rewardUnlocked: rewardsUnlockedCount > 0,
+      rewardsUnlockedCount,
     };
   },
   redeem(state, config) {

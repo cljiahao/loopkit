@@ -24,6 +24,7 @@ a few (`cards.test.ts`, `vendor.test.ts`) mock the Supabase server client.
 - `save-program-schema.test.ts` — `saveProgramSchema`: discriminated-union Zod validation per program type
 - `stats.test.ts` — `classifyActivity`/`bucketVisitsByDay`/`computeCardStats`/`pctChange`/`avgDaysBetweenVisits`: stats aggregation pipeline
 - `vendor.test.ts` — vendor profile actions: `saveStallName` upsert after `requireVendor`, mocked
+- `vouchers.test.ts` — `oldestActiveVoucher`/`isPastExpiry`/`daysUntilExpiry`/`countJustExpired`: pure derivations over `reward_vouchers` rows
 
 ## Parent
 

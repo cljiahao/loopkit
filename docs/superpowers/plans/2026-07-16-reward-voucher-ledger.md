@@ -54,7 +54,7 @@ describe("countThresholdCrossings", () => {
   });
 
   it("returns 2 when a large jump (e.g. points_per_visit) crosses two multiples in one call", () => {
-    expect(countThresholdCrossings(8, 33, 10)).toBe(2);
+    expect(countThresholdCrossings(8, 28, 10)).toBe(2);
   });
 
   it("returns 0 for the first-ever value that hasn't reached the threshold yet", () => {
@@ -453,14 +453,18 @@ begin
     from loopkit.programs where id = p_program;
   v_amount := coalesce((v_config->>'points_per_visit')::int, 1);
 
-  select id into v_card_id from loopkit.cards
-    where program_id = p_program and phone = p_phone;
-
-  if v_card_id is null then
-    -- First stamp for this phone: create the card and log it.
-    insert into loopkit.cards (program_id, phone, stamp_count)
-      values (p_program, p_phone, v_amount)
-    returning * into v_card;
+  -- First stamp for this phone: create the card and log it. on conflict
+  -- do nothing absorbs a race between two concurrent first-ever calls for
+  -- the same phone — the loser falls through to the existing-card branch
+  -- below (via the re-select by program_id+phone) instead of raising an
+  -- unhandled unique_violation. Same safety net 0026 relied on — do not
+  -- drop this the way an earlier draft of this migration did (caught by
+  -- task review before the migration was applied).
+  insert into loopkit.cards (program_id, phone, stamp_count)
+    values (p_program, p_phone, v_amount)
+  on conflict (program_id, phone) do nothing
+  returning * into v_card;
+  if v_card.id is not null then
     insert into loopkit.stamp_events (card_id, kind) values (v_card.id, 'stamp');
     v_crossings := loopkit.count_threshold_crossings(0, v_amount, v_required);
     if v_crossings > 0 then
@@ -469,8 +473,11 @@ begin
     return v_card;
   end if;
 
-  -- Existing card: sweep expired vouchers first, forfeiting their stamps,
-  -- then always increment by v_amount, no ceiling.
+  -- Existing card (including a just-lost insert race above): sweep
+  -- expired vouchers first, forfeiting their stamps, then always
+  -- increment by v_amount, no ceiling.
+  select id into v_card_id from loopkit.cards
+    where program_id = p_program and phone = p_phone;
   v_expired_count := loopkit.expire_stale_vouchers(v_card_id);
 
   select stamp_count into v_prev from loopkit.cards where id = v_card_id;
@@ -575,11 +582,11 @@ grant execute on function loopkit.vendor_join(uuid, text) to anon, authenticated
 - [ ] **Step 2: Hand-verify against this checklist (no automated test)**
 
 - [ ] `reward_vouchers` has no direct `insert`/`update` grant to `authenticated` — only `select`, matching `cards`'s pattern.
-- [ ] Every new/changed function is `security definer set search_path = ''` and schema-qualifies every reference (`loopkit.cards`, `loopkit.programs`, etc.) — an unqualified name would resolve against the caller's search_path, a known Postgres security-definer pitfall this codebase already guards against elsewhere.
-- [ ] `add_stamp`'s "first stamp" branch and "existing card" branch are mutually exclusive (`v_card_id is null` check replaces the old `on conflict do nothing` probe) — re-read it once end to end and confirm no phone can hit neither or both branches.
+- [ ] Every new/changed `security definer` function (every one in this file except `count_threshold_crossings`, which is a plain `immutable` SQL function with no table access and needs no elevated privilege) uses `set search_path = ''` and schema-qualifies every reference (`loopkit.cards`, `loopkit.programs`, etc.) — an unqualified name would resolve against the caller's search_path, a known Postgres security-definer pitfall this codebase already guards against elsewhere.
+- [ ] `add_stamp`'s "first stamp" insert keeps `on conflict (program_id, phone) do nothing` (do not replace it with a plain `select ... is null` probe followed by an unconditional insert — that drops 0026's race safety: under concurrent first-ever calls for the same phone, the losing transaction's insert would raise an unhandled `unique_violation` instead of gracefully falling through to the existing-card branch). Confirm the "first stamp" and "existing card" branches are mutually exclusive and that the existing-card branch's `v_card_id` lookup happens _after_ the on-conflict insert attempt, so it also correctly picks up a just-lost race.
 - [ ] `redeem`'s forfeiture math (`stamp_count - v_expired_count * v_required - v_required`) matches `expire_stale_vouchers`' contract: it returns a **count of vouchers**, not an amount — confirm the multiplication by `v_required` is present (an amount vs. count mixup here would silently under- or over-forfeit).
 - [ ] `redeem_oldest_voucher` runs **after** `expire_stale_vouchers` in both `redeem` and the checklist for Task 9's Plant path — reversing the order would let it redeem a voucher that should have just expired.
-- [ ] `create_program`'s new trailing param has a default (`p_reward_expiry_days int default null`) and the `grant execute` signature list matches the full new parameter list exactly (10 types) — a mismatched grant silently breaks every existing call site.
+- [ ] `create_program`'s new trailing param has a default (`p_reward_expiry_days int default null`) and the `grant execute` signature list matches the full new parameter list exactly (11 types, including the new one) — a mismatched grant silently breaks every existing call site.
 - [ ] `vendor_join`'s new `voucher_expires_at` column is the last column in `returns table` (additive position matches how `src/app/c/actions.ts`'s `VendorJoinRow` type will be extended in Task 13 — order doesn't matter for named-field destructuring, but keeping it last avoids reshuffling the existing type).
 
 - [ ] **Step 3: Commit the migration file**
@@ -733,7 +740,7 @@ git commit -m "feat: mirror reward_vouchers table and reward_expiry_days column 
 
 - Modify: `src/lib/program.ts`
 - Modify: `src/app/setup/actions.ts`
-- Test: create `test/lib/program.test.ts` (this file doesn't exist yet — `buildProgramFields` etc. currently have no dedicated unit test file; `expiry_days`'s schema is only exercised indirectly. This task adds the first one, scoped to just the new field's validation.)
+- Modify: `test/lib/program.test.ts` (this file already exists — 8 tests for `programInputSchema`/`canPrepProgram`. Add `saveProgramSchema` to the existing import from `@/lib/program`, and append a new `describe` block below the existing ones. Do not remove or rewrite any existing test.)
 
 **Interfaces:**
 
@@ -741,11 +748,20 @@ git commit -m "feat: mirror reward_vouchers table and reward_expiry_days column 
 
 - [ ] **Step 1: Write the failing test**
 
-```typescript
-// test/lib/program.test.ts
-import { describe, it, expect } from "vitest";
-import { saveProgramSchema } from "@/lib/program";
+In `test/lib/program.test.ts`, change the existing import line from `import { programInputSchema, canPrepProgram, getEntitlement } from "@/lib/program";` to also include `saveProgramSchema`:
 
+```typescript
+import {
+  programInputSchema,
+  saveProgramSchema,
+  canPrepProgram,
+  getEntitlement,
+} from "@/lib/program";
+```
+
+Then append this new `describe` block at the end of the file (after the existing `describe("canPrepProgram", ...)` block):
+
+```typescript
 describe("saveProgramSchema reward_expiry_days", () => {
   it("accepts a stamp program with reward_expiry_days set", () => {
     const result = saveProgramSchema.safeParse({

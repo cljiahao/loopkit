@@ -52,6 +52,7 @@ export async function saveProgramAction(
     visits_to_bloom: formData.get("visits_to_bloom"),
     segments: formData.get("segments"),
     expiry_days: formData.get("expiry_days"),
+    reward_expiry_days: formData.get("reward_expiry_days"),
     head_start: formData.get("head_start"),
     head_start_percent: formData.get("head_start_percent"),
     variant: formData.get("variant"),
@@ -74,6 +75,8 @@ export async function saveProgramAction(
       reward_text: data.reward_text,
       config,
       expiry_days: data.expiry_days ?? null,
+      reward_expiry_days:
+        "reward_expiry_days" in data ? (data.reward_expiry_days ?? null) : null,
       head_start: headStart,
       head_start_percent: headStartPercent,
     };
@@ -107,6 +110,8 @@ export async function saveProgramAction(
     p_reward_text: data.reward_text,
     p_config: config,
     p_expiry_days: data.expiry_days ?? null,
+    p_reward_expiry_days:
+      "reward_expiry_days" in data ? (data.reward_expiry_days ?? null) : null,
     p_head_start: headStart,
     p_head_start_percent: headStartPercent,
   });
@@ -151,6 +156,7 @@ export async function changeTypeAction(
     visits_to_bloom: formData.get("visits_to_bloom"),
     segments: formData.get("segments"),
     expiry_days: formData.get("expiry_days"),
+    reward_expiry_days: formData.get("reward_expiry_days"),
     head_start: formData.get("head_start"),
     head_start_percent: formData.get("head_start_percent"),
     variant: formData.get("variant"),
@@ -193,6 +199,10 @@ export async function changeTypeAction(
       p_reward_text: parsed.data.reward_text,
       p_config: config,
       p_expiry_days: parsed.data.expiry_days ?? null,
+      p_reward_expiry_days:
+        "reward_expiry_days" in parsed.data
+          ? (parsed.data.reward_expiry_days ?? null)
+          : null,
       p_head_start: headStart,
       p_carry_over_stamps: carryOverStamps,
       p_head_start_percent: headStartPercent,
@@ -245,6 +255,7 @@ export async function prepProgramAction(
     visits_to_bloom: formData.get("visits_to_bloom"),
     segments: formData.get("segments"),
     expiry_days: formData.get("expiry_days"),
+    reward_expiry_days: formData.get("reward_expiry_days"),
     head_start: formData.get("head_start"),
     head_start_percent: formData.get("head_start_percent"),
     variant: formData.get("variant"),
@@ -275,6 +286,10 @@ export async function prepProgramAction(
     p_reward_text: parsed.data.reward_text,
     p_config: config,
     p_expiry_days: parsed.data.expiry_days ?? null,
+    p_reward_expiry_days:
+      "reward_expiry_days" in parsed.data
+        ? (parsed.data.reward_expiry_days ?? null)
+        : null,
     p_head_start: headStart,
     p_active: false,
     p_head_start_percent: headStartPercent,

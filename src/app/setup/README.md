@@ -16,7 +16,7 @@ Vendor onboarding and program-management flow at `/setup` — create, edit, migr
 - `schedule-retirement-form.dom.test.tsx` — jsdom test asserting `ScheduleRetirementForm` renders a successor picker (defaulting to the first successor) and date input, and submits the program id, chosen successor, and date.
 - `schedule-retirement-form.tsx` — `ScheduleRetirementForm` client component; a successor `<Select>` plus a date input, submitted via `useActionState(scheduleRetirementAction)`.
 - `setup-form.dom.test.tsx` — jsdom test covering the live preview updating on keystroke/head-start toggle, submitted field values, the flat six/eight-type picker grid, type-switch resetting name/reward, and per-variant (Flame/Points/Cup/Sprout) type/variant/label submission behavior.
-- `setup-form.tsx` — `SetupForm` client component; the full create/edit/migrate/prep form (type picker, basics, chance-segment editor, head-start and carry-over toggles, expiry) driving both submission (via `useActionState`) and the live `PreviewCard`/`usePreviewAnimation` preview.
+- `setup-form.tsx` — `SetupForm` client component; the full create/edit/migrate/prep form (type picker, basics, chance-segment editor, head-start and carry-over toggles, card expiry, and — for Stamp/Plant — a separate optional `reward_expiry_days` field for reward-claim expiry) driving both submission (via `useActionState`) and the live `PreviewCard`/`usePreviewAnimation` preview.
 
 ## Parent
 

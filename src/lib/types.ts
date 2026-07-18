@@ -24,6 +24,7 @@ export interface Database {
           config: Json;
           active: boolean;
           expiry_days: number | null;
+          reward_expiry_days: number | null;
           head_start: boolean;
           replaced_by: string | null;
           carry_over_stamps: boolean;
@@ -41,6 +42,7 @@ export interface Database {
           config?: Json;
           active?: boolean;
           expiry_days?: number | null;
+          reward_expiry_days?: number | null;
           head_start?: boolean;
           replaced_by?: string | null;
           carry_over_stamps?: boolean;
@@ -58,6 +60,7 @@ export interface Database {
           config?: Json;
           active?: boolean;
           expiry_days?: number | null;
+          reward_expiry_days?: number | null;
           head_start?: boolean;
           replaced_by?: string | null;
           carry_over_stamps?: boolean;
@@ -133,6 +136,42 @@ export interface Database {
           kind?: string;
           payload?: Json | null;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      reward_vouchers: {
+        Row: {
+          id: string;
+          card_id: string;
+          program_id: string;
+          reward_text: string;
+          earned_at: string;
+          expires_at: string | null;
+          redeemed_at: string | null;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          card_id: string;
+          program_id: string;
+          reward_text: string;
+          earned_at?: string;
+          expires_at?: string | null;
+          redeemed_at?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          card_id?: string;
+          program_id?: string;
+          reward_text?: string;
+          earned_at?: string;
+          expires_at?: string | null;
+          redeemed_at?: string | null;
+          status?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -455,6 +494,24 @@ export interface Database {
           p_state: Json;
         };
         Returns: Database["loopkit"]["Tables"]["cards"]["Row"];
+      };
+      expire_stale_vouchers: {
+        Args: { p_card: string };
+        Returns: number;
+      };
+      grant_reward_voucher: {
+        Args: {
+          p_card: string;
+          p_reward_text: string;
+          p_expiry_days: number | null;
+          p_count?: number;
+          p_immediate?: boolean;
+        };
+        Returns: void;
+      };
+      redeem_oldest_voucher: {
+        Args: { p_card: string };
+        Returns: void;
       };
     };
     Enums: Record<string, never>;

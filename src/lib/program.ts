@@ -14,7 +14,7 @@ export type { ProgramType, SegmentInput };
 export { buildChanceConfig, buildPlantConfig };
 
 const PROGRAM_COLUMNS =
-  "id,name,stamps_required,reward_text,type,config,active,expiry_days,head_start,head_start_percent,replaced_by,carry_over_stamps";
+  "id,name,stamps_required,reward_text,type,config,active,expiry_days,reward_expiry_days,head_start,head_start_percent,replaced_by,carry_over_stamps";
 
 export type Program = {
   id: string;
@@ -25,6 +25,7 @@ export type Program = {
   config: unknown;
   active: boolean;
   expiry_days?: number | null;
+  reward_expiry_days?: number | null;
   head_start: boolean;
   head_start_percent: number;
   replaced_by: string | null;
@@ -51,6 +52,11 @@ function emptyToUndefined(value: unknown): unknown {
 }
 
 const expiryDaysSchema = z.preprocess(
+  emptyToUndefined,
+  z.coerce.number().int().min(1).max(3650).optional(),
+);
+
+const rewardExpiryDaysSchema = z.preprocess(
   emptyToUndefined,
   z.coerce.number().int().min(1).max(3650).optional(),
 );
@@ -83,6 +89,7 @@ export const saveProgramSchema = z
         z.coerce.number().int().min(1).max(1000).optional(),
       ),
       expiry_days: expiryDaysSchema,
+      reward_expiry_days: rewardExpiryDaysSchema,
     }),
     z.object({
       type: z.literal("lucky"),
@@ -107,6 +114,7 @@ export const saveProgramSchema = z
         z.enum(["plant", "cup"]).optional(),
       ),
       expiry_days: expiryDaysSchema,
+      reward_expiry_days: rewardExpiryDaysSchema,
     }),
     z.object({
       type: z.literal("wheel"),
