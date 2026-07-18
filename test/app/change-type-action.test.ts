@@ -5,7 +5,7 @@ const { getProgramByIdMock, rpcMock } = vi.hoisted(() => ({
   rpcMock: vi.fn(),
 }));
 
-vi.mock("@/lib/auth", () => ({
+vi.mock("@/features/auth", () => ({
   requireVendor: vi.fn(async () => ({ user: { id: "v1" } })),
 }));
 

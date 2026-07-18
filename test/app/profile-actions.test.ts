@@ -4,7 +4,7 @@ const { requireVendorMock, saveStallNameMock } = vi.hoisted(() => ({
   requireVendorMock: vi.fn(async () => ({ user: { id: "vendor-1" } })),
   saveStallNameMock: vi.fn(async () => ({})),
 }));
-vi.mock("@/lib/auth", () => ({ requireVendor: requireVendorMock }));
+vi.mock("@/features/auth", () => ({ requireVendor: requireVendorMock }));
 vi.mock("@/lib/vendor", async (importActual) => {
   const actual = await importActual<typeof import("@/lib/vendor")>();
   return { ...actual, saveStallName: saveStallNameMock };

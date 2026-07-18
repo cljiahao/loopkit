@@ -14,7 +14,7 @@ const {
   rpcMock: vi.fn(),
 }));
 
-vi.mock("@/lib/auth", () => ({ requireVendor: requireVendorMock }));
+vi.mock("@/features/auth", () => ({ requireVendor: requireVendorMock }));
 
 vi.mock("@/lib/program", async (importActual) => {
   const actual = await importActual<typeof import("@/lib/program")>();

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/types";
 import {

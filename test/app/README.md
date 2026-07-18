@@ -19,7 +19,6 @@ Supabase clients and `@/lib` collaborators mocked via `vi.mock`/`vi.hoisted`.
 - `save-program-action.test.ts` — `saveProgramAction`: create/update dispatch, free/Pro entitlement gate, RPC call shape
 - `serve-customer.test.tsx` — jsdom: the `/c` customer card view — stamp/record-visit/lookup/redeem-plant flows end to end
 - `set-vendor-pro-action.test.ts` — admin action toggling a vendor's Pro flag: upsert/delete on `vendor_pro`
-- `vendor-onboard-action.test.ts` — phone-onboarding action: upserts the vendor's profile row after `requireVendor`
 
 ## Parent
 

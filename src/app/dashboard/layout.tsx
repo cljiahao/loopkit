@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { isAdmin } from "@/lib/admin";
 import { isPro } from "@/lib/program";
 import { getVendorProfile } from "@/lib/vendor";

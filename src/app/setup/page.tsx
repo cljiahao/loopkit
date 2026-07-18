@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import {
   listPrograms,
   currentProgram,

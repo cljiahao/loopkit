@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { listPrograms, currentProgram } from "@/lib/program";
 import { listActivity } from "@/lib/activity";
 import { ProgramSwitcher } from "@/app/dashboard/program-switcher";

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const { requireVendorMock } = vi.hoisted(() => ({
   requireVendorMock: vi.fn(async () => ({ user: { id: "vendor-1" } })),
 }));
-vi.mock("@/lib/auth", () => ({ requireVendor: requireVendorMock }));
+vi.mock("@/features/auth", () => ({ requireVendor: requireVendorMock }));
 
 const upsertMock = vi.fn(
   async (): Promise<{ error: { message: string } | null }> => ({

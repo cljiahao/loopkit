@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { listPrograms, currentProgram } from "@/lib/program";
 import { getProgress } from "@/lib/engine";
 import { listCards } from "@/lib/cards";

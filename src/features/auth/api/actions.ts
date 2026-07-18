@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { normalizePhone } from "@/lib/phone";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "./require-vendor";
 import { createServerClient } from "@/lib/supabase/server";
 
 const nameSchema = z.string().trim().min(1).max(60);

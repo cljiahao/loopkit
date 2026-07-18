@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Auth code (`src/lib/auth.ts`, `src/app/login/actions.ts`, and the
+  login/reset-password UI) moved into `src/features/auth/` — a pure
+  code-location migration, no behavioral change. External consumers now
+  import from `@/features/auth`.
+
 ### Fixed
 
 - `.claude/worktrees/` is now excluded from `.gitignore`, `eslint.config.mjs`,
