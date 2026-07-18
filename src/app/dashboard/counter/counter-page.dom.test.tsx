@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { redirect } from "next/navigation";
 
-vi.mock("@/lib/auth", () => ({ requireVendor: vi.fn(async () => ({})) }));
+vi.mock("@/features/auth", () => ({ requireVendor: vi.fn(async () => ({})) }));
 vi.mock("@/lib/program", () => ({
   listPrograms: vi.fn(async () => [
     {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import {
   saveProgramSchema,
   buildProgramFields,

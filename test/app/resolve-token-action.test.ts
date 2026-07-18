@@ -4,7 +4,7 @@ const { requireVendorMock, rpcMock } = vi.hoisted(() => ({
   requireVendorMock: vi.fn(),
   rpcMock: vi.fn(),
 }));
-vi.mock("@/lib/auth", () => ({ requireVendor: requireVendorMock }));
+vi.mock("@/features/auth", () => ({ requireVendor: requireVendorMock }));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({ rpc: rpcMock })),
 }));

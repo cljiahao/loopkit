@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { ArrowUp, ArrowDown } from "lucide-react";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { listPrograms, currentProgram } from "@/lib/program";
 import { getProgramStats, getVendorStats } from "@/lib/stats";
 import { cn } from "@/lib/utils";

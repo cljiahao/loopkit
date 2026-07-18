@@ -1,4 +1,4 @@
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { listPrograms, isPro } from "@/lib/program";
 import { createServerClient } from "@/lib/supabase/server";
 import { QkitEarnSettings } from "@/app/dashboard/qkit-earn-settings";

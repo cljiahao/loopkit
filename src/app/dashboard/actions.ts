@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { getProgramById, isPro } from "@/lib/program";
 import { normalizePhone } from "@/lib/phone";
 import { rewardReady } from "@/lib/loyalty";

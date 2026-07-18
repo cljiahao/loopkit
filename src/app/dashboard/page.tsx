@@ -7,7 +7,7 @@ import {
   getEntitlement,
   applyDueCutovers,
 } from "@/lib/program";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { qrSvg } from "@/lib/qr";
 import { ProgramCard } from "@/app/dashboard/program-card";
 import { NewProgramTile } from "@/app/dashboard/new-program-tile";

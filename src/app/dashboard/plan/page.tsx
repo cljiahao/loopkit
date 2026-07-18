@@ -1,5 +1,5 @@
 import { Check, Sparkles } from "lucide-react";
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { isPro, listPrograms, currentProgram } from "@/lib/program";
 import { getProgramStats } from "@/lib/stats";
 import { UpgradeCta } from "@/app/dashboard/plan/upgrade-cta";

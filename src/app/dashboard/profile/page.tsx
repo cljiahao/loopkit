@@ -1,4 +1,4 @@
-import { requireVendor } from "@/lib/auth";
+import { requireVendor } from "@/features/auth";
 import { getVendorProfile } from "@/lib/vendor";
 import { ProfileForm } from "@/app/dashboard/profile/profile-form";
 

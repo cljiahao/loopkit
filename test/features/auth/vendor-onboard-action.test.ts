@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("@/lib/auth", () => ({
+vi.mock("@/features/auth/api/require-vendor", () => ({
   requireVendor: vi.fn(async () => ({ user: { id: "v1" } })),
 }));
 
@@ -15,7 +15,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({ from: fromMock })),
 }));
 
-import { vendorPhoneOnboardAction } from "@/app/login/actions";
+import { vendorPhoneOnboardAction } from "@/features/auth/api/actions";
 
 describe("vendorPhoneOnboardAction", () => {
   beforeEach(() => {

@@ -8,7 +8,7 @@ const { requireVendorMock, getProgramByIdMock, rpcMock, maybeSingleMock } =
     maybeSingleMock: vi.fn(),
   }));
 
-vi.mock("@/lib/auth", () => ({ requireVendor: requireVendorMock }));
+vi.mock("@/features/auth", () => ({ requireVendor: requireVendorMock }));
 vi.mock("@/lib/program", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/program")>();
   return { ...actual, getProgramById: getProgramByIdMock };
