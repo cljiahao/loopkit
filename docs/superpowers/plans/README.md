@@ -57,6 +57,7 @@ self-describing dated slugs; no separate description column below.
 - `2026-07-15-setup-preview-animation.md`
 - `2026-07-16-reward-voucher-ledger.md`
 - `2026-07-17-templatecentral-harness-parity.md`
+- `2026-07-18-feature-auth-migration.md`
 
 ## Parent
 
