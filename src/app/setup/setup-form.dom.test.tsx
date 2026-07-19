@@ -75,7 +75,7 @@ describe("SetupForm live preview", () => {
 describe("SetupForm type picker", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("shows a single flat grid of all six types with no template/custom toggle", () => {
+  it("shows the 4 family tiles on Step 1, no flat 8-tile grid", () => {
     render(
       <SetupForm
         program={null}
@@ -85,27 +85,88 @@ describe("SetupForm type picker", () => {
       />,
     );
     expect(
-      screen.getByRole("button", { name: "Stamp card" }),
+      screen.getByRole("button", { name: "Stamp Card" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sprout" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Chance Card" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Lucky Tap" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Sprout" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Spin the Wheel" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Flame Club" }),
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Scratch Card" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Spin the Wheel" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("clicking a multi-style family shows its styles and a Back link", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Stamp Card" }));
+
     expect(
       screen.getByRole("button", { name: "Flame Club" }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByText("Custom — start from scratch"),
+      screen.getByRole("button", { name: "Points Club" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Classic" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "← Back" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Stamp Card" }),
     ).not.toBeInTheDocument();
   });
 
-  it("resets name and reward to blank when a new type is picked", async () => {
+  it("clicking Back returns to the 4 family tiles", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Stamp Card" }));
+    await user.click(screen.getByRole("button", { name: "← Back" }));
+
+    expect(
+      screen.getByRole("button", { name: "Stamp Card" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sprout" })).toBeInTheDocument();
+  });
+
+  it("clicking Lucky Tap completes selection immediately, with no Step 2", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Lucky Tap" }));
+
+    expect(
+      screen.queryByRole("button", { name: "← Back" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/reward expires after/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("resets name and reward to blank when a new style is picked", async () => {
     const user = userEvent.setup();
     render(
       <SetupForm
@@ -118,13 +179,14 @@ describe("SetupForm type picker", () => {
     await user.type(screen.getByLabelText("Card name"), "My card");
     await user.type(screen.getByLabelText("Reward"), "Free item");
 
+    await user.click(screen.getByRole("button", { name: "Stamp Card" }));
     await user.click(screen.getByRole("button", { name: "Flame Club" }));
 
     expect(screen.getByLabelText("Card name")).toHaveValue("");
     expect(screen.getByLabelText("Reward")).toHaveValue("");
   });
 
-  it("Flame Club tile saves type=stamp with variant=flame and the flame-specific label", async () => {
+  it("Flame Club style saves type=stamp with variant=flame and the flame-specific label", async () => {
     const user = userEvent.setup();
     render(
       <SetupForm
@@ -134,6 +196,7 @@ describe("SetupForm type picker", () => {
         replacingType={null}
       />,
     );
+    await user.click(screen.getByRole("button", { name: "Stamp Card" }));
     await user.click(screen.getByRole("button", { name: "Flame Club" }));
     expect(screen.getByText("Visits for full blaze")).toBeInTheDocument();
 
@@ -147,7 +210,7 @@ describe("SetupForm type picker", () => {
     expect(submitted.get("variant")).toBe("flame");
   });
 
-  it("Points Club tile saves type=stamp with variant=points, wider range, and points_per_visit", async () => {
+  it("Points Club style saves type=stamp with variant=points, wider range, and points_per_visit", async () => {
     const user = userEvent.setup();
     render(
       <SetupForm
@@ -157,6 +220,7 @@ describe("SetupForm type picker", () => {
         replacingType={null}
       />,
     );
+    await user.click(screen.getByRole("button", { name: "Stamp Card" }));
     await user.click(screen.getByRole("button", { name: "Points Club" }));
     expect(screen.getByText("Points required")).toBeInTheDocument();
     expect(screen.getByLabelText("Points per visit")).toBeInTheDocument();
@@ -181,7 +245,7 @@ describe("SetupForm type picker", () => {
     expect(submitted.get("points_per_visit")).toBe("20");
   });
 
-  it("Fill the Cup tile saves type=plant with variant=cup and the fill-specific label", async () => {
+  it("Fill the Cup style saves type=plant with variant=cup and the fill-specific label", async () => {
     const user = userEvent.setup();
     render(
       <SetupForm
@@ -191,6 +255,7 @@ describe("SetupForm type picker", () => {
         replacingType={null}
       />,
     );
+    await user.click(screen.getByRole("button", { name: "Sprout" }));
     await user.click(screen.getByRole("button", { name: "Fill the Cup" }));
     expect(screen.getByText("Visits to fill")).toBeInTheDocument();
 
@@ -204,7 +269,7 @@ describe("SetupForm type picker", () => {
     expect(submitted.get("variant")).toBe("cup");
   });
 
-  it("Sprout tile still saves type=plant with variant=plant and the bloom-specific label", async () => {
+  it("Sprout's Classic style still saves type=plant with variant=plant and the bloom-specific label", async () => {
     const user = userEvent.setup();
     render(
       <SetupForm
@@ -215,6 +280,7 @@ describe("SetupForm type picker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: "Sprout" }));
+    await user.click(screen.getByRole("button", { name: "Classic" }));
     expect(screen.getByText("Visits to bloom")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Card name"), "Grow-a-kopi");
@@ -256,7 +322,7 @@ describe("SetupForm type picker", () => {
     expect(screen.getByText("Rules")).toBeInTheDocument();
   });
 
-  it("edit mode shows the locked type label and preview together, no type grid", () => {
+  it("edit mode shows the locked type label and preview together, no picker", () => {
     render(
       <SetupForm
         program={

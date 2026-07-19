@@ -22,6 +22,15 @@ import { cn } from "@/lib/utils";
 import { usePreviewAnimation } from "@/app/setup/preview-animation";
 import { PreviewCard } from "@/app/setup/preview-card";
 import { Tag, SlidersHorizontal } from "lucide-react";
+import {
+  FAMILIES,
+  familyOf,
+  isSingleStyleFamily,
+  resolveFamilyAndStyle,
+  styleToTypeAndVariant,
+  type FamilyKey,
+  type StyleKey,
+} from "@/app/setup/card-type-picker";
 
 type SegmentInput = { label: string; weight: number; is_reward: boolean };
 
@@ -48,49 +57,6 @@ const typeLabels: Record<TypeOptionValue, string> = {
   wheel: "Spin the Wheel",
   scratch: "Scratch Card",
 };
-
-const TYPE_OPTIONS = [
-  {
-    value: "stamp",
-    label: "Stamp card",
-    description: "Collect stamps toward a reward",
-  },
-  {
-    value: "flame",
-    label: "Flame Club",
-    description: "Build a flame with every visit",
-  },
-  {
-    value: "points",
-    label: "Points Club",
-    description: "Earn a set number of points every visit",
-  },
-  {
-    value: "lucky",
-    label: "Lucky Tap",
-    description: "A chance to win on every visit",
-  },
-  {
-    value: "plant",
-    label: "Sprout",
-    description: "Grow a plant with every visit",
-  },
-  {
-    value: "cup",
-    label: "Fill the Cup",
-    description: "Fill a cup with every visit",
-  },
-  {
-    value: "wheel",
-    label: "Spin the Wheel",
-    description: "Spin for a prize on every visit",
-  },
-  {
-    value: "scratch",
-    label: "Scratch Card",
-    description: "Scratch for a prize on every visit",
-  },
-] as const;
 
 const DEFAULT_SEGMENTS: SegmentInput[] = [
   { label: "Try again", weight: 5, is_reward: false },
@@ -153,6 +119,11 @@ export function SetupForm({
           ? "cup"
           : (type as TypeOptionValue);
 
+  // Step 1 shows the 4 family tiles; picking a multi-style family switches
+  // to that family's style tiles (Step 2). "family" means Step 1 is showing.
+  const [familyStep, setFamilyStep] = useState<"family" | FamilyKey>("family");
+  const currentFamilyAndStyle = resolveFamilyAndStyle(type, variant);
+
   // Every field below is controlled — the same state drives both form
   // submission and the live preview, updated on every keystroke.
   const [name, setName] = useState(program?.name ?? "");
@@ -211,38 +182,33 @@ export function SetupForm({
 
   // Sets the type plus its sensible numeric defaults, and always resets
   // name/rewardText to blank — the vendor types both themselves, no
-  // suggested copy is ever prefilled on the create flow. The Flame Club
-  // tile maps to type "stamp" + variant "flame" — it is never a distinct
-  // ProgramType (see program-config.ts).
-  function pickType(value: TypeOptionValue) {
-    setType(
-      value === "flame" || value === "points"
-        ? "stamp"
-        : value === "cup"
-          ? "plant"
-          : value,
-    );
-    setVariant(
-      value === "flame"
-        ? "flame"
-        : value === "points"
-          ? "points"
-          : value === "cup"
-            ? "cup"
-            : value === "stamp"
-              ? "dots"
-              : value === "plant"
-                ? "plant"
-                : "dots",
-    );
+  // suggested copy is ever prefilled on the create flow. Delegates the
+  // style -> type/variant mapping to card-type-picker.ts so this file
+  // doesn't duplicate it.
+  function pickStyle(style: StyleKey) {
+    const { type: nextType, variant: nextVariant } =
+      styleToTypeAndVariant(style);
+    setType(nextType);
+    setVariant(nextVariant ?? "dots");
     setName("");
     setRewardText("");
-    setStampsRequired(value === "points" ? 500 : 10);
+    setStampsRequired(style === "points" ? 500 : 10);
     setVisitsToBloom(6);
     setWinPercent(20);
-    setPityCeiling(value === "lucky" ? 8 : undefined);
+    setPityCeiling(style === "lucky" ? 8 : undefined);
     setHeadStartPercent(20);
     setPointsPerVisit(10);
+  }
+
+  // Clicking a family either completes the pick immediately (Lucky Tap has
+  // exactly one style, so there's nothing to choose) or opens that
+  // family's style tiles (Step 2).
+  function pickFamily(family: FamilyKey) {
+    if (isSingleStyleFamily(family)) {
+      pickStyle(familyOf(family).styles[0].key);
+      return;
+    }
+    setFamilyStep(family);
   }
 
   function updateSegment(index: number, patch: Partial<SegmentInput>) {
@@ -270,27 +236,63 @@ export function SetupForm({
           <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
             {typeLabels[selectedOptionKey]}
           </p>
-        ) : (
+        ) : familyStep === "family" ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {TYPE_OPTIONS.map((option) => (
+            {FAMILIES.map((family) => (
               <button
-                key={option.value}
+                key={family.key}
                 type="button"
-                aria-label={option.label}
-                onClick={() => pickType(option.value)}
+                aria-label={family.label}
+                onClick={() => pickFamily(family.key)}
                 className={cn(
                   "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
-                  selectedOptionKey === option.value
+                  currentFamilyAndStyle.family === family.key
                     ? "border-primary bg-primary/10"
                     : "bg-card hover:bg-muted/50",
                 )}
               >
-                <span className="text-sm font-semibold">{option.label}</span>
+                <span className="text-sm font-semibold">{family.label}</span>
                 <span className="text-xs text-muted-foreground">
-                  {option.description}
+                  {family.description}
                 </span>
+                {family.styles.length > 1 ? (
+                  <span className="mt-1 text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground/70">
+                    {family.styles.length} styles
+                  </span>
+                ) : null}
               </button>
             ))}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setFamilyStep("family")}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              ← Back
+            </button>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {familyOf(familyStep).styles.map((style) => (
+                <button
+                  key={style.key}
+                  type="button"
+                  aria-label={style.label}
+                  onClick={() => pickStyle(style.key)}
+                  className={cn(
+                    "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
+                    currentFamilyAndStyle.style === style.key
+                      ? "border-primary bg-primary/10"
+                      : "bg-card hover:bg-muted/50",
+                  )}
+                >
+                  <span className="text-sm font-semibold">{style.label}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {style.description}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
         <PreviewCard

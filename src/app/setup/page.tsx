@@ -12,6 +12,7 @@ import {
 import { SetupForm } from "@/app/setup/setup-form";
 import { ScheduleRetirementForm } from "@/app/setup/schedule-retirement-form";
 import { activateProgramAction } from "@/app/setup/actions";
+import { resolveSetupView } from "@/app/setup/setup-view";
 import { Wordmark } from "@/components/landing/wordmark";
 import { ProLock } from "@/components/pro-lock";
 import { BackButton } from "@/components/back-button";
@@ -39,6 +40,7 @@ export default async function SetupPage({
     migrate?: string;
     prep?: string;
     schedule?: string;
+    manage?: string;
   }>;
 }) {
   const { user } = await requireVendor();
@@ -70,7 +72,7 @@ export default async function SetupPage({
       err instanceof Error ? err.message : err,
     );
   }
-  const { edit, migrate, schedule, prep } = await searchParams;
+  const { edit, migrate, schedule, prep, manage } = await searchParams;
   const programs = await listPrograms();
   const editing = edit ? currentProgram(programs, edit) : null;
   const isEdit = editing !== null;
@@ -84,6 +86,7 @@ export default async function SetupPage({
   const scheduling = schedule
     ? (programs.find((p) => p.id === schedule) ?? null)
     : null;
+  const managing = manage === "1";
   const pro = await isPro();
   const canCreate = canCreateProgram(
     getEntitlement(pro),
@@ -95,6 +98,15 @@ export default async function SetupPage({
   );
   const activePrograms = programs.filter((p) => p.active);
   const firstRun = programs.length === 0;
+
+  const view = resolveSetupView({
+    migrating: migrating !== null,
+    isEdit,
+    prepping: prepping !== null,
+    scheduling: scheduling !== null,
+    managing,
+    canCreate,
+  });
 
   // Thin inline server action: a plain <form action> can only pass the
   // form's formData through a single-argument function, but
@@ -128,9 +140,13 @@ export default async function SetupPage({
                   ? `Schedule ${scheduling.name}'s retirement`
                   : isEdit
                     ? "Edit your card"
-                    : firstRun
-                      ? "Set up your loyalty card"
-                      : "Your loyalty programs"}
+                    : managing
+                      ? "Your loyalty programs"
+                      : firstRun
+                        ? "Set up your loyalty card"
+                        : canCreate
+                          ? "Create a program"
+                          : "Free plan: 1 program"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {migrating
@@ -141,18 +157,41 @@ export default async function SetupPage({
                   ? "Pick the date it retires and which card takes over."
                   : isEdit
                     ? "Update your loyalty card details."
-                    : firstRun
-                      ? "Set up your loyalty card in a minute."
-                      : "Manage your loyalty programs."}
+                    : managing
+                      ? "Manage your loyalty programs."
+                      : firstRun
+                        ? "Set up your loyalty card in a minute."
+                        : canCreate
+                          ? "Pick a card type and set how customers earn their reward."
+                          : "You're on the free plan, which includes one loyalty program."}
           </p>
         </div>
 
-        {!isEdit && !migrating && programs.length > 0 ? (
-          <div className="mb-6 rounded-2xl border bg-card shadow-sm">
+        {(view === "create" || view === "upsell") && programs.length > 0 ? (
+          <div className="mb-6 text-center">
+            <Link
+              href="/setup?manage=1"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Manage your programs
+            </Link>
+          </div>
+        ) : null}
+
+        {view === "manage" ? (
+          <div className="rounded-2xl border bg-card shadow-sm">
             <div className="px-7 py-6">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Your programs
-              </h2>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Your programs
+                </h2>
+                <Link
+                  href="/setup"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  + New program
+                </Link>
+              </div>
               <ul className="mt-4 divide-y">
                 {programs.map((program) => (
                   <li
@@ -231,9 +270,7 @@ export default async function SetupPage({
               </ul>
             </div>
           </div>
-        ) : null}
-
-        {isEdit || migrating || canCreate ? (
+        ) : view === "migrate" || view === "edit" || view === "create" ? (
           <div className="rounded-2xl border bg-card shadow-sm">
             <div className="px-7 pt-9 pb-8">
               <h2 className="text-3xl font-bold tracking-tight">
@@ -259,7 +296,7 @@ export default async function SetupPage({
               />
             </div>
           </div>
-        ) : prepping ? (
+        ) : view === "prep" ? (
           <div className="rounded-2xl border bg-card shadow-sm">
             <div className="px-7 pt-9 pb-8">
               <h2 className="text-3xl font-bold tracking-tight">
@@ -278,20 +315,20 @@ export default async function SetupPage({
               />
             </div>
           </div>
-        ) : scheduling ? (
+        ) : view === "schedule" ? (
           <div className="rounded-2xl border bg-card shadow-sm">
             <div className="px-7 pt-9 pb-8">
               <h2 className="text-3xl font-bold tracking-tight">
                 Schedule retirement
               </h2>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {scheduling.name} keeps running until the date you pick, then it
-                hands over automatically.
+                {scheduling!.name} keeps running until the date you pick, then
+                it hands over automatically.
               </p>
               <ScheduleRetirementForm
-                program={scheduling}
+                program={scheduling!}
                 successors={activePrograms.filter(
-                  (p) => p.id !== scheduling.id,
+                  (p) => p.id !== scheduling!.id,
                 )}
               />
             </div>
