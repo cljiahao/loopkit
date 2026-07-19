@@ -61,6 +61,7 @@ self-describing dated slugs; no separate description column below.
 - `2026-07-18-card-check-migration.md`
 - `2026-07-18-plant-cup-growth-animation.md`
 - `2026-07-19-dashboard-tappable-card.md`
+- `2026-07-19-setup-create-manage-split.md`
 
 ## Parent
 
