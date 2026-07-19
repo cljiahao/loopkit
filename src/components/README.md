@@ -13,13 +13,14 @@ image uploader, pro-lock, reward celebration), app-wide providers, and the
 - `back-button.tsx` — `BackButton`: styled "leave this page" ghost button wrapping a `next/link`, mirrors qkit's identical component
 - `card-burst.dom.test.tsx` — jsdom tests: `CardBurst` renders nothing when inactive; renders 24 absolutely (not fixed) positioned particles when active
 - `card-burst.tsx` — `CardBurst`: client component rendering a container-relative fireworks-style particle burst (24 randomized pieces), used inside `RewardCelebration`
-- `cup.dom.test.tsx` — jsdom tests: `Cup` renders an svg, no fill at stage 0, a fill rect once growth starts, latte-art circles only at the Full stage, dimmed fill when wilting
-- `cup.tsx` — `Cup`: SVG "cup filling with liquid" progress visualization for plant-variant "cup" programs, liquid height driven by `stage`/`totalStages`, latte-art foam at completion
+- `cup.dom.test.tsx` — jsdom tests: `Cup` renders an svg, no fill at stage 0, a fill rect once growth starts, latte-art circles only at the Full stage, dimmed fill when wilting, the shared 1600ms growth-transition duration on the fill, and the latte-art's fade+scale-in classes
+- `cup.tsx` — `Cup`: SVG "cup filling with liquid" progress visualization for plant-variant "cup" programs, liquid height driven by `stage`/`totalStages`, smoothly animated over a shared 1600ms `motion-safe:` transition, latte-art foam fades+scales in at completion instead of popping
 - `flame-layers.dom.test.tsx` — jsdom tests: `FlameLayers` renders the correct stage label/count for Spark/Inner Flame/Full Blaze, and always renders two flame icons
 - `flame-layers.tsx` — `FlameLayers`: layered `lucide-react` `Flame` icons (inner+outer, lit by `stage`) with a stage-name/count caption, for stamp-variant "flame" programs
 - `image-uploader.tsx` — `ImageUploader` client component: file-picker button that validates type/size, resizes+WebP-encodes via `resizeToWebp`, uploads to Supabase Storage, and calls `onChange` with the public URL
 - `landing/`
-- `plant.tsx` — `Plant`: SVG growing-plant progress visualization (stem height, leaf pairs, bloom petals) driven by `stage`/`totalStages`/`wilting`, for plant-variant "plant" programs
+- `plant.dom.test.tsx` — jsdom tests: `Plant` renders an svg, collapses the stem and shows the seed dot at stage 0, scales the stem toward full height as stage increases, shows `leafPairs = min(stage, 3)` leaf slots as visible with the rest hidden, keeps an already-placed leaf pair's position stable when a new pair appears, renders the bloom only at the final stage, dims the color when wilting
+- `plant.tsx` — `Plant`: SVG growing-plant progress visualization (stem height, leaf pairs, bloom petals) driven by `stage`/`totalStages`/`wilting`, for plant-variant "plant" programs. The stem is a fixed-length line animated via a `scaleY` transform (not a resized line, since `x1/y1/x2/y2` aren't CSS-animatable) over a shared 1600ms `motion-safe:` transition; leaf-pair positions are fixed slots (never reflow when a new pair appears) that fade+scale in with a per-leaf stagger; the bloom fades+scales in at the final stage instead of popping
 - `points-bar.tsx` — `PointsBar`: horizontal progress bar with a "filled / total points" caption, for stamp-variant "points" programs
 - `pro-lock.tsx` — `ProLock`: inline pill linking to `/dashboard/plan`, marks a free-tier vendor's Pro-only limit
 - `providers.tsx` — `Providers` client component: wraps `children` with a `sonner` `Toaster` (top-right, rich colors), mounted once in the root layout

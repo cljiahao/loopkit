@@ -40,4 +40,25 @@ describe("Cup", () => {
     const rect = container.querySelector("rect");
     expect(rect?.getAttribute("class")).toContain("fill-muted-foreground");
   });
+
+  it("uses the slow shared growth duration on the liquid fill", () => {
+    const { container } = render(
+      <Cup stage={2} totalStages={5} wilting={false} />,
+    );
+    const rect = container.querySelector("rect");
+    expect(rect?.getAttribute("class")).toContain("duration-[1600ms]");
+  });
+
+  it("fades and scales the latte-art in on mount instead of popping", () => {
+    const { container } = render(
+      <Cup stage={4} totalStages={5} wilting={false} />,
+    );
+    const circle = container.querySelector("circle");
+    const latteArtGroup = circle?.parentElement;
+    expect(latteArtGroup?.tagName).toBe("g");
+    expect(latteArtGroup?.getAttribute("class")).toContain(
+      "starting:opacity-0",
+    );
+    expect(latteArtGroup?.getAttribute("class")).toContain("starting:scale-0");
+  });
 });

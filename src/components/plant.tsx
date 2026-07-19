@@ -1,5 +1,11 @@
 import { cn } from "@/lib/utils";
 
+const SOIL_Y = 74;
+const STEM_MAX_Y = 18;
+const MAX_LEAF_PAIRS = 3;
+const GROWTH_TRANSITION =
+  "motion-safe:transition-all motion-safe:duration-[1600ms] motion-safe:ease-out";
+
 export function Plant({
   stage,
   totalStages,
@@ -13,10 +19,8 @@ export function Plant({
 }) {
   const span = Math.max(totalStages - 1, 1);
   const frac = Math.min(Math.max(stage / span, 0), 1);
-  const soilY = 74;
-  const stemTopY = soilY - (soilY - 18) * frac;
   const isBloom = stage >= totalStages - 1 && totalStages > 1;
-  const leafPairs = Math.min(stage, 3);
+  const leafPairs = Math.min(stage, MAX_LEAF_PAIRS);
 
   return (
     <svg
@@ -55,25 +59,39 @@ export function Plant({
         }}
         className="motion-safe:transition-transform motion-safe:duration-500"
       >
-        {frac > 0 && (
-          <line
-            x1="50"
-            y1="74"
-            x2="50"
-            y2={stemTopY}
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-        )}
+        <line
+          x1="50"
+          y1={SOIL_Y}
+          x2="50"
+          y2={STEM_MAX_Y}
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          style={{
+            transformOrigin: `50px ${SOIL_Y}px`,
+            transform: `scaleY(${frac})`,
+          }}
+          className={GROWTH_TRANSITION}
+        />
         {frac === 0 && (
           <circle cx="50" cy="70" r="3.5" className="fill-primary/60" />
         )}
-        {Array.from({ length: leafPairs }, (_, i) => {
-          const t = (i + 1) / (leafPairs + 1);
-          const y = 74 - (74 - stemTopY) * t;
+        {Array.from({ length: MAX_LEAF_PAIRS }, (_, i) => {
+          const t = (i + 1) / (MAX_LEAF_PAIRS + 1);
+          const y = SOIL_Y - (SOIL_Y - STEM_MAX_Y) * t;
+          const visible = i < leafPairs;
           return (
-            <g key={i}>
+            <g
+              key={i}
+              style={{
+                transformOrigin: `50px ${y}px`,
+                transitionDelay: `${i * 200}ms`,
+              }}
+              className={cn(
+                GROWTH_TRANSITION,
+                visible ? "opacity-100 scale-100" : "opacity-0 scale-0",
+              )}
+            >
               <path
                 d={`M50 ${y} q -14 -6 -20 -14 q 12 0 20 8 z`}
                 fill="currentColor"
@@ -86,24 +104,30 @@ export function Plant({
           );
         })}
         {isBloom && (
-          <g style={{ transformOrigin: `50px ${stemTopY}px` }}>
+          <g
+            style={{ transformOrigin: `50px ${STEM_MAX_Y}px` }}
+            className={cn(
+              GROWTH_TRANSITION,
+              "opacity-100 scale-100 starting:opacity-0 starting:scale-0",
+            )}
+          >
             {Array.from({ length: 6 }, (_, i) => (
               <ellipse
                 key={i}
                 cx="50"
-                cy={stemTopY - 8}
+                cy={STEM_MAX_Y - 8}
                 rx="4.5"
                 ry="9"
                 className={wilting ? "fill-muted-foreground/50" : "fill-gold"}
                 style={{
-                  transformOrigin: `50px ${stemTopY}px`,
+                  transformOrigin: `50px ${STEM_MAX_Y}px`,
                   transform: `rotate(${i * 60}deg)`,
                 }}
               />
             ))}
             <circle
               cx="50"
-              cy={stemTopY}
+              cy={STEM_MAX_Y}
               r="5"
               className={
                 wilting ? "fill-muted-foreground" : "fill-gold-foreground"
