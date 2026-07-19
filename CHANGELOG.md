@@ -43,6 +43,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   visual/timing — no prop or behavioral changes, so this applies wherever
   these components render (`/setup`'s live preview, the vendor's
   serve-customer stamp screen, and the customer's `/c` card view).
+- Dashboard: the vendor's program card is now tappable anywhere to open its
+  counter page, replacing the separate "Open Counter" button. The pencil
+  edit link stays independently tappable. A small chevron signals the card
+  opens something.
 
 ### Fixed
 

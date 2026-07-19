@@ -23,8 +23,8 @@ Vendor console root: program grid, shared shop QR, scan-to-serve entry point, an
 - `page.tsx` — `DashboardPage` server component: loads programs, redirects to `/setup` on zero programs, renders the shop QR block + scan entry + program card grid + new-program tile for active programs
 - `plan/`
 - `profile/`
-- `program-card.dom.test.tsx` — jsdom tests for `ProgramCard` rendering name/badge/description, expiry/head-start detail lines, Edit and Open Counter links
-- `program-card.tsx` — client `ProgramCard`: one card per active program showing type badge, description, detail lines, Edit link, and "Open Counter" button
+- `program-card.dom.test.tsx` — jsdom tests for `ProgramCard` rendering name/badge/description, expiry/head-start detail lines, the Edit link, the whole-card stretched link to the counter page, and that its two links aren't nested inside each other
+- `program-card.tsx` — client `ProgramCard`: one card per active program showing type badge, description, detail lines, an Edit link, and a stretched `Link` covering the whole card that opens its counter page (with a decorative chevron affordance) — tapping anywhere on the card opens the counter, replacing the old "Open Counter" button
 - `program-display.test.ts` — unit tests for `PROGRAM_TYPE_BADGE`, `describeProgram`, and `programDetails` across every program type
 - `program-display.ts` — exports `PROGRAM_TYPE_BADGE` map, `describeProgram()` (one-line reward-mechanic blurb per program type), and `programDetails()` (expiry/head-start detail lines)
 - `program-switcher.dom.test.tsx` — jsdom tests for `ProgramSwitcher`: renders "All programs" plus each program, preserves other URL params, hides itself with only one program
