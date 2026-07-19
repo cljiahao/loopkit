@@ -23,6 +23,14 @@ type MerqoSchema = {
         Args: { p_vendor_id: string; p_default_stall_name: string | null };
         Returns: VendorProfile;
       };
+      upsert_vendor_profile: {
+        Args: {
+          p_vendor_id: string;
+          p_stall_name: string;
+          p_social_links: Record<string, string>;
+        };
+        Returns: VendorProfile;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
@@ -56,6 +64,34 @@ export async function getOrCreateVendorProfile<
     });
   if (error) {
     throw new Error(`get_or_create_vendor_profile failed: ${error.message}`);
+  }
+  return data;
+}
+
+/**
+ * Update the vendor's shared merqo.vendor_profile row (stall name +
+ * social links). Mirrors qkit's implementation exactly — same RPC,
+ * same generic Db/SchemaName pattern as getOrCreateVendorProfile above.
+ */
+export async function upsertVendorProfile<
+  Db,
+  SchemaName extends string & Exclude<keyof Db, "__InternalSupabase">,
+>(
+  supabase: SupabaseClient<Db, SchemaName>,
+  vendorId: string,
+  stallName: string,
+  socialLinks: Record<string, string>,
+): Promise<VendorProfile> {
+  const merqoClient = supabase as unknown as SupabaseClient<MerqoSchema>;
+  const { data, error } = await merqoClient
+    .schema("merqo")
+    .rpc("upsert_vendor_profile", {
+      p_vendor_id: vendorId,
+      p_stall_name: stallName,
+      p_social_links: socialLinks,
+    });
+  if (error) {
+    throw new Error(`upsert_vendor_profile failed: ${error.message}`);
   }
   return data;
 }
