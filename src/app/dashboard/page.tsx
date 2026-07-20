@@ -56,19 +56,29 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <>
-          <ShopQrBlock
-            qrSvgMarkup={cardQr}
-            link={cardLink}
-            programNames={activePrograms.map((prog) => prog.name)}
-          />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+            <div className="sm:flex-[1.4]">
+              <ShopQrBlock
+                qrSvgMarkup={cardQr}
+                link={cardLink}
+                programNames={activePrograms.map((prog) => prog.name)}
+              />
+            </div>
+            <div className="sm:flex-1">
+              <ScanAndRoute />
+            </div>
+          </div>
 
-          <ScanAndRoute />
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {activePrograms.map((prog) => (
-              <ProgramCard key={prog.id} program={prog} />
-            ))}
-            <NewProgramTile canCreate={canCreate} />
+          <div>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Your programs
+            </h2>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {activePrograms.map((prog) => (
+                <ProgramCard key={prog.id} program={prog} />
+              ))}
+              <NewProgramTile canCreate={canCreate} />
+            </div>
           </div>
         </>
       )}
