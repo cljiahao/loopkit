@@ -46,9 +46,11 @@
 ### Task 1: Widen `ElevatedCard`'s `as` prop to support list items
 
 **Files:**
+
 - Modify: `src/components/elevated-card.tsx`
 
 **Interfaces:**
+
 - Consumes: nothing new.
 - Produces: `ElevatedCard`'s `as` prop now accepts `"div" | "section" | "li"`. Every later task that renders a `<li>` card (Task 3) depends on this.
 
@@ -106,9 +108,11 @@ git commit -m "feat(ui): allow ElevatedCard to render as a list item"
 ### Task 2: Reskin `/dashboard/stats`
 
 **Files:**
+
 - Modify: `src/app/dashboard/stats/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard` from `@/components/elevated-card` (`as` defaults to `"div"`, not used here).
 - Produces: nothing new for later tasks.
 
@@ -177,8 +181,7 @@ There are two identical occurrences (the no-`p` branch and the `p` branch). Repl
 ```tsx
 <div className="rounded-2xl border bg-card p-6 shadow-sm">
   <p className="text-sm text-muted-foreground">
-    No customers yet — share your QR from the Counter page to start
-    enrolling.
+    No customers yet — share your QR from the Counter page to start enrolling.
   </p>
 </div>
 ```
@@ -188,8 +191,7 @@ with:
 ```tsx
 <ElevatedCard className="p-6">
   <p className="text-sm text-muted-foreground">
-    No customers yet — share your QR from the Counter page to start
-    enrolling.
+    No customers yet — share your QR from the Counter page to start enrolling.
   </p>
 </ElevatedCard>
 ```
@@ -238,10 +240,12 @@ git commit -m "style(dashboard): reskin stats page onto ElevatedCard"
 ### Task 3: Reskin `/dashboard/customers`
 
 **Files:**
+
 - Modify: `src/app/dashboard/customers/page.tsx`
 - Test: `src/app/dashboard/customers/customers-page.dom.test.tsx` (existing — verifies this task, not modified)
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard` (now with `as="li"` from Task 1).
 - Produces: nothing new for later tasks.
 
@@ -359,10 +363,12 @@ git commit -m "style(dashboard): reskin customers page onto ElevatedCard"
 ### Task 4: Reskin `activity-table.tsx`'s empty state
 
 **Files:**
+
 - Modify: `src/app/dashboard/activity/activity-table.tsx`
 - Test: `src/app/dashboard/activity/activity-page.dom.test.tsx` (existing — verifies this task, not modified)
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`.
 - Produces: nothing new for later tasks.
 
@@ -377,29 +383,29 @@ import { ElevatedCard } from "@/components/elevated-card";
 Replace:
 
 ```tsx
-  if (activity.length === 0) {
-    return (
-      <div className="rounded-2xl border bg-card p-6 shadow-sm">
-        <p className="text-sm text-muted-foreground">
-          No activity matches these filters.
-        </p>
-      </div>
-    );
-  }
+if (activity.length === 0) {
+  return (
+    <div className="rounded-2xl border bg-card p-6 shadow-sm">
+      <p className="text-sm text-muted-foreground">
+        No activity matches these filters.
+      </p>
+    </div>
+  );
+}
 ```
 
 with:
 
 ```tsx
-  if (activity.length === 0) {
-    return (
-      <ElevatedCard className="p-6">
-        <p className="text-sm text-muted-foreground">
-          No activity matches these filters.
-        </p>
-      </ElevatedCard>
-    );
-  }
+if (activity.length === 0) {
+  return (
+    <ElevatedCard className="p-6">
+      <p className="text-sm text-muted-foreground">
+        No activity matches these filters.
+      </p>
+    </ElevatedCard>
+  );
+}
 ```
 
 (The `<Table>` wrapper below this — `<div className="overflow-hidden rounded-2xl border">` — has no `bg-card`/shadow and is left unchanged; it's a plain table container, not the ad-hoc card pattern.)
@@ -421,10 +427,12 @@ git commit -m "style(dashboard): reskin activity empty state onto ElevatedCard"
 ### Task 5: Reskin `activity-filters.tsx` and fix its mobile stacking
 
 **Files:**
+
 - Modify: `src/app/dashboard/activity/activity-filters.tsx`
 - Test: `src/app/dashboard/activity/activity-page.dom.test.tsx` (existing — verifies this task doesn't break the page render; it does not test `ActivityFilters` directly)
 
 **Interfaces:**
+
 - Consumes: nothing new (this file keeps its own `<form>` element — see rationale below).
 - Produces: nothing new for later tasks.
 
@@ -594,9 +602,11 @@ git commit -m "fix(dashboard): stack activity filters full-width on mobile, resk
 ### Task 6: Reskin `/dashboard/plan`
 
 **Files:**
+
 - Modify: `src/app/dashboard/plan/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`.
 - Produces: nothing new for later tasks.
 
@@ -635,54 +645,58 @@ with:
 Replace:
 
 ```tsx
-      {pro ? (
-        <p className="rounded-xl border bg-card px-5 py-4 text-sm text-muted-foreground">
-          You&apos;re on Pro — unlimited loyalty programs are unlocked. Thanks
-          for supporting loopkit.
-        </p>
-      ) : (
-        <div className="rounded-2xl border border-primary/40 bg-card p-5">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" />
-            <h2 className="font-display text-xl font-semibold">Pro</h2>
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Run more than one loyalty program at a time. Message us and
-            we&apos;ll set you up — no card needed yet.
-          </p>
-          <div className="mt-4">
-            <UpgradeCta />
-          </div>
-        </div>
-      )}
+{
+  pro ? (
+    <p className="rounded-xl border bg-card px-5 py-4 text-sm text-muted-foreground">
+      You&apos;re on Pro — unlimited loyalty programs are unlocked. Thanks for
+      supporting loopkit.
+    </p>
+  ) : (
+    <div className="rounded-2xl border border-primary/40 bg-card p-5">
+      <div className="flex items-center gap-2">
+        <Sparkles className="size-4 text-primary" />
+        <h2 className="font-display text-xl font-semibold">Pro</h2>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Run more than one loyalty program at a time. Message us and we&apos;ll
+        set you up — no card needed yet.
+      </p>
+      <div className="mt-4">
+        <UpgradeCta />
+      </div>
+    </div>
+  );
+}
 ```
 
 with:
 
 ```tsx
-      {pro ? (
-        <ElevatedCard
-          as="section"
-          className="px-5 py-4 text-sm text-muted-foreground"
-        >
-          You&apos;re on Pro — unlimited loyalty programs are unlocked. Thanks
-          for supporting loopkit.
-        </ElevatedCard>
-      ) : (
-        <ElevatedCard className="border-primary/40 p-5">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" />
-            <h2 className="font-display text-xl font-semibold">Pro</h2>
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Run more than one loyalty program at a time. Message us and
-            we&apos;ll set you up — no card needed yet.
-          </p>
-          <div className="mt-4">
-            <UpgradeCta />
-          </div>
-        </ElevatedCard>
-      )}
+{
+  pro ? (
+    <ElevatedCard
+      as="section"
+      className="px-5 py-4 text-sm text-muted-foreground"
+    >
+      You&apos;re on Pro — unlimited loyalty programs are unlocked. Thanks for
+      supporting loopkit.
+    </ElevatedCard>
+  ) : (
+    <ElevatedCard className="border-primary/40 p-5">
+      <div className="flex items-center gap-2">
+        <Sparkles className="size-4 text-primary" />
+        <h2 className="font-display text-xl font-semibold">Pro</h2>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Run more than one loyalty program at a time. Message us and we&apos;ll
+        set you up — no card needed yet.
+      </p>
+      <div className="mt-4">
+        <UpgradeCta />
+      </div>
+    </ElevatedCard>
+  );
+}
 ```
 
 (The Pro-active block was a `<p>`; `ElevatedCard` renders a `div`/`section`, not a `p`, so it's switched to `as="section"` — text content and styling are unchanged, only the wrapping tag. `border-primary/40` overriding `ElevatedCard`'s default border color works via `cn()`'s `tailwind-merge`, per Global Constraints.)
@@ -709,9 +723,11 @@ git commit -m "style(dashboard): reskin plan page onto ElevatedCard"
 ### Task 7: Reskin `/dashboard/settings` (`qkit-earn-settings.tsx`)
 
 **Files:**
+
 - Modify: `src/app/dashboard/qkit-earn-settings.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`, shadcn `Button` (`@/components/ui/button`).
 - Produces: nothing new for later tasks.
 
@@ -762,27 +778,27 @@ import { ElevatedCard } from "@/components/elevated-card";
 Replace:
 
 ```tsx
-  if (!isPro) {
-    return (
-      <div className="rounded-lg border p-4 text-sm text-muted-foreground">
-        Upgrade to Pro to award a stamp automatically when a customer completes
-        a qkit order.
-      </div>
-    );
-  }
+if (!isPro) {
+  return (
+    <div className="rounded-lg border p-4 text-sm text-muted-foreground">
+      Upgrade to Pro to award a stamp automatically when a customer completes a
+      qkit order.
+    </div>
+  );
+}
 ```
 
 with:
 
 ```tsx
-  if (!isPro) {
-    return (
-      <ElevatedCard className="p-4 text-sm text-muted-foreground">
-        Upgrade to Pro to award a stamp automatically when a customer completes
-        a qkit order.
-      </ElevatedCard>
-    );
-  }
+if (!isPro) {
+  return (
+    <ElevatedCard className="p-4 text-sm text-muted-foreground">
+      Upgrade to Pro to award a stamp automatically when a customer completes a
+      qkit order.
+    </ElevatedCard>
+  );
+}
 ```
 
 - [ ] **Step 3: Reskin the form wrapper and the Save button**
@@ -790,92 +806,92 @@ with:
 Replace:
 
 ```tsx
-  return (
-    <form
-      className="space-y-3 rounded-lg border p-4"
-      action={(fd) => {
-        startTransition(() => {
-          void saveQkitEarnConfigAction(fd);
-        });
-      }}
-    >
-      <div className="flex items-center gap-2">
-        <Switch
-          id="qkit-earn-enabled"
-          name="enabled"
-          defaultChecked={current?.enabled ?? false}
-          aria-label="Earn from qkit orders"
-        />
-        <Label htmlFor="qkit-earn-enabled" className="text-sm">
-          Earn from qkit orders
-        </Label>
-      </div>
-      <Select name="program_id" defaultValue={current?.programId || undefined}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Choose a program" />
-        </SelectTrigger>
-        <SelectContent>
-          {programs.map((p) => (
-            <SelectItem key={p.id} value={p.id}>
-              {p.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <button type="submit" disabled={pending} className="text-sm font-medium">
-        Save
-      </button>
-    </form>
-  );
+return (
+  <form
+    className="space-y-3 rounded-lg border p-4"
+    action={(fd) => {
+      startTransition(() => {
+        void saveQkitEarnConfigAction(fd);
+      });
+    }}
+  >
+    <div className="flex items-center gap-2">
+      <Switch
+        id="qkit-earn-enabled"
+        name="enabled"
+        defaultChecked={current?.enabled ?? false}
+        aria-label="Earn from qkit orders"
+      />
+      <Label htmlFor="qkit-earn-enabled" className="text-sm">
+        Earn from qkit orders
+      </Label>
+    </div>
+    <Select name="program_id" defaultValue={current?.programId || undefined}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Choose a program" />
+      </SelectTrigger>
+      <SelectContent>
+        {programs.map((p) => (
+          <SelectItem key={p.id} value={p.id}>
+            {p.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <button type="submit" disabled={pending} className="text-sm font-medium">
+      Save
+    </button>
+  </form>
+);
 ```
 
 with:
 
 ```tsx
-  return (
-    // Matches ElevatedCard's classes directly — a <form> needs the action
-    // prop, which ElevatedCard's as="div"|"section"|"li" prop type doesn't
-    // support (same rationale as activity-filters.tsx).
-    <form
-      className="space-y-3 rounded-[20px] border bg-card p-4 shadow-[0_1px_0_0_var(--color-border),0_12px_28px_-20px_rgba(0,0,0,0.35)]"
-      action={(fd) => {
-        startTransition(() => {
-          void saveQkitEarnConfigAction(fd);
-        });
-      }}
+return (
+  // Matches ElevatedCard's classes directly — a <form> needs the action
+  // prop, which ElevatedCard's as="div"|"section"|"li" prop type doesn't
+  // support (same rationale as activity-filters.tsx).
+  <form
+    className="space-y-3 rounded-[20px] border bg-card p-4 shadow-[0_1px_0_0_var(--color-border),0_12px_28px_-20px_rgba(0,0,0,0.35)]"
+    action={(fd) => {
+      startTransition(() => {
+        void saveQkitEarnConfigAction(fd);
+      });
+    }}
+  >
+    <div className="flex items-center gap-2">
+      <Switch
+        id="qkit-earn-enabled"
+        name="enabled"
+        defaultChecked={current?.enabled ?? false}
+        aria-label="Earn from qkit orders"
+      />
+      <Label htmlFor="qkit-earn-enabled" className="text-sm">
+        Earn from qkit orders
+      </Label>
+    </div>
+    <Select name="program_id" defaultValue={current?.programId || undefined}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Choose a program" />
+      </SelectTrigger>
+      <SelectContent>
+        {programs.map((p) => (
+          <SelectItem key={p.id} value={p.id}>
+            {p.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <Button
+      type="submit"
+      disabled={pending}
+      className="h-10 w-full rounded-xl text-sm font-semibold"
     >
-      <div className="flex items-center gap-2">
-        <Switch
-          id="qkit-earn-enabled"
-          name="enabled"
-          defaultChecked={current?.enabled ?? false}
-          aria-label="Earn from qkit orders"
-        />
-        <Label htmlFor="qkit-earn-enabled" className="text-sm">
-          Earn from qkit orders
-        </Label>
-      </div>
-      <Select name="program_id" defaultValue={current?.programId || undefined}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Choose a program" />
-        </SelectTrigger>
-        <SelectContent>
-          {programs.map((p) => (
-            <SelectItem key={p.id} value={p.id}>
-              {p.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Button
-        type="submit"
-        disabled={pending}
-        className="h-10 w-full rounded-xl text-sm font-semibold"
-      >
-        Save
-      </Button>
-    </form>
-  );
+      Save
+    </Button>
+  </form>
+);
 ```
 
 - [ ] **Step 4: Typecheck and run the full suite**
@@ -898,9 +914,11 @@ git commit -m "fix(dashboard): reskin qkit earn settings, fix Save button touch 
 ### Task 8: Reskin admin `Stat` tile
 
 **Files:**
+
 - Modify: `src/app/admin/stat.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`.
 - Produces: `Stat`'s rendered markup changes from a plain `div` to `ElevatedCard`'s `div`; Tasks 9 (which renders `<Stat>`) are unaffected since `Stat`'s props/exports don't change.
 
@@ -976,9 +994,11 @@ git commit -m "style(admin): reskin Stat tile onto ElevatedCard"
 ### Task 9: Reskin `/admin` (overview)
 
 **Files:**
+
 - Modify: `src/app/admin/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`, `Stat` (unchanged usage — Task 8 didn't change `Stat`'s props).
 - Produces: nothing new for later tasks.
 
@@ -1031,9 +1051,11 @@ git commit -m "style(admin): reskin overview page onto ElevatedCard"
 ### Task 10: Reskin `/admin/programs`
 
 **Files:**
+
 - Modify: `src/app/admin/programs/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`.
 - Produces: nothing new for later tasks.
 
@@ -1080,9 +1102,11 @@ git commit -m "style(admin): reskin programs table wrapper onto ElevatedCard"
 ### Task 11: Reskin `/admin/vendors`
 
 **Files:**
+
 - Modify: `src/app/admin/vendors/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`.
 - Produces: nothing new for later tasks.
 
@@ -1147,10 +1171,12 @@ git commit -m "style(admin): reskin vendors page onto ElevatedCard"
 ### Task 12: Reskin `login-form.tsx`
 
 **Files:**
+
 - Modify: `src/features/auth/components/login-form.tsx`
 - Test: `src/features/auth/components/login-form.dom.test.tsx` (existing — verifies this task, not modified)
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`.
 - Produces: nothing new for later tasks.
 
@@ -1213,10 +1239,12 @@ git commit -m "style(auth): reskin login form onto ElevatedCard"
 ### Task 13: Reskin `reset-password-form.tsx`
 
 **Files:**
+
 - Modify: `src/features/auth/components/reset-password-form.tsx`
 - Test: `src/features/auth/components/reset-password-form.dom.test.tsx` (existing — verifies this task, not modified)
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`.
 - Produces: nothing new for later tasks.
 
@@ -1261,10 +1289,12 @@ git commit -m "style(auth): reskin reset-password form onto ElevatedCard"
 ### Task 14: Rebuild `/earn`'s form onto shadcn components
 
 **Files:**
+
 - Modify: `src/app/earn/earn-form.tsx`
 - Create: `src/app/earn/earn-form.dom.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `ElevatedCard`, shadcn `Button`/`Input`/`Label`, `claimEarnAction`/`EarnState` from `./actions` (unchanged — this task is presentation-only, no action/validation change).
 - Produces: nothing new for later tasks — this is the last task.
 
