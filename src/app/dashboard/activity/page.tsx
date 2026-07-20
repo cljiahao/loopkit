@@ -67,23 +67,25 @@ export default async function ActivityPage({
     return (
       <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
         <div>
-          <ProgramSwitcher
-            programs={programs}
-            currentId=""
-            basePath={basePath}
-          />
           <h1 className="text-2xl font-bold tracking-tight">Activity</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Recent stamps, plays, and redemptions across every program.
           </p>
         </div>
-        <ActivityFilters
-          basePath={basePath}
-          currentP={undefined}
-          type={type}
-          from={from}
-          to={to}
-        />
+        <div className="flex flex-wrap items-start gap-3">
+          <ProgramSwitcher
+            programs={programs}
+            currentId=""
+            basePath={basePath}
+          />
+          <ActivityFilters
+            basePath={basePath}
+            currentP={undefined}
+            type={type}
+            from={from}
+            to={to}
+          />
+        </div>
         <ActivityTable activity={rows} showProgram />
         <div className="flex items-center justify-between">
           {page > 1 ? (
@@ -124,23 +126,25 @@ export default async function ActivityPage({
   return (
     <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
       <div>
-        <ProgramSwitcher
-          programs={programs}
-          currentId={program.id}
-          basePath={basePath}
-        />
         <h1 className="text-2xl font-bold tracking-tight">Activity</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Recent stamps, plays, and redemptions for {program.name}.
         </p>
       </div>
-      <ActivityFilters
-        basePath={basePath}
-        currentP={program.id}
-        type={type}
-        from={from}
-        to={to}
-      />
+      <div className="flex flex-wrap items-start gap-3">
+        <ProgramSwitcher
+          programs={programs}
+          currentId={program.id}
+          basePath={basePath}
+        />
+        <ActivityFilters
+          basePath={basePath}
+          currentP={program.id}
+          type={type}
+          from={from}
+          to={to}
+        />
+      </div>
       <ActivityTable activity={rows} showProgram={false} />
       <div className="flex items-center justify-between">
         {page > 1 ? (

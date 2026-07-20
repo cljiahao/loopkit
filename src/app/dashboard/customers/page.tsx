@@ -84,17 +84,68 @@ export default async function CustomersPage({
     return (
       <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
         <div>
-          <ProgramSwitcher
-            programs={programs}
-            currentId=""
-            basePath="/dashboard/customers"
-          />
           <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Everyone who has a card at your shop, across every program.
           </p>
         </div>
-        <form className="flex items-center gap-3" action="/dashboard/customers">
+        <div className="flex flex-wrap items-center gap-3">
+          <ProgramSwitcher
+            programs={programs}
+            currentId=""
+            basePath="/dashboard/customers"
+          />
+          <form
+            className="flex flex-1 items-center gap-3"
+            action="/dashboard/customers"
+          >
+            <Input
+              type="search"
+              name="q"
+              defaultValue={q ?? ""}
+              placeholder="Search by phone"
+              className="h-11 rounded-xl"
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              className="h-11 rounded-xl px-6"
+            >
+              Search
+            </Button>
+          </form>
+        </div>
+        <VendorCustomerList customers={customers} />
+      </main>
+    );
+  }
+
+  const program = currentProgram(programs, p);
+  if (!program) redirect("/setup");
+
+  const cards = await listCards(program.id, q);
+  const now = new Date();
+
+  return (
+    <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Everyone who has a {program.name} card.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <ProgramSwitcher
+          programs={programs}
+          currentId={program.id}
+          basePath="/dashboard/customers"
+        />
+        <form
+          className="flex flex-1 items-center gap-3"
+          action="/dashboard/customers"
+        >
+          <input type="hidden" name="p" value={program.id} />
           <Input
             type="search"
             name="q"
@@ -110,48 +161,7 @@ export default async function CustomersPage({
             Search
           </Button>
         </form>
-        <VendorCustomerList customers={customers} />
-      </main>
-    );
-  }
-
-  const program = currentProgram(programs, p);
-  if (!program) redirect("/setup");
-
-  const cards = await listCards(program.id, q);
-  const now = new Date();
-
-  return (
-    <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
-      <div>
-        <ProgramSwitcher
-          programs={programs}
-          currentId={program.id}
-          basePath="/dashboard/customers"
-        />
-        <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Everyone who has a {program.name} card.
-        </p>
       </div>
-
-      <form className="flex items-center gap-3" action="/dashboard/customers">
-        <input type="hidden" name="p" value={program.id} />
-        <Input
-          type="search"
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Search by phone"
-          className="h-11 rounded-xl"
-        />
-        <Button
-          type="submit"
-          variant="outline"
-          className="h-11 rounded-xl px-6"
-        >
-          Search
-        </Button>
-      </form>
 
       {cards.length === 0 ? (
         <ElevatedCard className="p-6">

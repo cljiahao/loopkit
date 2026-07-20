@@ -47,7 +47,7 @@ export function ProgramSwitcher({
     <Select value={currentId || ALL_PROGRAMS} onValueChange={handleChange}>
       <SelectTrigger
         aria-label="Switch program"
-        className="mb-4 h-9 w-auto min-w-[10rem] rounded-lg border bg-card px-3 text-sm"
+        className="h-9 w-auto min-w-[10rem] shrink-0 rounded-lg border bg-card px-3 text-sm"
       >
         <SelectValue />
       </SelectTrigger>
