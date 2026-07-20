@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/admin";
 import { listVendors, listPendingUpgradeRequests } from "@/lib/admin-data";
 import { formatSgtDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { ElevatedCard } from "@/components/elevated-card";
 import { VendorProToggle } from "@/app/admin/vendors/vendor-pro-toggle";
 import { ResolveUpgradeRequestButton } from "@/app/admin/vendors/resolve-upgrade-request-button";
 
@@ -32,7 +33,7 @@ export default async function AdminVendorsPage() {
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Pending upgrade requests
           </h2>
-          <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
+          <ElevatedCard className="divide-y overflow-hidden">
             {pendingRequests.map((r) => (
               <div
                 key={r.id}
@@ -53,7 +54,7 @@ export default async function AdminVendorsPage() {
                 />
               </div>
             ))}
-          </div>
+          </ElevatedCard>
         </section>
       )}
 
@@ -62,7 +63,7 @@ export default async function AdminVendorsPage() {
           No vendors yet.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
+        <ElevatedCard className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -97,7 +98,7 @@ export default async function AdminVendorsPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ElevatedCard>
       )}
     </main>
   );
