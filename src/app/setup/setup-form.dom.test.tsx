@@ -27,13 +27,13 @@ describe("SetupForm live preview", () => {
         replacingType={null}
       />,
     );
-    expect(screen.getByText("0/10 stamps")).toBeInTheDocument();
+    expect(screen.getAllByText("0/10 stamps")[0]).toBeInTheDocument();
 
     const stampsInput = screen.getByLabelText("Stamps required");
     await user.clear(stampsInput);
     await user.type(stampsInput, "5");
 
-    expect(screen.getByText("0/5 stamps")).toBeInTheDocument();
+    expect(screen.getAllByText("0/5 stamps")[0]).toBeInTheDocument();
   });
 
   it("reflects head-start seeding in the preview when the toggle is on", async () => {
@@ -47,7 +47,7 @@ describe("SetupForm live preview", () => {
       />,
     );
     await user.click(screen.getByLabelText(/give new customers a head start/i));
-    expect(screen.getByText("2/10 stamps")).toBeInTheDocument();
+    expect(screen.getAllByText("2/10 stamps")[0]).toBeInTheDocument();
   });
 
   it("still submits the edited controlled field values", async () => {
@@ -305,7 +305,7 @@ describe("SetupForm type picker", () => {
     );
     await user.click(screen.getByRole("button", { name: "15" }));
     expect(screen.getByLabelText("Stamps required")).toHaveValue(15);
-    expect(screen.getByText("0/15 stamps")).toBeInTheDocument();
+    expect(screen.getAllByText("0/15 stamps")[0]).toBeInTheDocument();
   });
 
   it("shows the type-picker heading and both card-details cards", () => {
@@ -348,7 +348,7 @@ describe("SetupForm type picker", () => {
     expect(
       screen.queryByRole("button", { name: "Lucky Tap" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText("0/10 stamps")).toBeInTheDocument();
+    expect(screen.getAllByText("0/10 stamps")[0]).toBeInTheDocument();
   });
 
   it("shows the head-start percent input only for stamp/plant with the toggle on, and submits it", async () => {

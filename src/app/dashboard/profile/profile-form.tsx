@@ -3,21 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Store, UserRound, IdCard, KeyRound } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Store, UserRound, IdCard, KeyRound, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Section } from "@/components/section";
+import { SocialLinksFields } from "@/components/social-links-fields";
 import { ImageUploader } from "@/components/image-uploader";
 import { createClient } from "@/lib/supabase/client";
 import { useAsyncAction } from "@/hooks/use-async-action";
-import { updateStallNameAction, updatePasswordAction } from "./actions";
+import type { SocialLinks } from "@/lib/types";
+import {
+  updateStallNameAction,
+  updatePasswordAction,
+  updateSocialLinksAction,
+} from "./actions";
 
 const labelClass =
   "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
@@ -28,6 +28,7 @@ interface Props {
   name: string | null;
   avatarUrl: string | null;
   displayName: string;
+  socialLinks: SocialLinks;
 }
 
 export function ProfileForm({
@@ -36,6 +37,7 @@ export function ProfileForm({
   name,
   avatarUrl,
   displayName,
+  socialLinks,
 }: Props) {
   const router = useRouter();
   const supabase = createClient();
@@ -45,6 +47,11 @@ export function ProfileForm({
   const initialName = name ?? "";
   const [stallName, setStallName] = useState(initialName);
   const { pending: savingName, run: runName } = useAsyncAction();
+
+  // Social/website links — profile-level defaults stored in the shared
+  // merqo.vendor_profile row (Task 2's updateSocialLinksAction).
+  const [links, setLinks] = useState<SocialLinks>(socialLinks);
+  const { pending: savingLinks, run: runLinks } = useAsyncAction();
 
   // Photo — the uploader handles the storage upload; we persist the returned
   // URL straight to auth user_metadata client-side, same channel the nav
@@ -72,6 +79,18 @@ export function ProfileForm({
         return;
       }
       toast.success("Stall name saved");
+      router.refresh();
+    });
+  }
+
+  function saveLinks() {
+    return runLinks(async () => {
+      const res = await updateSocialLinksAction(links);
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Links saved");
       router.refresh();
     });
   }
@@ -126,196 +145,167 @@ export function ProfileForm({
 
   return (
     <div className="md:columns-2 md:gap-5 [&>*]:mb-5 [&>*]:break-inside-avoid-column">
-      <Card>
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <Store className="size-4" />
-            </span>
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Shown to customers
-              </p>
-              <CardTitle className="mt-0.5 text-lg">Stall name</CardTitle>
-              <CardDescription className="mt-1">
-                The name on your customers&apos; card and at the counter.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="stall-name" className={labelClass}>
-              Stall name
-            </Label>
-            <Input
-              id="stall-name"
-              value={stallName}
-              maxLength={60}
-              onChange={(e) => setStallName(e.target.value)}
-              placeholder="Kopi Corner"
-              className="h-11 rounded-xl"
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              onClick={saveStallName}
-              disabled={savingName || stallName.trim() === initialName.trim()}
-              className="h-10 rounded-xl font-semibold"
-            >
-              {savingName ? "Saving…" : "Save"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <UserRound className="size-4" />
-            </span>
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Your account menu
-              </p>
-              <CardTitle className="mt-0.5 text-lg">Profile icon</CardTitle>
-              <CardDescription className="mt-1">
-                A small image for your account menu. Defaults to your initials.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ImageUploader
-            bucket="vendor-images"
-            pathPrefix={vendorId}
-            value={avatar}
-            onChange={handleAvatarChange}
+      <Section
+        icon={<Store className="size-4" />}
+        eyebrow="Shown to customers"
+        title="Stall name"
+        description="The name on your customers' card and at the counter."
+      >
+        <div className="space-y-2">
+          <Label htmlFor="stall-name" className={labelClass}>
+            Stall name
+          </Label>
+          <Input
+            id="stall-name"
+            value={stallName}
+            maxLength={60}
+            onChange={(e) => setStallName(e.target.value)}
+            placeholder="Kopi Corner"
+            className="h-11 rounded-xl"
           />
-        </CardContent>
-      </Card>
+        </div>
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={saveStallName}
+            disabled={savingName || stallName.trim() === initialName.trim()}
+            className="h-10 rounded-xl font-semibold"
+          >
+            {savingName ? "Saving…" : "Save"}
+          </Button>
+        </div>
+      </Section>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <IdCard className="size-4" />
-            </span>
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Just for you
-              </p>
-              <CardTitle className="mt-0.5 text-lg">Display name</CardTitle>
-              <CardDescription className="mt-1">
-                How loopkit addresses you. Customers never see this.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="display-name" className={labelClass}>
-              Display name
-            </Label>
-            <Input
-              id="display-name"
-              value={display}
-              maxLength={60}
-              onChange={(e) => setDisplay(e.target.value)}
-              placeholder="e.g. Aisha"
-              className="h-11 rounded-xl"
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              onClick={saveDisplayName}
-              disabled={
-                savingDisplay || display.trim() === initialDisplayName.trim()
-              }
-              className="h-10 rounded-xl font-semibold"
-            >
-              {savingDisplay ? "Saving…" : "Save"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Section
+        icon={<Share2 className="size-4" />}
+        eyebrow="Shown to customers"
+        title="Social & website"
+        description="Shown on your customer's card. Each link is optional."
+      >
+        <SocialLinksFields
+          value={links}
+          onChange={setLinks}
+          idPrefix="profile"
+        />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={saveLinks}
+            disabled={savingLinks}
+            className="h-10 rounded-xl font-semibold"
+          >
+            {savingLinks ? "Saving…" : "Save links"}
+          </Button>
+        </div>
+      </Section>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <KeyRound className="size-4" />
-            </span>
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Sign-in security
-              </p>
-              <CardTitle className="mt-0.5 text-lg">Change password</CardTitle>
-              <CardDescription className="mt-1">
-                Set a new password. At least 8 characters.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className={labelClass}>
-              Email
-            </Label>
-            <Input
-              id="email"
-              value={email}
-              readOnly
-              disabled
-              className="h-11 rounded-xl bg-muted/40"
-            />
-            <p className="text-xs text-muted-foreground">
-              Your sign-in email. It can&apos;t be changed here.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="new-password" className={labelClass}>
-              New password
-            </Label>
-            <Input
-              id="new-password"
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              placeholder="••••••••"
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-11 rounded-xl"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password" className={labelClass}>
-              Confirm new password
-            </Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              autoComplete="new-password"
-              value={confirm}
-              placeholder="••••••••"
-              onChange={(e) => setConfirm(e.target.value)}
-              className="h-11 rounded-xl"
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              onClick={savePassword}
-              disabled={savingPassword || !passwordsFilled}
-              className="h-10 rounded-xl font-semibold"
-            >
-              {savingPassword ? "Updating…" : "Update password"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Section
+        icon={<UserRound className="size-4" />}
+        eyebrow="Your account menu"
+        title="Profile icon"
+        description="A small image for your account menu. Defaults to your initials."
+      >
+        <ImageUploader
+          bucket="vendor-images"
+          pathPrefix={vendorId}
+          value={avatar}
+          onChange={handleAvatarChange}
+        />
+      </Section>
+
+      <Section
+        icon={<IdCard className="size-4" />}
+        eyebrow="Just for you"
+        title="Display name"
+        description="How loopkit addresses you. Customers never see this."
+      >
+        <div className="space-y-2">
+          <Label htmlFor="display-name" className={labelClass}>
+            Display name
+          </Label>
+          <Input
+            id="display-name"
+            value={display}
+            maxLength={60}
+            onChange={(e) => setDisplay(e.target.value)}
+            placeholder="e.g. Aisha"
+            className="h-11 rounded-xl"
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={saveDisplayName}
+            disabled={
+              savingDisplay || display.trim() === initialDisplayName.trim()
+            }
+            className="h-10 rounded-xl font-semibold"
+          >
+            {savingDisplay ? "Saving…" : "Save"}
+          </Button>
+        </div>
+      </Section>
+
+      <Section
+        icon={<KeyRound className="size-4" />}
+        eyebrow="Sign-in security"
+        title="Change password"
+        description="Set a new password. At least 8 characters."
+      >
+        <div className="space-y-2">
+          <Label htmlFor="email" className={labelClass}>
+            Email
+          </Label>
+          <Input
+            id="email"
+            value={email}
+            readOnly
+            disabled
+            className="h-11 rounded-xl bg-muted/40"
+          />
+          <p className="text-xs text-muted-foreground">
+            Your sign-in email. It can&apos;t be changed here.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="new-password" className={labelClass}>
+            New password
+          </Label>
+          <Input
+            id="new-password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            placeholder="••••••••"
+            onChange={(e) => setPassword(e.target.value)}
+            className="h-11 rounded-xl"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirm-password" className={labelClass}>
+            Confirm new password
+          </Label>
+          <Input
+            id="confirm-password"
+            type="password"
+            autoComplete="new-password"
+            value={confirm}
+            placeholder="••••••••"
+            onChange={(e) => setConfirm(e.target.value)}
+            className="h-11 rounded-xl"
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={savePassword}
+            disabled={savingPassword || !passwordsFilled}
+            className="h-10 rounded-xl font-semibold"
+          >
+            {savingPassword ? "Updating…" : "Update password"}
+          </Button>
+        </div>
+      </Section>
     </div>
   );
 }

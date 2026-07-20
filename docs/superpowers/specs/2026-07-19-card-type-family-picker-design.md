@@ -27,12 +27,12 @@ handle.
 
 ## Families
 
-| Family | Top-level label | Styles (label → type/variant) |
-|---|---|---|
-| Stamp | "Stamp Card" | Classic → `stamp`/`dots` · Flame Club → `stamp`/`flame` · Points Club → `stamp`/`points` |
-| Sprout | "Sprout" | Classic → `plant`/`plant` · Fill the Cup → `plant`/`cup` |
-| Chance | "Chance Card" | Spin the Wheel → `wheel` (no variant) · Scratch Card → `scratch` (no variant) |
-| Lucky | "Lucky Tap" | single style, no sub-step → `lucky` (no variant) |
+| Family | Top-level label | Styles (label → type/variant)                                                            |
+| ------ | --------------- | ---------------------------------------------------------------------------------------- |
+| Stamp  | "Stamp Card"    | Classic → `stamp`/`dots` · Flame Club → `stamp`/`flame` · Points Club → `stamp`/`points` |
+| Sprout | "Sprout"        | Classic → `plant`/`plant` · Fill the Cup → `plant`/`cup`                                 |
+| Chance | "Chance Card"   | Spin the Wheel → `wheel` (no variant) · Scratch Card → `scratch` (no variant)            |
+| Lucky  | "Lucky Tap"     | single style, no sub-step → `lucky` (no variant)                                         |
 
 These are exactly today's 8 leaf options, regrouped. No new type/variant
 value is introduced; "Chance Card" is a new **UI-only** grouping label over
@@ -56,7 +56,7 @@ Clicking **Lucky Tap** in Step 1 behaves exactly like clicking any leaf
 option today — no Step 2, selection completes immediately.
 
 **Re-entering the picker.** If the vendor has already picked a style and
-clicks "← Back" then re-picks the *same* family, the picker should re-open
+clicks "← Back" then re-picks the _same_ family, the picker should re-open
 directly on that family's Step 2 (not force them back through Step 1) —
 implemented as component state (`familyStep: "family" | FamilyKey`)
 initialized from the current `type`/`variant` on mount, exactly like `type`
@@ -80,23 +80,51 @@ const FAMILIES = {
   stamp: {
     label: "Stamp Card",
     styles: [
-      { key: "dots", label: "Classic", description: "Collect stamps toward a reward" },
-      { key: "flame", label: "Flame Club", description: "Build a flame with every visit" },
-      { key: "points", label: "Points Club", description: "Earn a set number of points every visit" },
+      {
+        key: "dots",
+        label: "Classic",
+        description: "Collect stamps toward a reward",
+      },
+      {
+        key: "flame",
+        label: "Flame Club",
+        description: "Build a flame with every visit",
+      },
+      {
+        key: "points",
+        label: "Points Club",
+        description: "Earn a set number of points every visit",
+      },
     ],
   },
   plant: {
     label: "Sprout",
     styles: [
-      { key: "plant", label: "Classic", description: "Grow a plant with every visit" },
-      { key: "cup", label: "Fill the Cup", description: "Fill a cup with every visit" },
+      {
+        key: "plant",
+        label: "Classic",
+        description: "Grow a plant with every visit",
+      },
+      {
+        key: "cup",
+        label: "Fill the Cup",
+        description: "Fill a cup with every visit",
+      },
     ],
   },
   chance: {
     label: "Chance Card",
     styles: [
-      { key: "wheel", label: "Spin the Wheel", description: "Spin for a prize on every visit" },
-      { key: "scratch", label: "Scratch Card", description: "Scratch for a prize on every visit" },
+      {
+        key: "wheel",
+        label: "Spin the Wheel",
+        description: "Spin for a prize on every visit",
+      },
+      {
+        key: "scratch",
+        label: "Scratch Card",
+        description: "Scratch for a prize on every visit",
+      },
     ],
   },
   lucky: {

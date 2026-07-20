@@ -169,14 +169,7 @@ Expected: FAIL — `Cannot find module './card-type-picker'` (the file doesn't e
 export type FamilyKey = "stamp" | "plant" | "chance" | "lucky";
 
 export type StyleKey =
-  | "dots"
-  | "flame"
-  | "points"
-  | "plant"
-  | "cup"
-  | "wheel"
-  | "scratch"
-  | "lucky";
+  "dots" | "flame" | "points" | "plant" | "cup" | "wheel" | "scratch" | "lucky";
 
 export type StyleOption = {
   key: StyleKey;
@@ -430,125 +423,122 @@ Leave `typeLabels` and `type TypeOptionValue` (just above `TYPE_OPTIONS`) exactl
 Find this block (the `variant` state declaration through `selectedOptionKey`):
 
 ```typescript
-  const [variant, setVariant] = useState<
-    "dots" | "flame" | "points" | "plant" | "cup"
-  >(() => {
-    if (config.variant === "flame") return "flame";
-    if (config.variant === "points") return "points";
-    if (config.variant === "cup") return "cup";
-    return initialType === "plant" ? "plant" : "dots";
-  });
-  const selectedOptionKey: TypeOptionValue =
-    type === "stamp" && variant === "flame"
-      ? "flame"
-      : type === "stamp" && variant === "points"
-        ? "points"
-        : type === "plant" && variant === "cup"
-          ? "cup"
-          : (type as TypeOptionValue);
+const [variant, setVariant] = useState<
+  "dots" | "flame" | "points" | "plant" | "cup"
+>(() => {
+  if (config.variant === "flame") return "flame";
+  if (config.variant === "points") return "points";
+  if (config.variant === "cup") return "cup";
+  return initialType === "plant" ? "plant" : "dots";
+});
+const selectedOptionKey: TypeOptionValue =
+  type === "stamp" && variant === "flame"
+    ? "flame"
+    : type === "stamp" && variant === "points"
+      ? "points"
+      : type === "plant" && variant === "cup"
+        ? "cup"
+        : (type as TypeOptionValue);
 ```
 
 Replace it with (same two declarations, plus the new picker-step state and a derived family/style pair):
 
 ```typescript
-  const [variant, setVariant] = useState<
-    "dots" | "flame" | "points" | "plant" | "cup"
-  >(() => {
-    if (config.variant === "flame") return "flame";
-    if (config.variant === "points") return "points";
-    if (config.variant === "cup") return "cup";
-    return initialType === "plant" ? "plant" : "dots";
-  });
-  const selectedOptionKey: TypeOptionValue =
-    type === "stamp" && variant === "flame"
-      ? "flame"
-      : type === "stamp" && variant === "points"
-        ? "points"
-        : type === "plant" && variant === "cup"
-          ? "cup"
-          : (type as TypeOptionValue);
+const [variant, setVariant] = useState<
+  "dots" | "flame" | "points" | "plant" | "cup"
+>(() => {
+  if (config.variant === "flame") return "flame";
+  if (config.variant === "points") return "points";
+  if (config.variant === "cup") return "cup";
+  return initialType === "plant" ? "plant" : "dots";
+});
+const selectedOptionKey: TypeOptionValue =
+  type === "stamp" && variant === "flame"
+    ? "flame"
+    : type === "stamp" && variant === "points"
+      ? "points"
+      : type === "plant" && variant === "cup"
+        ? "cup"
+        : (type as TypeOptionValue);
 
-  // Step 1 shows the 4 family tiles; picking a multi-style family switches
-  // to that family's style tiles (Step 2). "family" means Step 1 is showing.
-  const [familyStep, setFamilyStep] = useState<"family" | FamilyKey>(
-    "family",
-  );
-  const currentFamilyAndStyle = resolveFamilyAndStyle(type, variant);
+// Step 1 shows the 4 family tiles; picking a multi-style family switches
+// to that family's style tiles (Step 2). "family" means Step 1 is showing.
+const [familyStep, setFamilyStep] = useState<"family" | FamilyKey>("family");
+const currentFamilyAndStyle = resolveFamilyAndStyle(type, variant);
 ```
 
 Now find the `pickType()` function and its preceding comment:
 
 ```typescript
-  // Sets the type plus its sensible numeric defaults, and always resets
-  // name/rewardText to blank — the vendor types both themselves, no
-  // suggested copy is ever prefilled on the create flow. The Flame Club
-  // tile maps to type "stamp" + variant "flame" — it is never a distinct
-  // ProgramType (see program-config.ts).
-  function pickType(value: TypeOptionValue) {
-    setType(
-      value === "flame" || value === "points"
-        ? "stamp"
+// Sets the type plus its sensible numeric defaults, and always resets
+// name/rewardText to blank — the vendor types both themselves, no
+// suggested copy is ever prefilled on the create flow. The Flame Club
+// tile maps to type "stamp" + variant "flame" — it is never a distinct
+// ProgramType (see program-config.ts).
+function pickType(value: TypeOptionValue) {
+  setType(
+    value === "flame" || value === "points"
+      ? "stamp"
+      : value === "cup"
+        ? "plant"
+        : value,
+  );
+  setVariant(
+    value === "flame"
+      ? "flame"
+      : value === "points"
+        ? "points"
         : value === "cup"
-          ? "plant"
-          : value,
-    );
-    setVariant(
-      value === "flame"
-        ? "flame"
-        : value === "points"
-          ? "points"
-          : value === "cup"
-            ? "cup"
-            : value === "stamp"
-              ? "dots"
-              : value === "plant"
-                ? "plant"
-                : "dots",
-    );
-    setName("");
-    setRewardText("");
-    setStampsRequired(value === "points" ? 500 : 10);
-    setVisitsToBloom(6);
-    setWinPercent(20);
-    setPityCeiling(value === "lucky" ? 8 : undefined);
-    setHeadStartPercent(20);
-    setPointsPerVisit(10);
-  }
+          ? "cup"
+          : value === "stamp"
+            ? "dots"
+            : value === "plant"
+              ? "plant"
+              : "dots",
+  );
+  setName("");
+  setRewardText("");
+  setStampsRequired(value === "points" ? 500 : 10);
+  setVisitsToBloom(6);
+  setWinPercent(20);
+  setPityCeiling(value === "lucky" ? 8 : undefined);
+  setHeadStartPercent(20);
+  setPointsPerVisit(10);
+}
 ```
 
 Replace it with:
 
 ```typescript
-  // Sets the type plus its sensible numeric defaults, and always resets
-  // name/rewardText to blank — the vendor types both themselves, no
-  // suggested copy is ever prefilled on the create flow. Delegates the
-  // style -> type/variant mapping to card-type-picker.ts so this file
-  // doesn't duplicate it.
-  function pickStyle(style: StyleKey) {
-    const { type: nextType, variant: nextVariant } =
-      styleToTypeAndVariant(style);
-    setType(nextType);
-    setVariant(nextVariant ?? "dots");
-    setName("");
-    setRewardText("");
-    setStampsRequired(style === "points" ? 500 : 10);
-    setVisitsToBloom(6);
-    setWinPercent(20);
-    setPityCeiling(style === "lucky" ? 8 : undefined);
-    setHeadStartPercent(20);
-    setPointsPerVisit(10);
-  }
+// Sets the type plus its sensible numeric defaults, and always resets
+// name/rewardText to blank — the vendor types both themselves, no
+// suggested copy is ever prefilled on the create flow. Delegates the
+// style -> type/variant mapping to card-type-picker.ts so this file
+// doesn't duplicate it.
+function pickStyle(style: StyleKey) {
+  const { type: nextType, variant: nextVariant } = styleToTypeAndVariant(style);
+  setType(nextType);
+  setVariant(nextVariant ?? "dots");
+  setName("");
+  setRewardText("");
+  setStampsRequired(style === "points" ? 500 : 10);
+  setVisitsToBloom(6);
+  setWinPercent(20);
+  setPityCeiling(style === "lucky" ? 8 : undefined);
+  setHeadStartPercent(20);
+  setPointsPerVisit(10);
+}
 
-  // Clicking a family either completes the pick immediately (Lucky Tap has
-  // exactly one style, so there's nothing to choose) or opens that
-  // family's style tiles (Step 2).
-  function pickFamily(family: FamilyKey) {
-    if (isSingleStyleFamily(family)) {
-      pickStyle(familyOf(family).styles[0].key);
-      return;
-    }
-    setFamilyStep(family);
+// Clicking a family either completes the pick immediately (Lucky Tap has
+// exactly one style, so there's nothing to choose) or opens that
+// family's style tiles (Step 2).
+function pickFamily(family: FamilyKey) {
+  if (isSingleStyleFamily(family)) {
+    pickStyle(familyOf(family).styles[0].key);
+    return;
   }
+  setFamilyStep(family);
+}
 ```
 
 You'll need `type StyleKey` imported (already added in Step 1 of this task) — add it to that import's destructured list alongside `type FamilyKey`:
@@ -570,101 +560,105 @@ import {
 Find this block:
 
 ```tsx
-        {isEdit ? (
-          <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
-            {typeLabels[selectedOptionKey]}
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {TYPE_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-label={option.label}
-                onClick={() => pickType(option.value)}
-                className={cn(
-                  "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
-                  selectedOptionKey === option.value
-                    ? "border-primary bg-primary/10"
-                    : "bg-card hover:bg-muted/50",
-                )}
-              >
-                <span className="text-sm font-semibold">{option.label}</span>
-                <span className="text-xs text-muted-foreground">
-                  {option.description}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
+{
+  isEdit ? (
+    <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
+      {typeLabels[selectedOptionKey]}
+    </p>
+  ) : (
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {TYPE_OPTIONS.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          aria-label={option.label}
+          onClick={() => pickType(option.value)}
+          className={cn(
+            "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
+            selectedOptionKey === option.value
+              ? "border-primary bg-primary/10"
+              : "bg-card hover:bg-muted/50",
+          )}
+        >
+          <span className="text-sm font-semibold">{option.label}</span>
+          <span className="text-xs text-muted-foreground">
+            {option.description}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
 ```
 
 Replace it with:
 
 ```tsx
-        {isEdit ? (
-          <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
-            {typeLabels[selectedOptionKey]}
-          </p>
-        ) : familyStep === "family" ? (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {FAMILIES.map((family) => (
-              <button
-                key={family.key}
-                type="button"
-                aria-label={family.label}
-                onClick={() => pickFamily(family.key)}
-                className={cn(
-                  "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
-                  currentFamilyAndStyle.family === family.key
-                    ? "border-primary bg-primary/10"
-                    : "bg-card hover:bg-muted/50",
-                )}
-              >
-                <span className="text-sm font-semibold">{family.label}</span>
-                <span className="text-xs text-muted-foreground">
-                  {family.description}
-                </span>
-                {family.styles.length > 1 ? (
-                  <span className="mt-1 text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground/70">
-                    {family.styles.length} styles
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setFamilyStep("family")}
-              className="text-xs font-medium text-primary hover:underline"
-            >
-              ← Back
-            </button>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {familyOf(familyStep).styles.map((style) => (
-                <button
-                  key={style.key}
-                  type="button"
-                  aria-label={style.label}
-                  onClick={() => pickStyle(style.key)}
-                  className={cn(
-                    "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
-                    currentFamilyAndStyle.style === style.key
-                      ? "border-primary bg-primary/10"
-                      : "bg-card hover:bg-muted/50",
-                  )}
-                >
-                  <span className="text-sm font-semibold">{style.label}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {style.description}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+{
+  isEdit ? (
+    <p className="flex h-11 items-center rounded-xl border bg-muted/40 px-3 text-sm font-semibold text-muted-foreground">
+      {typeLabels[selectedOptionKey]}
+    </p>
+  ) : familyStep === "family" ? (
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {FAMILIES.map((family) => (
+        <button
+          key={family.key}
+          type="button"
+          aria-label={family.label}
+          onClick={() => pickFamily(family.key)}
+          className={cn(
+            "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
+            currentFamilyAndStyle.family === family.key
+              ? "border-primary bg-primary/10"
+              : "bg-card hover:bg-muted/50",
+          )}
+        >
+          <span className="text-sm font-semibold">{family.label}</span>
+          <span className="text-xs text-muted-foreground">
+            {family.description}
+          </span>
+          {family.styles.length > 1 ? (
+            <span className="mt-1 text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground/70">
+              {family.styles.length} styles
+            </span>
+          ) : null}
+        </button>
+      ))}
+    </div>
+  ) : (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={() => setFamilyStep("family")}
+        className="text-xs font-medium text-primary hover:underline"
+      >
+        ← Back
+      </button>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {familyOf(familyStep).styles.map((style) => (
+          <button
+            key={style.key}
+            type="button"
+            aria-label={style.label}
+            onClick={() => pickStyle(style.key)}
+            className={cn(
+              "flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-colors",
+              currentFamilyAndStyle.style === style.key
+                ? "border-primary bg-primary/10"
+                : "bg-card hover:bg-muted/50",
+            )}
+          >
+            <span className="text-sm font-semibold">{style.label}</span>
+            <span className="text-xs text-muted-foreground">
+              {style.description}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 ```
 
 - [ ] **Step 4: Typecheck and lint**

@@ -271,49 +271,45 @@ export default async function SetupPage({
             </div>
           </div>
         ) : view === "migrate" || view === "edit" || view === "create" ? (
-          <div className="rounded-2xl border bg-card shadow-sm">
-            <div className="px-7 pt-9 pb-8">
-              <h2 className="text-3xl font-bold tracking-tight">
-                {migrating
-                  ? "Pick a new card type"
-                  : isEdit
-                    ? "Edit your card"
-                    : "Create a program"}
-              </h2>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                {migrating
-                  ? "Set up the card that replaces it."
-                  : isEdit
-                    ? "Change how customers earn their reward."
-                    : "Pick a card type and set how customers earn their reward."}
-              </p>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              {migrating
+                ? "Pick a new card type"
+                : isEdit
+                  ? "Edit your card"
+                  : "Create a program"}
+            </h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {migrating
+                ? "Set up the card that replaces it."
+                : isEdit
+                  ? "Change how customers earn their reward."
+                  : "Pick a card type and set how customers earn their reward."}
+            </p>
 
-              <SetupForm
-                program={migrating ? null : editing}
-                isEdit={isEdit}
-                replacingId={migrating ? migrating.id : null}
-                replacingType={migrating ? migrating.type : null}
-              />
-            </div>
+            <SetupForm
+              program={migrating ? null : editing}
+              isEdit={isEdit}
+              replacingId={migrating ? migrating.id : null}
+              replacingType={migrating ? migrating.type : null}
+            />
           </div>
         ) : view === "prep" ? (
-          <div className="rounded-2xl border bg-card shadow-sm">
-            <div className="px-7 pt-9 pb-8">
-              <h2 className="text-3xl font-bold tracking-tight">
-                Set up the replacement
-              </h2>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                Pick a card type and set how customers earn their reward. It
-                stays hidden until you activate it.
-              </p>
-              <SetupForm
-                program={null}
-                isEdit={false}
-                replacingId={null}
-                replacingType={null}
-                prepping
-              />
-            </div>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Set up the replacement
+            </h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Pick a card type and set how customers earn their reward. It stays
+              hidden until you activate it.
+            </p>
+            <SetupForm
+              program={null}
+              isEdit={false}
+              replacingId={null}
+              replacingType={null}
+              prepping
+            />
           </div>
         ) : view === "schedule" ? (
           <div className="rounded-2xl border bg-card shadow-sm">

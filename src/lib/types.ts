@@ -6,6 +6,18 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+// Not part of the loopkit schema — this is the shape of the shared
+// merqo.vendor_profile.social_links JSONB column (see
+// src/lib/merqo-vendor-profile.ts), which loopkit reads/writes but doesn't
+// own. Same 4 keys as qkit's identically-named type, since both kits read
+// the same column.
+export type SocialLinks = {
+  website?: string;
+  instagram?: string;
+  facebook?: string;
+  tiktok?: string;
+};
+
 // Hand-written mirror of supabase/migrations/0001_loopkit_core.sql — no live
 // DB/codegen available yet. Keep in sync with the migration; keep the schema
 // key in sync with `db.schema` in src/lib/supabase/{client,server}.ts and

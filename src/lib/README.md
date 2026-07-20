@@ -22,7 +22,7 @@ profile/status).
 - `image-resize.ts` — `resizeToWebp`: browser-only Canvas resize + WebP re-encode before upload, falls back to the original file on decode/encode failure
 - `loyalty.ts` — `rewardReady`: one-line pure check that a stamp count has met the program's requirement
 - `merqo-vendor-profile.test.ts` — vitest tests for `getOrCreateVendorProfile`: asserts the `.schema("merqo").rpc(...)` call shape and that a Postgres error is rethrown with context
-- `merqo-vendor-profile.ts` — `getOrCreateVendorProfile`: hand-written mirror of merqo's cross-schema RPC contract, generic over the caller's own `Database`/schema so `"loopkit"`-scoped clients type-check, casts to `merqo` schema only for the one call
+- `merqo-vendor-profile.ts` — `getOrCreateVendorProfile`/`upsertVendorProfile`: hand-written mirror of merqo's cross-schema RPC contract, generic over the caller's own `Database`/schema so `"loopkit"`-scoped clients type-check, casts to `merqo` schema only for the RPC calls; `upsertVendorProfile` is the write path used by the profile page's social-links save
 - `merqo-vendor-status.test.ts` — vitest tests for `resolveVendorStatus`: active/free, active/pro, case-insensitive email match, inactive-no-user, inactive-no-program cases
 - `merqo-vendor-status.ts` — `resolveVendorStatus`: pure lookup mapping an email + auth-user list + program/pro vendor-id lists to `{active, plan}`, since neither `programs` nor `vendor_pro` carries an email column
 - `metrics.ts` — `isWonVisit` (pure) and `computeLoopkitMetrics`: maps loopkit's stamp-card domain onto merqo's qkit-shaped metrics payload (programs→vendors, stamp/visit events→orders, no revenue/GMV in v1)
@@ -34,7 +34,7 @@ profile/status).
 - `rate-limit.ts` — `allowRequest`: per-IP sliding-window rate limit via optional Upstash Redis, dynamically imported and fail-open when unconfigured
 - `stats.ts` — `classifyActivity`/`pctChange`/`bucketVisitsByDay`/`avgDaysBetweenVisits`/`computeCardStats` (pure aggregation pipeline) plus `getProgramStats`/`getVendorStats` (impure shells fetching cards+stamp_events) — powers the vendor stats dashboard
 - `supabase/`
-- `types.ts` — `Json` type and the hand-written `Database["loopkit"]` interface (Row/Insert/Update per table), a manual mirror of `supabase/migrations/` kept in sync by hand (no live DB codegen yet)
+- `types.ts` — `Json` type, `SocialLinks` (shape of the shared `merqo.vendor_profile.social_links` JSONB column — not part of the `loopkit` schema), and the hand-written `Database["loopkit"]` interface (Row/Insert/Update per table), a manual mirror of `supabase/migrations/` kept in sync by hand (no live DB codegen yet)
 - `utils.ts` — `cn` (clsx+tailwind-merge), `MS_PER_HOUR`/`MS_PER_DAY` constants, `formatPrice`, `centsToDollarString`, `genOrderNumber`, `parseDollarsToCents`, `orderHasPricing`, `count`, `formatOptions` — general-purpose formatting/shared helpers
 - `vendor.ts` — `stallNameSchema`, `getVendorProfile`/`saveStallName`: the vendor's stall-name profile row (RLS-scoped upsert)
 - `vouchers.ts` — `listCardVouchers`/`oldestActiveVoucher`/`isPastExpiry`/`daysUntilExpiry`/`countJustExpired` (pure reads/derivations) and `expireStaleVouchers`/`grantRewardVoucher`/`redeemOldestVoucher` (RPC wrappers) over `reward_vouchers`, the reward-claim ledger backing Stamp/Plant/Wheel/Scratch/Lucky rewards

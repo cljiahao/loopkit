@@ -1,4 +1,5 @@
 import { CardLinkActions } from "@/app/dashboard/card-link";
+import { ElevatedCard } from "@/components/elevated-card";
 
 // Shared shop-wide QR — one per vendor, not per program (a per-program QR
 // would need a new scoped join RPC; out of scope, see the design spec).
@@ -19,7 +20,7 @@ export function ShopQrBlock({
       : "Customers scan this to join your programs.";
 
   return (
-    <div className="flex flex-col items-start gap-4 rounded-2xl border bg-card p-5 shadow-sm sm:flex-row sm:items-center">
+    <ElevatedCard className="flex h-full flex-col items-start gap-4 p-5 sm:flex-row sm:items-center">
       <div
         className="shrink-0 rounded-xl border bg-white p-2 [&_svg]:size-20"
         dangerouslySetInnerHTML={{ __html: qrSvgMarkup }}
@@ -31,6 +32,6 @@ export function ShopQrBlock({
         </code>
         <CardLinkActions link={link} />
       </div>
-    </div>
+    </ElevatedCard>
   );
 }

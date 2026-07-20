@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   lookup action — and forfeits the expired voucher's threshold worth of
   `stamp_count`/`growth` (floored at 0). No cron job required.
 - Setup form: new reward-expiry field for program types that support it.
+- Profile settings: a new "Social & website" section (website/Instagram/
+  Facebook/TikTok), backed by the shared `merqo.vendor_profile` table
+  loopkit already partially used (`/setup`'s vendor-name seeding). Ported
+  from qkit's identical feature.
 
 ### Changed
 
@@ -58,6 +62,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   pair as before (e.g. Stamp Card → Flame Club still saves
   `type=stamp, variant=flame`), so existing programs and the engine are
   unaffected.
+- New shared `Section`/`ElevatedCard` primitive (rounded corners, soft
+  lifted shadow, icon-badge header) replaces the plain `Card`-based blocks
+  on profile settings, the dashboard, and `/setup`'s create-card form.
+  Deliberately not qkit's scalloped "kitchen ticket" look — that's
+  food-stall-specific branding qkit owns; loopkit borrows only the
+  spacing/hierarchy pattern.
+- Dashboard: the Shop QR block and "Scan a customer" button are now a
+  side-by-side quick-actions row instead of two stacked full-width blocks
+  (stacks back to full-width on mobile), and the program grid now has a
+  "Your programs" heading.
+- `/setup`'s live preview now docks in a sticky side column on desktop
+  instead of scrolling away while filling in a long Rules section (e.g.
+  the Wheel/Scratch segment editor); the type picker, Basics, and Rules
+  cards become one flowing main column instead of a 2-column split.
 
 ### Fixed
 
