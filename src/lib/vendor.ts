@@ -22,8 +22,13 @@ export type VendorProfile = {
  * row, never returned directly. Degrades to that local name on a merqo
  * hiccup rather than throwing — this call backs every dashboard page via
  * the layout, so a merqo outage shouldn't 500 the whole vendor console.
+ * `fallbackName` seeds a brand-new merqo row when the local `vendors.name`
+ * column is still null (e.g. a vendor's first-ever page load is /setup,
+ * before they've named their stall) — pass the vendor's email there.
  */
-export async function getVendorProfile(): Promise<VendorProfile> {
+export async function getVendorProfile(
+  fallbackName?: string | null,
+): Promise<VendorProfile> {
   const { user } = await requireVendor();
   const supabase = await createServerClient();
   const { data, error } = await supabase
@@ -32,7 +37,7 @@ export async function getVendorProfile(): Promise<VendorProfile> {
     .maybeSingle();
   if (error) throw new Error(`getVendorProfile: ${error.message}`);
 
-  const localName = data?.name ?? null;
+  const localName = data?.name ?? fallbackName ?? null;
   try {
     const profile = await getOrCreateVendorProfile(
       supabase,

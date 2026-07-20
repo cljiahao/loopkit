@@ -38,12 +38,14 @@ export default async function SetupPage({
     manage?: string;
   }>;
 }) {
-  await requireVendor();
+  const { user } = await requireVendor();
   await applyDueCutovers();
   // getVendorProfile() now reads straight from the shared
   // merqo.vendor_profile row (src/lib/vendor.ts) — no separate cross-schema
-  // call needed here anymore.
-  const localProfile = await getVendorProfile();
+  // call needed here anymore. The email fallback seeds a brand-new merqo
+  // row when this is the vendor's very first page load (local vendors.name
+  // is still null) and /setup is reached before /dashboard ever is.
+  const localProfile = await getVendorProfile(user.email ?? null);
   const { edit, migrate, schedule, prep, manage } = await searchParams;
   const programs = await listPrograms();
   const editing = edit ? currentProgram(programs, edit) : null;

@@ -168,4 +168,44 @@ describe("getVendorProfile", () => {
       "getVendorProfile: db down",
     );
   });
+
+  it("passes the fallbackName as the seed when no local row exists", async () => {
+    selectChain.maybeSingle.mockResolvedValueOnce({
+      data: null,
+      error: null,
+    });
+    getOrCreateVendorProfileMock.mockResolvedValue({
+      vendor_id: "vendor-1",
+      stall_name: "vendor@example.com",
+      social_links: {},
+      created_at: "",
+      updated_at: "",
+    });
+    await getVendorProfile("vendor@example.com");
+    expect(getOrCreateVendorProfileMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "vendor-1",
+      "vendor@example.com",
+    );
+  });
+
+  it("ignores fallbackName when a local row already has a name", async () => {
+    selectChain.maybeSingle.mockResolvedValueOnce({
+      data: { name: "Local Name" },
+      error: null,
+    });
+    getOrCreateVendorProfileMock.mockResolvedValue({
+      vendor_id: "vendor-1",
+      stall_name: "Local Name",
+      social_links: {},
+      created_at: "",
+      updated_at: "",
+    });
+    await getVendorProfile("vendor@example.com");
+    expect(getOrCreateVendorProfileMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "vendor-1",
+      "Local Name",
+    );
+  });
 });
