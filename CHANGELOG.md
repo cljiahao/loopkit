@@ -76,6 +76,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   instead of scrolling away while filling in a long Rules section (e.g.
   the Wheel/Scratch segment editor); the type picker, Basics, and Rules
   cards become one flowing main column instead of a 2-column split.
+- Stall name now reads from and writes to the shared `merqo.vendor_profile`
+  table (matching qkit's own cutover) instead of the local
+  `loopkit.vendors.name` column — social links already worked this way.
+  Mobile burger menu moved to the left of the header (next to the wordmark,
+  matching qkit) instead of next to the account avatar, and gained a
+  tap-away scrim. The program-switcher dropdown on Stats/Customers/Activity
+  now renders below the page header instead of above it.
 
 ### Fixed
 

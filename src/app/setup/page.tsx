@@ -17,11 +17,6 @@ import { Wordmark } from "@/components/landing/wordmark";
 import { ProLock } from "@/components/pro-lock";
 import { BackButton } from "@/components/back-button";
 import { cn } from "@/lib/utils";
-import { createServerClient } from "@/lib/supabase/server";
-import {
-  getOrCreateVendorProfile,
-  type VendorProfile,
-} from "@/lib/merqo-vendor-profile";
 import { getVendorProfile } from "@/lib/vendor";
 
 const typeLabel: Record<string, string> = {
@@ -45,33 +40,12 @@ export default async function SetupPage({
 }) {
   const { user } = await requireVendor();
   await applyDueCutovers();
-  const supabase = await createServerClient();
-  // Prefer the vendor's existing loopkit.vendors name (set via
-  // /dashboard/profile) as the seed for the shared merqo.vendor_profile row
-  // — falling back to email only if they've never set one — so a vendor who
-  // already has a real stall name doesn't get overwritten with their raw
-  // email on first /setup visit after this table's introduction.
-  const localProfile = await getVendorProfile();
-  // The merqo.vendor_profile row is a one-time seed, not a live mirror —
-  // nothing re-syncs stall_name after the first /setup visit, so
-  // loopkit.vendors (localProfile, edited at /dashboard/profile) stays the
-  // live source of truth for display; vendorProfile is only a fallback (and
-  // the seed input above). It's also cross-schema and can fail independently
-  // of the rest of this page — degrade to null rather than hard-failing the
-  // whole vendor console on a merqo hiccup.
-  let vendorProfile: VendorProfile | null = null;
-  try {
-    vendorProfile = await getOrCreateVendorProfile(
-      supabase,
-      user.id,
-      localProfile.name ?? user.email ?? null,
-    );
-  } catch (err) {
-    console.error(
-      "setup: shared vendor profile read/create failed",
-      err instanceof Error ? err.message : err,
-    );
-  }
+  // getVendorProfile() now reads straight from the shared
+  // merqo.vendor_profile row (src/lib/vendor.ts) — no separate cross-schema
+  // call needed here anymore. The email fallback seeds a brand-new merqo
+  // row when this is the vendor's very first page load (local vendors.name
+  // is still null) and /setup is reached before /dashboard ever is.
+  const localProfile = await getVendorProfile(user.email ?? null);
   const { edit, migrate, schedule, prep, manage } = await searchParams;
   const programs = await listPrograms();
   const editing = edit ? currentProgram(programs, edit) : null;
@@ -129,7 +103,7 @@ export default async function SetupPage({
         <div className="mb-8 text-center">
           <Wordmark className="text-3xl" />
           <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {localProfile.name ?? vendorProfile?.stall_name}
+            {localProfile.name}
           </p>
           <h1 className="mt-3 font-display text-2xl font-bold tracking-tight">
             {migrating

@@ -42,8 +42,8 @@ export function ProfileForm({
   const router = useRouter();
   const supabase = createClient();
 
-  // Stall name — persisted via a server action (RLS-scoped write to
-  // loopkit.vendors) + revalidatePath so the nav picks it up.
+  // Stall name — persisted via a server action to the shared
+  // merqo.vendor_profile row + revalidatePath so the nav picks it up.
   const initialName = name ?? "";
   const [stallName, setStallName] = useState(initialName);
   const { pending: savingName, run: runName } = useAsyncAction();

@@ -96,6 +96,15 @@ export function DashboardNav({
   return (
     <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
       <div className="flex min-w-0 items-center gap-1 sm:gap-3">
+        <button
+          type="button"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          onClick={() => setMobileOpen((v) => !v)}
+          className="-ml-1.5 rounded-lg p-1.5 text-muted-foreground hover:bg-secondary sm:hidden"
+        >
+          {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+        </button>
+
         <Link
           href="/dashboard"
           aria-label="loopkit dashboard home"
@@ -126,99 +135,97 @@ export function DashboardNav({
         </nav>
       </div>
 
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMobileOpen((v) => !v)}
-          className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary sm:hidden"
-        >
-          {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              aria-label="Account menu"
-              className="flex items-center gap-2 rounded-lg py-1 pr-1 pl-1 text-left transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            >
-              <Avatar className="size-8 shrink-0 rounded-md ring-1 ring-inset ring-primary/25">
-                <AvatarImage src={avatarUrl ?? undefined} alt="" />
-                <AvatarFallback className="rounded-md bg-primary/12 font-mono text-xs font-semibold tracking-tight text-primary">
-                  {initials(label)}
-                </AvatarFallback>
-              </Avatar>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 rounded-xl">
-            <DropdownMenuLabel className="px-2 py-2">
-              <div className="flex items-center gap-2">
-                <p className="truncate text-sm font-semibold">
-                  {vendorName ?? email}
-                </p>
-                <TierBadge tier={tier} />
-              </div>
-              <p className="text-xs font-normal text-muted-foreground">
-                {vendorName ? email : "Vendor account"}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label="Account menu"
+            className="flex items-center gap-2 rounded-lg py-1 pr-1 pl-1 text-left transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
+            <Avatar className="size-8 shrink-0 rounded-md ring-1 ring-inset ring-primary/25">
+              <AvatarImage src={avatarUrl ?? undefined} alt="" />
+              <AvatarFallback className="rounded-md bg-primary/12 font-mono text-xs font-semibold tracking-tight text-primary">
+                {initials(label)}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56 rounded-xl">
+          <DropdownMenuLabel className="px-2 py-2">
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm font-semibold">
+                {vendorName ?? email}
               </p>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/profile" className="cursor-pointer">
-                <User className="size-4" />
-                Profile
-              </Link>
+              <TierBadge tier={tier} />
+            </div>
+            <p className="text-xs font-normal text-muted-foreground">
+              {vendorName ? email : "Vendor account"}
+            </p>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/profile" className="cursor-pointer">
+              <User className="size-4" />
+              Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/settings" className="cursor-pointer">
+              <Settings className="size-4" />
+              Settings
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/plan" className="cursor-pointer">
+              <Wallet className="size-4" />
+              Plan
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <form action={signOut}>
+            <DropdownMenuItem asChild variant="destructive">
+              <button type="submit" className="w-full cursor-pointer">
+                <LogOut className="size-4" />
+                Sign out
+              </button>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/settings" className="cursor-pointer">
-                <Settings className="size-4" />
-                Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/plan" className="cursor-pointer">
-                <Wallet className="size-4" />
-                Plan
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <form action={signOut}>
-              <DropdownMenuItem asChild variant="destructive">
-                <button type="submit" className="w-full cursor-pointer">
-                  <LogOut className="size-4" />
-                  Sign out
-                </button>
-              </DropdownMenuItem>
-            </form>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+          </form>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {mobileOpen && (
-        <div className="absolute inset-x-0 top-full z-20 border-b bg-background/95 px-5 py-3 backdrop-blur-md sm:hidden">
-          <div className="flex flex-col gap-1">
-            {LINKS.map((link) => {
-              const active =
-                link.href === "/dashboard"
-                  ? path === "/dashboard"
-                  : isActive(path, link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary",
-                    active && "bg-primary/10 text-primary",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+        <>
+          <button
+            type="button"
+            aria-hidden
+            tabIndex={-1}
+            onClick={() => setMobileOpen(false)}
+            className="fixed inset-0 z-30 cursor-default sm:hidden"
+          />
+          <div className="absolute inset-x-0 top-full z-40 border-b bg-background/95 px-5 py-3 backdrop-blur-md sm:hidden">
+            <div className="flex flex-col gap-1">
+              {LINKS.map((link) => {
+                const active =
+                  link.href === "/dashboard"
+                    ? path === "/dashboard"
+                    : isActive(path, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary",
+                      active && "bg-primary/10 text-primary",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

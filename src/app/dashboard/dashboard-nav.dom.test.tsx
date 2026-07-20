@@ -64,6 +64,44 @@ describe("DashboardNav", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the burger toggle before the wordmark, and the account menu alone on the right", () => {
+    render(<DashboardNav {...baseProps} />);
+    const toggle = screen.getByRole("button", { name: /open menu/i });
+    const wordmarkLink = screen.getByRole("link", {
+      name: /loopkit dashboard home/i,
+    });
+    const accountButton = screen.getByRole("button", {
+      name: /account menu/i,
+    });
+
+    expect(
+      toggle.compareDocumentPosition(wordmarkLink) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      wordmarkLink.compareDocumentPosition(accountButton) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("closes the mobile panel when the tap-away scrim is clicked", async () => {
+    const user = userEvent.setup();
+    render(<DashboardNav {...baseProps} />);
+    await user.click(screen.getByRole("button", { name: /open menu/i }));
+    expect(
+      screen.getByRole("button", { name: /close menu/i }),
+    ).toBeInTheDocument();
+
+    const scrim = document.querySelector(
+      'button[aria-hidden="true"].fixed.inset-0',
+    );
+    expect(scrim).not.toBeNull();
+    await user.click(scrim as HTMLButtonElement);
+    expect(
+      screen.getByRole("button", { name: /open menu/i }),
+    ).toBeInTheDocument();
+  });
+
   it("account menu has Profile, Settings, Plan, Sign out (in that order), and no separate Customers item", async () => {
     const user = userEvent.setup();
     render(<DashboardNav {...baseProps} />);
