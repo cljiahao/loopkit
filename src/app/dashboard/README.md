@@ -14,13 +14,14 @@ Vendor console root: program grid, shared shop QR, scan-to-serve entry point, an
 - `customers/`
 - `dashboard-nav.dom.test.tsx` — jsdom tests asserting `DashboardNav`'s inline nav links, mobile menu toggle, and account-dropdown item order (Profile/Settings/Plan/Sign out, no duplicate Customers item)
 - `dashboard-nav.tsx` — client `DashboardNav`: sticky header with brand, Dashboard/Customers/Activity/Stats nav links, mobile burger menu, and account dropdown (Profile/Settings/Plan/Sign out) with initials avatar and tier badge
+- `dashboard-page.dom.test.tsx` — jsdom test asserting `DashboardPage` renders a "Your programs" heading above the program grid alongside the Shop QR block and scan entry
 - `dashboard-view.test.ts` — unit tests for `shouldShowQr` (hides QR block at zero active programs, shows it otherwise)
 - `dashboard-view.ts` — exports `shouldShowQr(activeProgramCount)`, a pure helper deciding whether the shop QR block should render
 - `layout.tsx` — async `DashboardLayout` server component: requires vendor auth, redirects admins to `/admin`, renders the sticky header with `DashboardNav`, and defines an inline sign-out server action
 - `loading.tsx` — `DashboardLoading` skeleton fallback (pulse placeholders for header and cards) shown while the dashboard route segment streams
 - `new-program-tile.dom.test.tsx` — jsdom tests for `NewProgramTile` linking to `/setup` when allowed, showing an upgrade prompt at the free-tier cap
 - `new-program-tile.tsx` — `NewProgramTile`: trailing grid tile linking to `/setup` to add a program, or a Pro upgrade prompt when at the free-plan cap
-- `page.tsx` — `DashboardPage` server component: loads programs, redirects to `/setup` on zero programs, renders the shop QR block + scan entry + program card grid + new-program tile for active programs
+- `page.tsx` — `DashboardPage` server component: loads programs, redirects to `/setup` on zero programs, renders the Shop QR block and "Scan a customer" button as a side-by-side quick-actions row (stacks to full-width on mobile) above a "Your programs" heading and the program card grid + new-program tile for active programs
 - `plan/`
 - `profile/`
 - `program-card.dom.test.tsx` — jsdom tests for `ProgramCard` rendering name/badge/description, expiry/head-start detail lines, the Edit link, the whole-card stretched link to the counter page, and that its two links aren't nested inside each other
@@ -34,13 +35,13 @@ Vendor console root: program grid, shared shop QR, scan-to-serve entry point, an
 - `redeem-button.dom.test.tsx` — jsdom test asserting `RedeemButton`'s confirm dialog shows the exact stamp count and carryover wording
 - `redeem-button.tsx` — client `RedeemButton`: AlertDialog-confirmed redeem control that calls `redeemAction` and reports the reset card back to the caller
 - `scan-and-route.dom.test.tsx` — jsdom tests for `ScanAndRoute`: passes the "Scan a customer" label through and routes to the resolved card's Counter page with phone pre-filled
-- `scan-and-route.tsx` — client `ScanAndRoute`: wraps `ScanButton`, routing a scanned card to `/dashboard/counter` for its own program with the phone pre-filled
+- `scan-and-route.tsx` — client `ScanAndRoute`: an `ElevatedCard` wrapping `ScanButton` with a "Scan a customer to stamp or redeem" caption, routing a scanned card to `/dashboard/counter` for its own program with the phone pre-filled
 - `scan-button.dom.test.tsx` — jsdom tests for `ScanButton`'s default and custom label rendering
 - `scan-button.tsx` — client `ScanButton`: opens a camera modal, decodes a QR via `@zxing/browser`, resolves the token through `resolveTokenAction`, and reports `{ phone, programId }`
 - `serve-customer.tsx` — client `ServeCustomer`: the full serve flow (stamp/lucky/plant/wheel/scratch) — scan-or-manual phone entry, primary action + lookup, per-type result rendering (stamp progress, lucky win, plant growth, wheel/scratch), redeem and regenerate-card dialogs, reward celebration
 - `settings/`
 - `shop-qr-block.dom.test.tsx` — jsdom tests for `ShopQrBlock`'s join copy (named programs vs. generic fallback) and rendered link
-- `shop-qr-block.tsx` — `ShopQrBlock`: shared shop-wide QR code panel with join copy naming active programs, the raw link, and `CardLinkActions`
+- `shop-qr-block.tsx` — `ShopQrBlock`: an `ElevatedCard`-based shared shop-wide QR code panel with join copy naming active programs, the raw link, and `CardLinkActions`
 - `stats/`
 
 ## Connectivity
