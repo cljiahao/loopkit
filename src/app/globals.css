@@ -190,6 +190,13 @@ body {
   }
 }
 
+/* Reserve the scrollbar's gutter permanently so it never disappears —
+   Radix's dropdown/dialog scroll-lock removes the scrollbar while open,
+   and without this the page (centered via mx-auto) visibly shifts. */
+html {
+  scrollbar-gutter: stable;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fade-rise {
     animation: none;

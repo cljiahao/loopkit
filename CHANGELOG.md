@@ -89,3 +89,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `schedule` query param, showing the create form instead. Fixed via a new
   `resolveSetupView` precedence that gives explicit query-param intents
   priority over the ambient `canCreate` default.
+- Opening any Radix dropdown/dialog (e.g. the dashboard's account menu)
+  could visibly shift the centered page content, since the scrollbar's
+  gutter wasn't reserved ahead of time — `scrollbar-gutter: stable` now
+  keeps that space allocated whether or not a scrollbar is actually shown.
+- Dashboard's Shop QR + Scan quick-actions row could stretch wider than its
+  card (pushing the QR link/labels past their intended width) — the two
+  flex children were missing `min-w-0`, so neither could shrink below its
+  content's natural width.

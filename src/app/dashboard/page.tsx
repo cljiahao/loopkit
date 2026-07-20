@@ -57,14 +57,14 @@ export default async function DashboardPage() {
       ) : (
         <>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
-            <div className="sm:flex-[1.4]">
+            <div className="min-w-0 sm:flex-[1.4]">
               <ShopQrBlock
                 qrSvgMarkup={cardQr}
                 link={cardLink}
                 programNames={activePrograms.map((prog) => prog.name)}
               />
             </div>
-            <div className="sm:flex-1">
+            <div className="min-w-0 sm:flex-1">
               <ScanAndRoute />
             </div>
           </div>
