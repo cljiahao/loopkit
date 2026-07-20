@@ -5,6 +5,7 @@ import { programHealth, type ProgramHealth } from "@/lib/program-health";
 import { formatSgtDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { HEALTH_BADGE, type BadgeVariant } from "@/app/admin/health-badge";
+import { ElevatedCard } from "@/components/elevated-card";
 
 export const revalidate = 0;
 
@@ -35,7 +36,7 @@ export default async function AdminProgramsPage() {
           No programs yet.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
+        <ElevatedCard className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
             <thead>
               <tr className="border-b text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -101,7 +102,7 @@ export default async function AdminProgramsPage() {
               })}
             </tbody>
           </table>
-        </div>
+        </ElevatedCard>
       )}
     </main>
   );
