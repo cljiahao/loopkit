@@ -82,16 +82,17 @@ export default async function CustomersPage({
     return (
       <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
         <div>
-          <ProgramSwitcher
-            programs={programs}
-            currentId=""
-            basePath="/dashboard/customers"
-          />
           <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Everyone who has a card at your shop, across every program.
           </p>
         </div>
+
+        <ProgramSwitcher
+          programs={programs}
+          currentId=""
+          basePath="/dashboard/customers"
+        />
         <form className="flex items-center gap-3" action="/dashboard/customers">
           <Input
             type="search"
@@ -122,16 +123,17 @@ export default async function CustomersPage({
   return (
     <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
       <div>
-        <ProgramSwitcher
-          programs={programs}
-          currentId={program.id}
-          basePath="/dashboard/customers"
-        />
         <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Everyone who has a {program.name} card.
         </p>
       </div>
+
+      <ProgramSwitcher
+        programs={programs}
+        currentId={program.id}
+        basePath="/dashboard/customers"
+      />
 
       <form className="flex items-center gap-3" action="/dashboard/customers">
         <input type="hidden" name="p" value={program.id} />

@@ -67,16 +67,13 @@ export default async function ActivityPage({
     return (
       <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
         <div>
-          <ProgramSwitcher
-            programs={programs}
-            currentId=""
-            basePath={basePath}
-          />
           <h1 className="text-2xl font-bold tracking-tight">Activity</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Recent stamps, plays, and redemptions across every program.
           </p>
         </div>
+
+        <ProgramSwitcher programs={programs} currentId="" basePath={basePath} />
         <ActivityFilters
           basePath={basePath}
           currentP={undefined}
@@ -124,16 +121,17 @@ export default async function ActivityPage({
   return (
     <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
       <div>
-        <ProgramSwitcher
-          programs={programs}
-          currentId={program.id}
-          basePath={basePath}
-        />
         <h1 className="text-2xl font-bold tracking-tight">Activity</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Recent stamps, plays, and redemptions for {program.name}.
         </p>
       </div>
+
+      <ProgramSwitcher
+        programs={programs}
+        currentId={program.id}
+        basePath={basePath}
+      />
       <ActivityFilters
         basePath={basePath}
         currentP={program.id}

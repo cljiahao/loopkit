@@ -67,16 +67,17 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
     return (
       <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
         <div>
-          <ProgramSwitcher
-            programs={programs}
-            currentId=""
-            basePath="/dashboard/stats"
-          />
           <h1 className="text-2xl font-bold tracking-tight">Stats</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             How your shop is performing across every program.
           </p>
         </div>
+
+        <ProgramSwitcher
+          programs={programs}
+          currentId=""
+          basePath="/dashboard/stats"
+        />
 
         {stats.enrolled === 0 ? (
           <div className="rounded-2xl border bg-card p-6 shadow-sm">
@@ -154,16 +155,17 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
   return (
     <main className="mx-auto max-w-7xl space-y-8 p-5 py-10">
       <div>
-        <ProgramSwitcher
-          programs={programs}
-          currentId={program.id}
-          basePath="/dashboard/stats"
-        />
         <h1 className="text-2xl font-bold tracking-tight">Stats</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           How {program.name} is performing.
         </p>
       </div>
+
+      <ProgramSwitcher
+        programs={programs}
+        currentId={program.id}
+        basePath="/dashboard/stats"
+      />
 
       {stats.enrolled === 0 ? (
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
