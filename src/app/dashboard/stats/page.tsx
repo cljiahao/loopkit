@@ -5,6 +5,7 @@ import { listPrograms, currentProgram } from "@/lib/program";
 import { getProgramStats, getVendorStats } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { ProgramSwitcher } from "@/app/dashboard/program-switcher";
+import { ElevatedCard } from "@/components/elevated-card";
 
 function Delta({ pct }: { pct: number | null }) {
   if (pct === null) return null;
@@ -36,13 +37,13 @@ function Tile({
   delta?: number | null;
 }) {
   return (
-    <div className="rounded-2xl border bg-card p-5 shadow-sm">
+    <ElevatedCard className="p-5">
       <div className="flex items-center justify-between gap-2">
         <p className="text-2xl font-bold tracking-tight">{value}</p>
         {delta !== undefined && <Delta pct={delta} />}
       </div>
       <p className="mt-1 text-xs font-medium text-muted-foreground">{label}</p>
-    </div>
+    </ElevatedCard>
   );
 }
 
@@ -79,12 +80,12 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
         </div>
 
         {stats.enrolled === 0 ? (
-          <div className="rounded-2xl border bg-card p-6 shadow-sm">
+          <ElevatedCard className="p-6">
             <p className="text-sm text-muted-foreground">
               No customers yet — share your QR from the Counter page to start
               enrolling.
             </p>
-          </div>
+          </ElevatedCard>
         ) : (
           <>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -122,7 +123,7 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
               />
             </div>
 
-            <div className="rounded-2xl border bg-card p-6 shadow-sm">
+            <ElevatedCard className="p-6">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Last 30 days
               </h2>
@@ -138,7 +139,7 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
                   />
                 ))}
               </div>
-            </div>
+            </ElevatedCard>
           </>
         )}
       </main>
@@ -166,12 +167,12 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
       </div>
 
       {stats.enrolled === 0 ? (
-        <div className="rounded-2xl border bg-card p-6 shadow-sm">
+        <ElevatedCard className="p-6">
           <p className="text-sm text-muted-foreground">
             No customers yet — share your QR from the Counter page to start
             enrolling.
           </p>
-        </div>
+        </ElevatedCard>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -209,7 +210,7 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
             />
           </div>
 
-          <div className="rounded-2xl border bg-card p-6 shadow-sm">
+          <ElevatedCard className="p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Last 30 days
             </h2>
@@ -225,7 +226,7 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
                 />
               ))}
             </div>
-          </div>
+          </ElevatedCard>
         </>
       )}
     </main>
