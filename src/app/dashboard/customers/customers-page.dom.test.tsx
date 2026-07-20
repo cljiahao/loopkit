@@ -1,8 +1,33 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { VendorCustomerList } from "./page";
 import type { VendorCustomerRow } from "@/lib/customers";
+
+vi.mock("@/features/auth", () => ({ requireVendor: vi.fn(async () => ({})) }));
+vi.mock("@/lib/customers", () => ({
+  listVendorCustomers: vi.fn(async () => []),
+}));
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn((url: string) => {
+    throw new Error(`REDIRECT:${url}`);
+  }),
+  useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+const program = { id: "p1", name: "Coffee Stamps", type: "stamp" };
+
+vi.mock("@/lib/program", () => ({
+  listPrograms: vi.fn(async () => [program]),
+  currentProgram: (progs: { id: string }[], id?: string) =>
+    progs.find((p) => p.id === id) ?? null,
+}));
+vi.mock("@/lib/cards", () => ({ listCards: vi.fn(async () => []) }));
+vi.mock("@/lib/engine", () => ({
+  getProgress: vi.fn(() => ({ label: "3/8 stamps" })),
+}));
+
+import CustomersPage, { VendorCustomerList } from "./page";
 
 const customers: VendorCustomerRow[] = [
   {
@@ -34,5 +59,29 @@ describe("VendorCustomerList", () => {
   it("shows an empty state with zero customers", () => {
     render(<VendorCustomerList customers={[]} />);
     expect(screen.getByText(/no customers yet/i)).toBeInTheDocument();
+  });
+});
+
+describe("CustomersPage (program-scoped)", () => {
+  it("shows an empty state when the program has no cards yet", async () => {
+    render(await CustomersPage({ searchParams: Promise.resolve({ p: "p1" }) }));
+    expect(screen.getByText(/no customers yet/i)).toBeInTheDocument();
+  });
+
+  it("renders each card's phone, progress, and last-updated date", async () => {
+    const { listCards } = await import("@/lib/cards");
+    vi.mocked(listCards).mockResolvedValueOnce([
+      {
+        id: "c1",
+        phone: "+6591234567",
+        stamp_count: 3,
+        reward_count: 0,
+        state: {},
+        updated_at: "2026-07-10T00:00:00Z",
+      },
+    ]);
+    render(await CustomersPage({ searchParams: Promise.resolve({ p: "p1" }) }));
+    expect(screen.getByText("+6591234567")).toBeInTheDocument();
+    expect(screen.getByText("3/8 stamps")).toBeInTheDocument();
   });
 });

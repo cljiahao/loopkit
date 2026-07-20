@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- App-wide UI-UX consistency pass: dashboard sub-pages (stats, customers,
+  activity, plan, settings), the admin console, and the auth forms now use
+  the `ElevatedCard`/`Section` visual language introduced for
+  dashboard/setup/profile — presentational only, no behavior or copy
+  change. Fixed the activity filters wrapping awkwardly on narrow phones
+  (fields now stack full-width below the `sm` breakpoint). Rebuilt
+  `/earn`'s customer-facing form onto shadcn components (previously the
+  one hand-rolled, unstyled form in the app), with new test coverage.
+
 ### Added
 
 - Reward-voucher ledger (`loopkit.reward_vouchers`, migration
