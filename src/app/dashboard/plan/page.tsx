@@ -4,6 +4,7 @@ import { isPro, listPrograms, currentProgram } from "@/lib/program";
 import { getProgramStats } from "@/lib/stats";
 import { UpgradeCta } from "@/app/dashboard/plan/upgrade-cta";
 import { Badge } from "@/components/ui/badge";
+import { ElevatedCard } from "@/components/elevated-card";
 
 function Cell({ on }: { on: boolean }) {
   return (
@@ -55,7 +56,7 @@ export default async function PlanPage({
       </div>
 
       {stats && stats.enrolled > 0 && program && (
-        <div className="rounded-xl border bg-card px-5 py-4">
+        <ElevatedCard className="px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             How your program is doing
           </p>
@@ -69,16 +70,19 @@ export default async function PlanPage({
             reward
             {stats.rewardsTotal === 1 ? "" : "s"} so far with {program.name}.
           </p>
-        </div>
+        </ElevatedCard>
       )}
 
       {pro ? (
-        <p className="rounded-xl border bg-card px-5 py-4 text-sm text-muted-foreground">
+        <ElevatedCard
+          as="section"
+          className="px-5 py-4 text-sm text-muted-foreground"
+        >
           You&apos;re on Pro — unlimited loyalty programs are unlocked. Thanks
           for supporting loopkit.
-        </p>
+        </ElevatedCard>
       ) : (
-        <div className="rounded-2xl border border-primary/40 bg-card p-5">
+        <ElevatedCard className="border-primary/40 p-5">
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-primary" />
             <h2 className="font-display text-xl font-semibold">Pro</h2>
@@ -90,7 +94,7 @@ export default async function PlanPage({
           <div className="mt-4">
             <UpgradeCta />
           </div>
-        </div>
+        </ElevatedCard>
       )}
 
       {/* Header and every row use the same fixed column widths (not "auto")
