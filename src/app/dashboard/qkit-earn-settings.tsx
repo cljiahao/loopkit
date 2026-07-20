@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { ElevatedCard } from "@/components/elevated-card";
 
 type Program = { id: string; name: string };
 
@@ -27,16 +29,19 @@ export function QkitEarnSettings({
 
   if (!isPro) {
     return (
-      <div className="rounded-lg border p-4 text-sm text-muted-foreground">
+      <ElevatedCard className="p-4 text-sm text-muted-foreground">
         Upgrade to Pro to award a stamp automatically when a customer completes
         a qkit order.
-      </div>
+      </ElevatedCard>
     );
   }
 
   return (
+    // Matches ElevatedCard's classes directly — a <form> needs the action
+    // prop, which ElevatedCard's as="div"|"section"|"li" prop type doesn't
+    // support (same rationale as activity-filters.tsx).
     <form
-      className="space-y-3 rounded-lg border p-4"
+      className="space-y-3 rounded-[20px] border bg-card p-4 shadow-[0_1px_0_0_var(--color-border),0_12px_28px_-20px_rgba(0,0,0,0.35)]"
       action={(fd) => {
         startTransition(() => {
           void saveQkitEarnConfigAction(fd);
@@ -66,9 +71,13 @@ export function QkitEarnSettings({
           ))}
         </SelectContent>
       </Select>
-      <button type="submit" disabled={pending} className="text-sm font-medium">
+      <Button
+        type="submit"
+        disabled={pending}
+        className="h-10 w-full rounded-xl text-sm font-semibold"
+      >
         Save
-      </button>
+      </Button>
     </form>
   );
 }
