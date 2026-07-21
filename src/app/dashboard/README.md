@@ -13,7 +13,7 @@ Vendor console root: program grid, shared shop QR, scan-to-serve entry point, an
 - `counter/`
 - `customers/`
 - `dashboard-nav.dom.test.tsx` — jsdom tests asserting `DashboardNav`'s inline nav links, mobile menu toggle, and account-dropdown item order (Profile/Settings/Plan/Sign out, no duplicate Customers item)
-- `dashboard-nav.tsx` — client `DashboardNav`: sticky header with brand, Dashboard/Customers/Activity/Stats nav links, mobile burger menu, and account dropdown (Profile/Settings/Plan/Sign out) with initials avatar and tier badge
+- `dashboard-nav.tsx` — client `DashboardNav`: sticky header with a left-hand group (mobile burger — left of the brand, opposite the account menu — brand, Dashboard/Customers/Activity/Stats nav links) and a right-hand account dropdown (Profile/Settings/Plan/Sign out) with initials avatar and tier badge; the mobile link panel closes on a tap-away scrim as well as the burger toggle
 - `dashboard-page.dom.test.tsx` — jsdom test asserting `DashboardPage` renders a "Your programs" heading above the program grid alongside the Shop QR block and scan entry
 - `dashboard-view.test.ts` — unit tests for `shouldShowQr` (hides QR block at zero active programs, shows it otherwise)
 - `dashboard-view.ts` — exports `shouldShowQr(activeProgramCount)`, a pure helper deciding whether the shop QR block should render

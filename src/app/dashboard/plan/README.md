@@ -7,7 +7,7 @@ Vendor billing/plan page at `/dashboard/plan` — shows Free vs. Pro feature com
 ## Contents
 
 - `actions.ts` — server action `requestUpgrade()`; files an idempotent `upgrade_requests` row for the signed-in vendor (a no-op success if one is already pending).
-- `page.tsx` — `PlanPage` server component; requires a vendor, shows current tier badge, an optional program-performance blurb (repeat-visit rate, rewards total), and a Free/Pro feature comparison table with `UpgradeCta` when not Pro.
+- `page.tsx` — `PlanPage` server component; requires a vendor, shows current tier badge, an optional program-performance blurb (repeat-visit rate, rewards total, `ElevatedCard`-wrapped), and a Free/Pro feature comparison table with `UpgradeCta` when not Pro (the Pro-upsell/Pro-active blocks are also `ElevatedCard`-wrapped).
 - `upgrade-cta.tsx` — `UpgradeCta` client component; a button that calls `requestUpgrade()` via `useAsyncAction` and shows a success/error toast.
 
 ## Parent

@@ -58,6 +58,7 @@ goes over HTTP (the merqo metrics API).
 
 - Deploy runbook: `docs/DEPLOY.md`
 - Plans/specs: `docs/superpowers/`
+- Release history: `CHANGELOG.md`
 
 See `AGENTS.md` for full engineering rules, harness details, and skills.
 
