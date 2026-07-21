@@ -358,6 +358,30 @@ export interface Database {
         };
         Relationships: [];
       };
+      feedback: {
+        Row: {
+          id: number;
+          vendor_id: string;
+          nps: number;
+          message: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          vendor_id: string;
+          nps: number;
+          message?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          vendor_id?: string;
+          nps?: number;
+          message?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
