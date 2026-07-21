@@ -15,7 +15,7 @@ pre-commit:
       glob: "package.json"
       run: pnpm install --frozen-lockfile
     secret-scan:
-      run: command -v gitleaks >/dev/null 2>&1 && gitleaks protect --staged --redact --no-banner || true
+      run: if command -v gitleaks >/dev/null 2>&1; then gitleaks protect --staged --redact --no-banner; fi
     readme-coupling:
       run: bash .lefthook/readme-coupling.sh
 commit-msg:
