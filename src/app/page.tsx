@@ -4,6 +4,7 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { Benefits } from "@/components/landing/benefits";
 import { Cta } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
+import { Faq } from "@/components/landing/faq";
 import { createServerClient } from "@/lib/supabase/server";
 
 export default async function Home() {
@@ -22,6 +23,7 @@ export default async function Home() {
         <Hero authed={authed} />
         <HowItWorks />
         <Benefits />
+        <Faq />
         <Cta authed={authed} />
       </main>
       <Footer />
