@@ -43,27 +43,30 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* dusk plum: deep plum canvas, warm off-white ink, plum brand, gold stays hot */
-    --background: oklch(0.19 0.026 350);
-    --foreground: oklch(0.95 0.012 350);
-    --card: oklch(0.23 0.03 350);
-    --card-foreground: oklch(0.95 0.012 350);
-    --popover: oklch(0.23 0.03 350);
-    --popover-foreground: oklch(0.95 0.012 350);
-    --primary: oklch(0.6 0.14 350);
+    /* dusk plum, lightened: was reading as a moody near-black rather than a
+       loyalty-reward mood — raised background/card/secondary/muted a few
+       oklch steps and warmed the gold so the "reward stamp" accent still
+       pops against a lighter canvas. Ink, brand hue, and gold hue unchanged. */
+    --background: oklch(0.225 0.026 350);
+    --foreground: oklch(0.96 0.012 350);
+    --card: oklch(0.27 0.032 350);
+    --card-foreground: oklch(0.96 0.012 350);
+    --popover: oklch(0.27 0.032 350);
+    --popover-foreground: oklch(0.96 0.012 350);
+    --primary: oklch(0.63 0.15 350);
     --primary-foreground: oklch(0.17 0.03 350);
-    --secondary: oklch(0.3 0.028 350);
-    --secondary-foreground: oklch(0.95 0.012 350);
-    --muted: oklch(0.28 0.024 350);
-    --muted-foreground: oklch(0.73 0.02 350);
-    --accent: oklch(0.33 0.032 348);
-    --accent-foreground: oklch(0.95 0.012 350);
+    --secondary: oklch(0.34 0.03 350);
+    --secondary-foreground: oklch(0.96 0.012 350);
+    --muted: oklch(0.32 0.026 350);
+    --muted-foreground: oklch(0.75 0.02 350);
+    --accent: oklch(0.37 0.034 348);
+    --accent-foreground: oklch(0.96 0.012 350);
     --destructive: oklch(0.62 0.2 27);
-    --border: oklch(0.33 0.028 348);
-    --input: oklch(0.35 0.028 348);
-    --ring: oklch(0.6 0.14 350);
+    --border: oklch(0.38 0.03 348);
+    --input: oklch(0.4 0.03 348);
+    --ring: oklch(0.63 0.15 350);
 
-    --gold: oklch(0.81 0.13 84);
+    --gold: oklch(0.83 0.135 85);
     --gold-foreground: oklch(0.2 0.04 60);
     --gold-accent: var(--gold);
   }
@@ -140,6 +143,26 @@ body {
       transparent 58%
     );
   background-attachment: fixed;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    /* Same two-glow idea, re-tuned for the dark canvas — the light-mode
+       values above were duller against dark plum and read flat/moody
+       instead of celebratory. Brighter gold wash + the lighter dark-mode
+       primary, both at higher opacity to actually read against --background. */
+    background-image:
+      radial-gradient(
+        ellipse 70% 55% at 88% -8%,
+        oklch(0.81 0.13 84 / 0.16),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 65% 50% at 6% -6%,
+        oklch(0.63 0.15 350 / 0.14),
+        transparent 58%
+      );
+  }
 }
 
 /* Bricolage Grotesque display headings — tighten tracking at large sizes */
