@@ -129,3 +129,20 @@ jobs:
             echo "Update the listed README.md files, or apply the 'skip-readme-check' label to bypass."
             exit 1
           fi
+
+  db:
+    name: db (migrations + pgTAP RLS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.0
+      # `supabase start` boots the local stack and applies every migration in
+      # supabase/migrations — so a malformed migration fails here. `test db` then
+      # runs the pgTAP suite (supabase/tests/rls.test.sql), which carries its own
+      # inline fixtures, so no seed or API keys are needed.
+      - run: supabase start
+      - run: supabase test db
+      - if: always()
+        run: supabase stop
