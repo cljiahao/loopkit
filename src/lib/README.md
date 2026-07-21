@@ -14,6 +14,7 @@ profile/status).
 - `admin-data.ts` — service-role reads for the `/admin` console: `listProgramsOverview`, `listVendors`, `listPendingUpgradeRequests`, `platformTotals`, `recentActivity`, `getProgramDetail`; resolves vendor email via `auth.admin.listUsers`
 - `admin.ts` — `isAdmin`/`requireAdmin`: admin membership check via the `admins` table (RLS-gated) and a 404-on-fail gate for `/admin` routes and actions
 - `auth.ts` — `requireVendor()`: vendor auth gate for server components/actions, redirects unauthenticated requests to `/login`
+- `brand-icon.tsx` — `brandIcon(size)`: the shared "L" app-mark construction (mulberry rounded square, cream letter) rendered by `src/app/icon.tsx`/`apple-icon.tsx` via `next/og`'s `ImageResponse`; `BRAND_MULBERRY`/`BRAND_BLUSH` hex constants approximate the theme's OKLCH tokens, same shared formula as every other kit's brand-icon (`docs/business/2026-07-21-brand-icon-family-standard.md`)
 - `cards.ts` — `listCards`: the signed-in vendor's cards for one program, optional phone search, most-recently-updated first
 - `customers.ts` — `aggregateCustomers` (pure phone-keyed merge of customers+cards across programs) and `listVendorCustomers` (impure shell, RLS-scoped)
 - `engine/`
