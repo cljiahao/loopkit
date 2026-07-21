@@ -7,8 +7,9 @@ SQL schema (RLS-enforced authorization) and manually-run seed data for the
 
 ## Contents
 
-- `migrations/`
-- `seed/`
+- `migrations/` — SQL schema and RLS policies
+- `seed/` — manually-run seed data
+- `tests/` — pgTAP RLS test suite (vendors, upgrade_requests, feedback); run via `supabase test db`
 
 ## Parent
 
