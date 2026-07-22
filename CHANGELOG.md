@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `/setup`'s Chance Card (Wheel/Scratch) Basics segment editor now displays
+  live win-chance percentages: an "Overall win chance: NN%" summary above the
+  segment list, and an "≈NN%" badge next to each segment's weight input.
+  Implemented via new pure helpers `segmentWinPercent`/`overallWinPercent` in
+  `src/lib/program-config.ts` (using the same weight math that `chance.ts`'s
+  `pickSegment` uses internally to determine winners). The weight input itself
+  is unchanged — this display is additive, letting vendors see actual odds
+  instead of raw weight numbers.
 - `/setup`'s Basics/Rules copy trimmed to one short line per field; longer
   rationale or edge-case explanations (head-start's completion-lift claim,
   the wheel/scratch odds-weight meaning, how card-expiry differs from
