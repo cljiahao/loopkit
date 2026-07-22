@@ -15,6 +15,7 @@ repo's AGENTS.md these should not be hand-edited outside the shadcn CLI.
 - `dropdown-menu.tsx` — Radix `DropdownMenu` wrapper: full primitive set (Trigger/Content/Group/Item/CheckboxItem/RadioGroup/RadioItem/Label/Separator/Shortcut/Sub/SubTrigger/SubContent)
 - `input.tsx` — `Input`: styled native `<input>` with focus-ring and `aria-invalid` styling
 - `label.tsx` — `Label`: Radix `Label` wrapper, disabled-peer/group styling
+- `popover.tsx` — Radix `Popover` wrapper: `Popover`/`PopoverTrigger`/`PopoverContent`/`PopoverAnchor`; used by `@/components/info-tooltip`'s `(i)` help icon
 - `select.tsx` — Radix `Select` wrapper: `Select`/`SelectGroup`/`SelectValue`/`SelectTrigger`/`SelectContent`/`SelectLabel`/`SelectItem`/`SelectSeparator`/`SelectScrollUpButton`/`SelectScrollDownButton`
 - `sheet.tsx` — Radix `Dialog`-backed slide-in panel: `Sheet`/`SheetTrigger`/`SheetClose`/`SheetPortal`/`SheetOverlay`/`SheetContent` (side `top`/`right`/`bottom`/`left`)/`SheetHeader`/`SheetFooter`/`SheetTitle`/`SheetDescription`; used by `dashboard-nav.tsx`'s Feedback drawer
 - `switch.tsx` — Radix `Switch` wrapper: `Switch` with `sm`/`default` size variants

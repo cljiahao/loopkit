@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { usePreviewAnimation } from "@/app/setup/preview-animation";
 import { PreviewCard } from "@/app/setup/preview-card";
 import { Section } from "@/components/section";
+import { InfoTooltip } from "@/components/info-tooltip";
 import { Tag, SlidersHorizontal } from "lucide-react";
 import {
   FAMILIES,
@@ -471,9 +472,15 @@ export function SetupForm({
               {type === "wheel" || type === "scratch" ? (
                 <>
                   <div className="space-y-2">
-                    <Label className={labelClass}>
-                      {type === "wheel" ? "Wheel segments" : "Scratch prizes"}
-                    </Label>
+                    <div className="flex items-center gap-1.5">
+                      <Label className={labelClass}>
+                        {type === "wheel" ? "Wheel segments" : "Scratch prizes"}
+                      </Label>
+                      <InfoTooltip label="What the number next to each prize means">
+                        That&apos;s the odds weight — higher numbers land more
+                        often relative to the other prizes.
+                      </InfoTooltip>
+                    </div>
                     <div className="space-y-2">
                       {segments.map((segment, i) => (
                         <div
@@ -503,7 +510,6 @@ export function SetupForm({
                               })
                             }
                             aria-label="Odds weight"
-                            title="Odds weight — higher numbers land more often relative to the other prizes"
                             className="h-11 w-20 rounded-xl"
                           />
                           <button
@@ -644,16 +650,19 @@ export function SetupForm({
                 className="mt-0.5"
               />
               <div className="flex-1 space-y-2">
-                <label htmlFor="head_start_checkbox" className="text-sm">
-                  <span className="font-medium">
+                <div className="flex items-center gap-1.5">
+                  <label
+                    htmlFor="head_start_checkbox"
+                    className="text-sm font-medium"
+                  >
                     Give new customers a head start
-                  </span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                  </label>
+                  <InfoTooltip label="Why give a head start?">
                     New signups start with a small amount of free progress
                     toward their first reward — shown to measurably increase
                     completion.
-                  </span>
-                </label>
+                  </InfoTooltip>
+                </div>
                 {headStart && (type === "stamp" || type === "plant") && (
                   <div className="flex items-center gap-2">
                     <Label
@@ -718,9 +727,15 @@ export function SetupForm({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="expiry_days" className={labelClass}>
-              Card expires after (days, optional)
-            </Label>
+            <div className="flex items-center gap-1.5">
+              <Label htmlFor="expiry_days" className={labelClass}>
+                Card expires after (days, optional)
+              </Label>
+              <InfoTooltip label="How card expiry is counted">
+                Counted from each customer&apos;s current cycle — resets
+                whenever their card is regenerated.
+              </InfoTooltip>
+            </div>
             <Input
               id="expiry_days"
               name="expiry_days"
@@ -732,17 +747,22 @@ export function SetupForm({
               className="h-11 rounded-xl"
             />
             <p className="text-xs text-muted-foreground">
-              Counted from each customer&apos;s current cycle — resets whenever
-              their card is regenerated. Leave blank for a card that never
-              expires.
+              Leave blank for a card that never expires.
             </p>
           </div>
 
           {(type === "stamp" || type === "plant") && (
             <div className="space-y-2">
-              <Label htmlFor="reward_expiry_days" className={labelClass}>
-                Reward expires after (days, optional)
-              </Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="reward_expiry_days" className={labelClass}>
+                  Reward expires after (days, optional)
+                </Label>
+                <InfoTooltip label="How reward expiry differs from card expiry">
+                  Counted from the moment a customer earns the reward — separate
+                  from the card-expiry setting above, which resets a whole
+                  card&apos;s progress after inactivity.
+                </InfoTooltip>
+              </div>
               <Input
                 id="reward_expiry_days"
                 name="reward_expiry_days"
@@ -754,10 +774,7 @@ export function SetupForm({
                 className="h-11 rounded-xl"
               />
               <p className="text-xs text-muted-foreground">
-                Counted from the moment a customer earns the reward. Left blank,
-                an earned reward never expires. Different from the card-expiry
-                setting above, which resets a whole card&apos;s progress after
-                inactivity.
+                Leave blank so an earned reward never expires.
               </p>
             </div>
           )}

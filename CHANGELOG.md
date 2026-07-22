@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- `/setup`'s Basics/Rules copy trimmed to one short line per field; longer
+  rationale or edge-case explanations (head-start's completion-lift claim,
+  the wheel/scratch odds-weight meaning, how card-expiry differs from
+  reward-expiry) moved into a new tap-to-open `(i)` info tooltip
+  (`InfoTooltip`, `ui/popover.tsx`) instead of a second paragraph or a
+  hover-only native `title` attribute, which never worked on mobile.
+
 ### Fixed
 
 - The dashboard account-dropdown label leaked the vendor's email — as the

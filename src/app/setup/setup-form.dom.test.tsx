@@ -293,6 +293,39 @@ describe("SetupForm type picker", () => {
     expect(submitted.get("variant")).toBe("plant");
   });
 
+  it("Spin the Wheel style shows segment rows, the odds-weight tooltip, and saves segments", async () => {
+    const user = userEvent.setup();
+    render(
+      <SetupForm
+        program={null}
+        isEdit={false}
+        replacingId={null}
+        replacingType={null}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Chance Card" }));
+    await user.click(screen.getByRole("button", { name: "Spin the Wheel" }));
+
+    expect(screen.getByText("Wheel segments")).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", {
+        name: "What the number next to each prize means",
+      }),
+    );
+    expect(
+      screen.getByText(/higher numbers land more often/i),
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Card name"), "Spin to win");
+    await user.type(screen.getByLabelText("Reward"), "Free kopi");
+    await user.click(screen.getByRole("button", { name: "Create card" }));
+
+    expect(saveMock).toHaveBeenCalled();
+    const submitted = saveMock.mock.calls[0][1] as FormData;
+    expect(submitted.get("type")).toBe("wheel");
+    expect(JSON.parse(submitted.get("segments") as string)).toHaveLength(2);
+  });
+
   it("stamp quick-pick chips set stamps required", async () => {
     const user = userEvent.setup();
     render(
