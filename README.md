@@ -8,7 +8,9 @@ Vendors run a stamp/points program from `/dashboard` (programs, cards,
 stamping, flame progress, "lucky" chance rewards); customers collect and view
 cards from a phone-friendly `/c` flow via QR. Includes a scratch-card /
 wheel reward layer, tiered plans, and an admin console for vendor
-management.
+management. The dashboard's account-menu order and content deliberately
+mirror qkit's (see `src/app/dashboard/dashboard-nav.tsx`) — a cross-kit
+consistency goal, not a coincidence.
 
 ## Stack
 

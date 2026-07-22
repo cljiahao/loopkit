@@ -172,12 +172,12 @@ export function DashboardNav({
           <DropdownMenuLabel className="px-2 py-2">
             <div className="flex items-center gap-2">
               <p className="truncate text-sm font-semibold">
-                {vendorName ?? email}
+                {vendorName || "Your stall"}
               </p>
               <TierBadge tier={tier} />
             </div>
             <p className="text-xs font-normal text-muted-foreground">
-              {vendorName ? email : "Vendor account"}
+              Vendor account
             </p>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

@@ -167,4 +167,22 @@ describe("DashboardNav", () => {
     const link = getHelp.querySelector("a") ?? getHelp;
     expect(link).toHaveAttribute("href", expect.stringMatching(/^mailto:/));
   });
+
+  it("account menu shows the stall name with a static 'Vendor account' subtitle, never the email", async () => {
+    const user = userEvent.setup();
+    render(<DashboardNav {...baseProps} />);
+    await user.click(screen.getByRole("button", { name: /account menu/i }));
+    expect(screen.getByText("Kopi Corner")).toBeInTheDocument();
+    expect(screen.getByText("Vendor account")).toBeInTheDocument();
+    expect(screen.queryByText("vendor@example.com")).not.toBeInTheDocument();
+  });
+
+  it("falls back to 'Your stall' (not the email) when no stall name is set", async () => {
+    const user = userEvent.setup();
+    render(<DashboardNav {...baseProps} vendorName={null} />);
+    await user.click(screen.getByRole("button", { name: /account menu/i }));
+    expect(screen.getByText("Your stall")).toBeInTheDocument();
+    expect(screen.getByText("Vendor account")).toBeInTheDocument();
+    expect(screen.queryByText("vendor@example.com")).not.toBeInTheDocument();
+  });
 });

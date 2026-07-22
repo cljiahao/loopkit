@@ -9,7 +9,7 @@ Supabase clients and `@/lib` collaborators mocked via `vi.mock`/`vi.hoisted`.
 
 - `change-type-action.test.ts` — `changeTypeAction`: free-tier prep-and-activate vs. Pro scheduled-cutover program type migration
 - `dashboard-actions.test.ts` — misc `src/app/dashboard/actions.ts` Server Actions covering program/card RPC calls
-- `dashboard-nav.test.tsx` — jsdom: `DashboardNav` renders the active route highlighted based on `usePathname`
+- `dashboard-nav.test.tsx` — jsdom: `DashboardNav` renders the active route highlighted based on `usePathname`; the avatar trigger's initials (stall name vs. email-derived fallback); the account-dropdown label shows the stall name (or "Your stall" fallback) with a static "Vendor account" subtitle, never the vendor's email
 - `preview-state.test.ts` — `buildPreviewProgress`/`buildPreviewProgram`/`buildInitialCard`: `/setup` live-preview state builders
 - `profile-actions.test.ts` — vendor `/profile` action: `saveStallName` call after `requireVendor`
 - `request-upgrade-action.test.ts` — self-serve Pro upgrade request action: dedupes an already-pending request, inserts a new one

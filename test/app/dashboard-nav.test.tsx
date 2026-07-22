@@ -85,7 +85,7 @@ describe("DashboardNav avatar trigger", () => {
 });
 
 describe("DashboardNav account dropdown label", () => {
-  it("shows the stall name as the primary line and email as the secondary line when set", async () => {
+  it("shows the stall name as the primary line and a static 'Vendor account' subtitle, never the email", async () => {
     const user = userEvent.setup();
     render(
       <DashboardNav
@@ -98,11 +98,11 @@ describe("DashboardNav account dropdown label", () => {
     await user.click(screen.getByRole("button", { name: "Account menu" }));
 
     expect(screen.getByText("Kopi Corner")).toBeInTheDocument();
-    expect(screen.getByText("jane.doe@example.com")).toBeInTheDocument();
-    expect(screen.queryByText("Vendor account")).not.toBeInTheDocument();
+    expect(screen.getByText("Vendor account")).toBeInTheDocument();
+    expect(screen.queryByText("jane.doe@example.com")).not.toBeInTheDocument();
   });
 
-  it("shows the email as the primary line and 'Vendor account' as the secondary line when no stall name is set", async () => {
+  it("falls back to 'Your stall' (not the email) as the primary line when no stall name is set", async () => {
     const user = userEvent.setup();
     render(
       <DashboardNav
@@ -114,7 +114,8 @@ describe("DashboardNav account dropdown label", () => {
     );
     await user.click(screen.getByRole("button", { name: "Account menu" }));
 
-    expect(screen.getByText("jane.doe@example.com")).toBeInTheDocument();
+    expect(screen.getByText("Your stall")).toBeInTheDocument();
     expect(screen.getByText("Vendor account")).toBeInTheDocument();
+    expect(screen.queryByText("jane.doe@example.com")).not.toBeInTheDocument();
   });
 });

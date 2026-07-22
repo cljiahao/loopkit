@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- The dashboard account-dropdown label leaked the vendor's email — as the
+  primary line when no stall name was set, or as the subtitle when one
+  was. Now matches qkit's dropdown exactly: stall name (or a "Your stall"
+  placeholder) as the primary line, a static "Vendor account" subtitle
+  always, no email in either.
 - `/dashboard/profile`'s two-column layout used CSS `columns-2` (visual
   order could drift from DOM/tab order) with the wrong section order;
   rebuilt onto two independent flex-column stacks with the locked
