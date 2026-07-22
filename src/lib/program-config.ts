@@ -79,3 +79,23 @@ export function buildChanceConfig(
     reward_text: rewardText,
   };
 }
+
+// Each segment's actual win share, and the pool's overall win chance — the
+// same weight/totalWeight math pickSegment (src/lib/engine/chance.ts)
+// already uses internally to pick a winner, surfaced here for display in
+// the Basics segment editor so a raw odds-weight number isn't the only
+// thing a vendor sees.
+export function segmentWinPercent(segments: SegmentInput[]): number[] {
+  const total = segments.reduce((sum, s) => sum + s.weight, 0);
+  if (total === 0) return segments.map(() => 0);
+  return segments.map((s) => Math.round((s.weight / total) * 100));
+}
+
+export function overallWinPercent(segments: SegmentInput[]): number {
+  const total = segments.reduce((sum, s) => sum + s.weight, 0);
+  if (total === 0) return 0;
+  const rewardWeight = segments
+    .filter((s) => s.is_reward)
+    .reduce((sum, s) => sum + s.weight, 0);
+  return Math.round((rewardWeight / total) * 100);
+}
