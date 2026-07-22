@@ -60,7 +60,7 @@
       "path": ".claude/hooks/skill-usage-log.sh"
     },
     "lefthook.yml": {
-      "origin_hash": "0c791d0690f70631f89185b3157d2082c1fa7ff7e9e6adb9f092af329faf3413",
+      "origin_hash": "39ef8152b95f14d8b000c1e16a584e0cfb8193794157a5d488f5c5134a571e9d",
       "path": "lefthook.yml"
     },
     ".lefthook/commit-msg.sh": {
@@ -72,7 +72,7 @@
       "path": ".gitleaks.toml"
     },
     ".github/workflows/ci.yml": {
-      "origin_hash": "494763e76076b4328e3de2d93a1b5458a8bf509eaaedadb21e2666cd14243686",
+      "origin_hash": "78c791c7ae206bc04f64fe6c64da0c940366a77bc41321055fe0882d80ea109d",
       "path": ".github/workflows/ci.yml"
     },
     ".claude/verify-harness.sh": {
