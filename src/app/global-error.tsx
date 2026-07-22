@@ -3,8 +3,9 @@
 // Root error boundary. Next renders this ONLY when the root layout itself throws
 // (nested errors are caught closer); it replaces the layout, so it must ship its
 // own <html>/<body> and can't rely on the global stylesheet having loaded —
-// hence inline styles in loopkit's blush-and-mulberry palette. Kept deliberately
-// tiny and dependency-free.
+// hence inline styles hand-converted from globals.css's light-mode OKLCH tokens
+// (--background/--foreground/--muted-foreground/--primary) to hex. Kept
+// deliberately tiny and dependency-free.
 export default function GlobalError({
   reset,
 }: {
@@ -20,8 +21,8 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#faf5f7",
-          color: "#2a1f27",
+          background: "#fef7f7",
+          color: "#331417",
           fontFamily:
             "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
           padding: "1.5rem",
@@ -40,7 +41,7 @@ export default function GlobalError({
           <p
             style={{
               fontSize: "0.9rem",
-              color: "#6b6152",
+              color: "#674e4f",
               margin: "0 0 1.5rem",
               lineHeight: 1.5,
             }}
@@ -55,7 +56,7 @@ export default function GlobalError({
               cursor: "pointer",
               border: "none",
               borderRadius: "0.625rem",
-              background: "#a23c6d",
+              background: "#d93f5a",
               color: "#fff",
               fontSize: "0.9rem",
               fontWeight: 600,

@@ -16,8 +16,9 @@ customer, and admin surfaces.
 - `dashboard/`
 - `earn/`
 - `error.tsx` — client root error boundary; replaces Next's error overlay in production with a retry UI, logs the error to the console
+- `global-error.dom.test.tsx` — jsdom tests for `GlobalError`: renders the heading/message/"Try again" button with the theme's hand-converted hex fallbacks, and calls `reset()` on click
 - `global-error.tsx` — client root error boundary rendered only when the root layout itself throws; ships its own `<html>`/`<body>` with inline styles since the global stylesheet may not have loaded
-- `globals.css` — Tailwind v4 theme ("Mulberry & Gold"): light/dark CSS custom properties, `stamp-pop`/card-burst keyframe animations, reduced-motion overrides; dark mode's background/card/secondary/muted/border/input lightness was raised a few oklch steps (previously read as a near-black moody canvas rather than a loyalty-reward mood) and the body's ambient two-glow gradient now has its own dark-mode pass instead of reusing the light-mode oklch values, which barely read against a dark canvas
+- `globals.css` — Tailwind v4 theme ("Raspberry-Rose Punch & Gold", replacing the earlier "Mulberry & Gold" — verified color-psychology research found brightness/saturation, not hue family, drive whether a color reads as "rewarding" vs. "moody," so the brand hue moved from magenta-plum (~350°) to a brighter, more saturated raspberry-red (~15°) while staying clear of qkit's ember hue range): light/dark CSS custom properties, `stamp-pop`/card-burst keyframe animations, reduced-motion overrides; the body's ambient two-glow gradient has its own dark-mode pass instead of reusing the light-mode oklch values, which barely read against a dark canvas
 - `icon.tsx` — 32×32 favicon (`image/png`), the same generated mark at favicon size, replacing the old hand-drawn `icon.svg`
 - `layout.tsx` — `RootLayout`: loads Google fonts (Bricolage Grotesque, Plus Jakarta Sans, IBM Plex Mono), sets page metadata, wraps children in `<Providers>`
 - `login/`

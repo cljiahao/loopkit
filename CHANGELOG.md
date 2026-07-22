@@ -64,11 +64,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Dark mode's background/card/secondary/muted/border/input lightness raised
-  a few oklch steps (previously read as a near-black moody canvas rather
-  than a loyalty-reward mood), and the ambient reward-glow gradient now has
-  its own dark-mode pass instead of reusing the light-mode oklch values,
-  which barely read against a dark canvas.
+- Theme rewritten from "Mulberry & Gold" to "Raspberry-Rose Punch & Gold" —
+  a deep-research pass (BMC Psychology 2025; Royal Society Open Science
+  2023, both adversarially verified) found brightness and saturation, not
+  hue family, are the dominant drivers of whether a color reads as
+  "rewarding"/"celebratory" vs. "moody," and that darkness itself isn't
+  disqualifying, only darkness combined with low saturation. `--primary`
+  moves from a dark, desaturated magenta-plum (`oklch(0.4 0.12 350)`
+  light / `oklch(0.63 0.15 350)` dark) to a substantially brighter, more
+  saturated raspberry-red (`oklch(0.6 0.19 15)` light /
+  `oklch(0.68 0.17 15)` dark) — warmer and clear of qkit's ember hue range
+  (~45-60°). Dark mode's canvas stays genuinely dark (not just lightened)
+  but warmly tinted, with the brightness/saturation the "celebratory" read
+  depends on concentrated in `--primary`/`--ring`, matching how real
+  gamified-reward products (Duolingo) pair a bright saturated core hue with
+  a bold accent rather than a dark muted one. `--destructive`'s hue nudged
+  27°→32° to stay clearly distinct from the new, much-closer primary hue.
+  The gold reward accent is unchanged. The favicon/brand-icon
+  (`src/lib/brand-icon.tsx`, `BRAND_MULBERRY` renamed `BRAND_RASPBERRY`)
+  and the root `global-error.tsx` fallback (hand-converted hex, can't use
+  CSS variables) both updated to match.
 - App-wide UI-UX consistency pass: dashboard sub-pages (stats, customers,
   activity, plan, settings), the admin console, and the auth forms now use
   the `ElevatedCard`/`Section` visual language introduced for

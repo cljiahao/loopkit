@@ -1,36 +1,46 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* ── loopkit — "Mulberry & Gold" ──────────────────────────────────────────────
-   Digital stamp-card loyalty for SG small vendors. The mood is the small reward
-   of a finished card: warm mulberry ink, a gold stamp for the prize, on soft
-   blush paper. Deliberately NOT qkit's ember-kraft nor merqo's control-room grey. */
+/* ── loopkit — "Raspberry-Rose Punch & Gold" ─────────────────────────────────
+   Digital stamp-card loyalty for SG small vendors. Replaces the earlier
+   "Mulberry & Gold" theme, which read as moody/fintech rather than a
+   celebratory reward program — verified research (BMC Psychology 2025;
+   Royal Society Open Science 2023) found brightness and saturation, not hue
+   family, are the dominant drivers of whether a color reads as "rewarding"
+   vs. "moody." This direction keeps the ownable berry-family identity but
+   pushes it warmer (hue ~350 → ~15, magenta-plum → raspberry-red) and
+   substantially brighter/more saturated, matching how real gamified-reward
+   products (Duolingo) pair a bright, saturated core hue with a gold/bold
+   accent rather than a dark, muted one. Deliberately NOT qkit's ember-kraft
+   (hue ~45-60, well clear of this hue ~15) nor merqo's control-room grey. */
 
 :root {
-  /* restrained blush paper, deep plum ink, plum-berry brand, gold reward stamp.
-     "Refined Mulberry": primary shifted off magenta toward a deep plum-berry
-     (~#7E2A50) — keeps the ownable identity, widens trade appeal, higher contrast. */
-  --background: oklch(0.982 0.006 350);
-  --foreground: oklch(0.24 0.05 350);
-  --card: oklch(0.995 0.004 350);
-  --card-foreground: oklch(0.24 0.05 350);
-  --popover: oklch(0.995 0.004 350);
-  --popover-foreground: oklch(0.24 0.05 350);
-  --primary: oklch(0.4 0.12 350);
-  --primary-foreground: oklch(0.98 0.01 350);
-  --secondary: oklch(0.94 0.022 350);
-  --secondary-foreground: oklch(0.34 0.08 350);
-  --muted: oklch(0.955 0.013 350);
-  --muted-foreground: oklch(0.45 0.032 350);
-  --accent: oklch(0.92 0.03 348);
-  --accent-foreground: oklch(0.34 0.08 350);
-  --destructive: oklch(0.55 0.2 27);
-  --border: oklch(0.9 0.018 348);
-  --input: oklch(0.9 0.018 348);
-  --ring: oklch(0.4 0.12 350);
+  /* warm blush paper, raspberry-red ink and brand, gold reward stamp. */
+  --background: oklch(0.982 0.008 15);
+  --foreground: oklch(0.24 0.05 15);
+  --card: oklch(0.995 0.005 15);
+  --card-foreground: oklch(0.24 0.05 15);
+  --popover: oklch(0.995 0.005 15);
+  --popover-foreground: oklch(0.24 0.05 15);
+  --primary: oklch(0.6 0.19 15);
+  --primary-foreground: oklch(0.99 0.01 15);
+  --secondary: oklch(0.94 0.025 15);
+  --secondary-foreground: oklch(0.34 0.09 15);
+  --muted: oklch(0.955 0.015 15);
+  --muted-foreground: oklch(0.45 0.035 15);
+  --accent: oklch(0.92 0.035 13);
+  --accent-foreground: oklch(0.34 0.09 15);
+  /* Nudged a few degrees warmer than a bare "red" (27→32) so it stays
+     clearly distinct from the new, much-closer primary hue (15) — at
+     similar lightness/chroma, 12° apart reads as "the same color" at a
+     glance; 17° apart still reads as its own destructive/error red. */
+  --destructive: oklch(0.55 0.2 32);
+  --border: oklch(0.9 0.02 13);
+  --input: oklch(0.9 0.02 13);
+  --ring: oklch(0.6 0.19 15);
   --radius: 0.75rem;
 
-  /* signature reward stamp — gold ink pressed into the card */
+  /* signature reward stamp — gold ink pressed into the card, unchanged */
   --gold: oklch(0.79 0.125 82);
   --gold-foreground: oklch(0.28 0.05 62);
   /* accent text drawn directly on the page (not on a solid --gold fill) —
@@ -43,28 +53,30 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* dusk plum, lightened: was reading as a moody near-black rather than a
-       loyalty-reward mood — raised background/card/secondary/muted a few
-       oklch steps and warmed the gold so the "reward stamp" accent still
-       pops against a lighter canvas. Ink, brand hue, and gold hue unchanged. */
-    --background: oklch(0.225 0.026 350);
-    --foreground: oklch(0.96 0.012 350);
-    --card: oklch(0.27 0.032 350);
-    --card-foreground: oklch(0.96 0.012 350);
-    --popover: oklch(0.27 0.032 350);
-    --popover-foreground: oklch(0.96 0.012 350);
-    --primary: oklch(0.63 0.15 350);
-    --primary-foreground: oklch(0.17 0.03 350);
-    --secondary: oklch(0.34 0.03 350);
-    --secondary-foreground: oklch(0.96 0.012 350);
-    --muted: oklch(0.32 0.026 350);
-    --muted-foreground: oklch(0.75 0.02 350);
-    --accent: oklch(0.37 0.034 348);
-    --accent-foreground: oklch(0.96 0.012 350);
-    --destructive: oklch(0.62 0.2 27);
-    --border: oklch(0.38 0.03 348);
-    --input: oklch(0.4 0.03 348);
-    --ring: oklch(0.63 0.15 350);
+    /* Dark canvas stays a genuinely dark, warm near-black (not just a
+       lightened version of light mode) — the verified research finding is
+       that darkness itself isn't disqualifying, only darkness *combined
+       with* low saturation reads moody. So the canvas can stay dark as
+       long as it's warmly tinted, while --primary/--ring carry the actual
+       brightness+saturation the "celebratory" read depends on. */
+    --background: oklch(0.2 0.025 15);
+    --foreground: oklch(0.96 0.012 15);
+    --card: oklch(0.25 0.032 15);
+    --card-foreground: oklch(0.96 0.012 15);
+    --popover: oklch(0.25 0.032 15);
+    --popover-foreground: oklch(0.96 0.012 15);
+    --primary: oklch(0.68 0.17 15);
+    --primary-foreground: oklch(0.16 0.03 15);
+    --secondary: oklch(0.32 0.03 15);
+    --secondary-foreground: oklch(0.96 0.012 15);
+    --muted: oklch(0.3 0.026 15);
+    --muted-foreground: oklch(0.75 0.02 15);
+    --accent: oklch(0.35 0.036 13);
+    --accent-foreground: oklch(0.96 0.012 15);
+    --destructive: oklch(0.62 0.2 32);
+    --border: oklch(0.36 0.03 13);
+    --input: oklch(0.38 0.03 13);
+    --ring: oklch(0.68 0.17 15);
 
     --gold: oklch(0.83 0.135 85);
     --gold-foreground: oklch(0.2 0.04 60);
@@ -129,7 +141,7 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
-  /* two soft reward-glows: a gold wash top-right, a mulberry wash top-left —
+  /* two soft reward-glows: a gold wash top-right, a raspberry wash top-left —
      keeps the blush paper feeling bright and celebratory, never papery. */
   background-image:
     radial-gradient(
@@ -139,7 +151,7 @@ body {
     ),
     radial-gradient(
       ellipse 65% 50% at 6% -6%,
-      oklch(0.4 0.12 350 / 0.08),
+      oklch(0.6 0.19 15 / 0.08),
       transparent 58%
     );
   background-attachment: fixed;
@@ -147,8 +159,8 @@ body {
 
 @media (prefers-color-scheme: dark) {
   body {
-    /* Same two-glow idea, re-tuned for the dark canvas — the light-mode
-       values above were duller against dark plum and read flat/moody
+    /* Same two-glow idea, re-tuned for the dark canvas — flat light-mode
+       values would be duller against the dark background and read flat/moody
        instead of celebratory. Brighter gold wash + the lighter dark-mode
        primary, both at higher opacity to actually read against --background. */
     background-image:
@@ -159,7 +171,7 @@ body {
       ),
       radial-gradient(
         ellipse 65% 50% at 6% -6%,
-        oklch(0.63 0.15 350 / 0.14),
+        oklch(0.68 0.17 15 / 0.14),
         transparent 58%
       );
   }
