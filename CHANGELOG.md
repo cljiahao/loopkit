@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `/setup`'s live preview for Chance Card (Wheel/Scratch) program types now
+  plays a reveal animation when showing the rolled result: the Wheel visibly
+  spins in place, or the Scratch Card displays animated scratch-mark strokes
+  sweeping across the cover, while the result is held back for ~1.4 seconds
+  (a new "revealing" phase); the win/lose signal now appears in sync with the
+  animation completing, replacing the instant snap-to-result. Presentation-only
+  for the preview — does not affect when or how the real chance roll happens
+  for customers (still server-side at scan time). Implemented via
+  `usePreviewAnimation`'s new revealing-phase hold, `Wheel`'s previously-unused
+  `spinning` prop wired up, `ScratchCard`'s `scratching` state, and new
+  `@keyframes scratch-stroke-sweep` in `globals.css`.
 - `/setup`'s Chance Card (Wheel/Scratch) Basics segment editor now displays
   live win-chance percentages: an "Overall win chance: NN%" summary above the
   segment list, and an "≈NN%" badge next to each segment's weight input.
