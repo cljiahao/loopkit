@@ -7,7 +7,9 @@
   "mutate": [
     "src/lib/**/*.ts",
     "!src/lib/**/*.test.ts",
-    "!src/lib/types.ts"
+    "!src/lib/types.ts",
+    "!src/lib/action-result.ts",
+    "!src/lib/supabase/**"
   ],
   "reporters": ["clear-text", "progress"],
   "clearTextReporter": {

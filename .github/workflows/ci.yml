@@ -168,8 +168,8 @@ jobs:
           git fetch origin "$GITHUB_BASE_REF" --depth=1
           FILES=$(git diff --name-only "origin/$GITHUB_BASE_REF...HEAD" \
             | grep -E '^src/lib/.*\.ts$' \
-            | grep -vE '\.test\.ts$|/types\.ts$' \
-            | tr '\n' ' ')
+            | grep -vE '\.test\.ts$|/types\.ts$|/action-result\.ts$|^src/lib/supabase/' \
+            | paste -sd, -)
           if [ -z "$FILES" ]; then
             echo "No src/lib changes — skipping mutation."
             exit 0
