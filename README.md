@@ -13,7 +13,9 @@ mirror qkit's (see `src/app/dashboard/dashboard-nav.tsx`) — a cross-kit
 consistency goal, not a coincidence. Theme is "Raspberry-Rose Punch & Gold"
 (`src/app/globals.css`) — a bright, saturated raspberry-red primary plus a
 gold reward accent, chosen (over the earlier, dimmer "Mulberry & Gold") to
-read as celebratory rather than moody-fintech.
+read as celebratory rather than moody-fintech. Form fields keep their
+primary copy to one short line, pushing rationale/edge-case detail into a
+shared tap-to-open `(i)` info tooltip (`src/components/info-tooltip.tsx`).
 
 ## Stack
 
