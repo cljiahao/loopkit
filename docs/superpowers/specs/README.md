@@ -57,6 +57,7 @@ below.
 - `2026-07-19-dashboard-tappable-card-design.md`
 - `2026-07-19-setup-create-manage-split-design.md`
 - `2026-07-20-app-wide-uiux-consistency-design.md`
+- `2026-07-22-card-type-regroup-and-chance-revamp-design.md`
 
 ## Parent
 
