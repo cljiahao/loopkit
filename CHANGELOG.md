@@ -14,6 +14,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- The dashboard account-menu's "Get help" item is no longer a plain
+  `mailto:` link — it now opens a Sheet with `SupportForm`, letting a
+  vendor pick a category (Program/cards, Customers, Pro plan, Something
+  else) and write a message. Submissions go straight into the shared
+  cross-kit `merqo.support_messages` inbox via a new `submit_support_message`
+  RPC (`src/lib/merqo-support.ts`'s `submitSupportMessage`, same
+  generic-over-caller's-client pattern as `merqo-vendor-feedback.ts`) —
+  triaged from merqo's own cross-kit admin console, not a new loopkit
+  `/admin` page; no new loopkit-side table or migration needed since there
+  was no prior local support-message store to backfill.
 - `FeedbackForm`'s NPS score picker and comment field now use shadcn
   `ToggleGroup`/`Textarea` instead of hand-rolled radio buttons and a plain
   `<textarea>`, matching `SupportForm` and qkit's equivalent component. No
