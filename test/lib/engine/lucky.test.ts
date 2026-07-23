@@ -51,4 +51,16 @@ describe("luckyStrategy", () => {
     expect(r.rewardUnlocked).toBe(true);
     expect(r.state.visits_since_win).toBe(0);
   });
+  it("progress exposes visitsSinceWin/pityCeiling as a lucky view", () => {
+    const p = luckyStrategy.progress(
+      { visits_since_win: 3, total_wins: 0 },
+      cfg,
+      now,
+    );
+    expect(p.view).toEqual({
+      kind: "lucky",
+      visitsSinceWin: 3,
+      pityCeiling: 8,
+    });
+  });
 });

@@ -17,9 +17,9 @@ export const luckyStrategy: Strategy<LuckyConfig, LuckyState> = {
       stage: "play",
       label: `Tap to play — win by visit ${config.pity_ceiling}`,
       view: {
-        kind: "dots",
-        filled: Math.min(state.visits_since_win, config.pity_ceiling),
-        total: config.pity_ceiling,
+        kind: "lucky",
+        visitsSinceWin: state.visits_since_win,
+        pityCeiling: config.pity_ceiling,
       },
       rewardReady: false,
     };
