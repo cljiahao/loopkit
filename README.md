@@ -12,7 +12,10 @@ management. `/setup`'s type picker groups by mechanic, not raw DB type —
 Stamp Card, Growth (Flame Club/Sprout/Fill the Cup), Points Club, and
 Chance Card (Wheel/Scratch/Lucky Tap) — whose Basics editor shows odds as a
 live percentage, not a raw weight, and whose `/setup` preview plays a spin/
-scratch reveal animation before the win/lose result lands. The dashboard's
+scratch reveal animation before the win/lose result lands. Lucky Tap renders
+its own "tap for a surprise" mystery-box visual (`LuckyBox`), on both the
+preview and the real `/c` card, instead of the generic stamp-dots counter
+real stamp/plant cards use. The dashboard's
 account-menu trigger, order, and content
 deliberately mirror qkit's (see `src/app/dashboard/dashboard-nav.tsx`) — a
 cross-kit consistency goal, not a coincidence. Theme is "Raspberry-Rose Punch & Gold"

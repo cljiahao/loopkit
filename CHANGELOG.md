@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Lucky Tap now renders its own "tap for a surprise" mystery-box visual
+  (`LuckyBox`) instead of sharing the generic stamp-dots counter with real
+  stamp/plant cards. This changes the **live customer-facing card** (`/c`)
+  for any vendor with an active Lucky Tap program today — not just the
+  `/setup` preview — via a new `kind: "lucky"` engine `ProgressView`
+  (`visitsSinceWin`/`pityCeiling`) in place of the old `kind: "dots"` shape.
+  The `/setup` preview's win/lose pill now also fires on Lucky Tap ticks,
+  reusing the same pill Wheel/Scratch already show (Lucky Tap does not get
+  the reveal-animation delay those two do — its tap stays instant).
 - `/setup`'s live preview for Chance Card (Wheel/Scratch) program types now
   plays a reveal animation when showing the rolled result: the Wheel visibly
   spins in place, or the Scratch Card displays animated scratch-mark strokes
