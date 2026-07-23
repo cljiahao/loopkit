@@ -65,6 +65,7 @@ export function SupportForm() {
           onValueChange={(v) =>
             v && setCategory(v as SupportMessageInput["category"])
           }
+          spacing={1.5}
           aria-label="What's it about?"
           className="grid grid-cols-2"
         >
