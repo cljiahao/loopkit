@@ -8,6 +8,7 @@ customer, and admin surfaces.
 
 ## Contents
 
+- `actions/`
 - `admin/`
 - `api/`
 - `apple-icon.tsx` — 180×180 Apple touch icon, generated at request time via `next/og`'s `ImageResponse` from `@/lib/brand-icon`'s shared mark — no static asset

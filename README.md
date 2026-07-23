@@ -67,12 +67,16 @@ supabase/migrations/    — SQL schema + RLS
 Owns the `loopkit` schema in the shared Merqo Supabase project. All
 Supabase clients are scoped to `db: { schema: "loopkit" }` — loopkit never
 reads/writes another kit's schema (e.g. qkit's) directly. Cross-kit data
-goes over HTTP (the merqo metrics API), except one deliberate exception: a
-vendor's stall name and social links live in the shared `merqo.vendor_profile`
-table (same Postgres instance, different schema), read/written only through
-two `SECURITY DEFINER` RPCs (`get_or_create_vendor_profile`/
-`upsert_vendor_profile`) — never a raw cross-schema query. See
-`src/lib/merqo-vendor-profile.ts` and
+goes over HTTP (the merqo metrics API), except two deliberate exceptions,
+both same-Postgres-instance `SECURITY DEFINER` RPCs, never a raw
+cross-schema query: a vendor's stall name and social links live in the
+shared `merqo.vendor_profile` table (`get_or_create_vendor_profile`/
+`upsert_vendor_profile`, see `src/lib/merqo-vendor-profile.ts`), and vendor
+NPS feedback (the dashboard's "Share feedback" sheet) is submitted straight
+into the shared `merqo.vendor_feedback` table (`submit_vendor_feedback`, see
+`src/lib/merqo-vendor-feedback.ts`) instead of a local table — loopkit's own
+`loopkit.feedback` table is now historical-only (one-time backfilled into
+`merqo.vendor_feedback` by migration `0030`). See
 `docs/business/2026-07-21-profile-settings-page-standard.md` (in the parent
 `Merqo Business/docs/` repo) for the locked cross-kit pattern.
 
