@@ -12,6 +12,10 @@ vi.mock("@/app/actions/feedback", () => ({
   submitFeedbackAction: vi.fn(async () => ({ success: true })),
 }));
 
+vi.mock("@/components/support-form", () => ({
+  SupportForm: () => <div data-testid="support-form" />,
+}));
+
 describe("DashboardNav", () => {
   const baseProps = {
     signOut: vi.fn(async () => {}),
@@ -159,13 +163,24 @@ describe("DashboardNav", () => {
     ).toBeInTheDocument();
   });
 
-  it("links Get help to a mailto address", async () => {
+  it("Get help opens a Sheet with the support form, not a mailto link", async () => {
     const user = userEvent.setup();
-    render(<DashboardNav {...baseProps} />);
+    render(
+      <DashboardNav
+        signOut={vi.fn(async () => {})}
+        email="vendor@example.com"
+        vendorName="Kopi Corner"
+        avatarUrl={null}
+        tier="free"
+      />,
+    );
     await user.click(screen.getByRole("button", { name: /account menu/i }));
+
     const getHelp = screen.getByRole("menuitem", { name: /get help/i });
-    const link = getHelp.querySelector("a") ?? getHelp;
-    expect(link).toHaveAttribute("href", expect.stringMatching(/^mailto:/));
+    expect(getHelp.querySelector("a")).toBeNull();
+
+    await user.click(getHelp);
+    expect(screen.getByTestId("support-form")).toBeInTheDocument();
   });
 
   it("account menu shows the stall name with a static 'Vendor account' subtitle, never the email", async () => {

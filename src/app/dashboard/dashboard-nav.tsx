@@ -32,6 +32,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { FeedbackForm } from "@/components/feedback-form";
+import { SupportForm } from "@/components/support-form";
 import { cn } from "@/lib/utils";
 
 type Tier = "free" | "pro";
@@ -110,6 +111,7 @@ export function DashboardNav({
   const path = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const label = vendorName?.trim() || email.trim().split("@")[0];
 
   return (
@@ -204,11 +206,12 @@ export function DashboardNav({
               Plan
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <a href="mailto:support@merqo.app?subject=loopkit%20support">
-              <LifeBuoy className="size-4" />
-              Get help
-            </a>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={() => setHelpOpen(true)}
+          >
+            <LifeBuoy className="size-4" />
+            Get help
           </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer"
@@ -274,6 +277,21 @@ export function DashboardNav({
           </SheetHeader>
           <div className="px-4 pb-6">
             <FeedbackForm />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={helpOpen} onOpenChange={setHelpOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle className="text-2xl">Get help</SheetTitle>
+            <SheetDescription>
+              Trouble with a program, a customer, or your Pro plan? Tell us and
+              we&apos;ll sort it out.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-4 pb-6">
+            <SupportForm />
           </div>
         </SheetContent>
       </Sheet>
