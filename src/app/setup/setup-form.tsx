@@ -162,6 +162,7 @@ export function SetupForm({
   const {
     progress: previewProgress,
     celebrating,
+    revealing,
     lastChanceResult,
   } = usePreviewAnimation({
     type,
@@ -237,6 +238,7 @@ export function SetupForm({
       name={name}
       rewardText={rewardText}
       celebrating={celebrating}
+      revealing={revealing}
       lastChanceResult={lastChanceResult}
     />
   );

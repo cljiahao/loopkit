@@ -263,4 +263,59 @@ describe("PreviewCard", () => {
     // lose-popup badge would otherwise both render that exact string.
     expect(screen.getByText("Try again")).toBeInTheDocument();
   });
+
+  it("passes spinning to Wheel while revealing (before a result lands)", () => {
+    const progress: Progress = {
+      stage: "play",
+      label: "Spin to play",
+      view: {
+        kind: "chance",
+        variant: "wheel",
+        segments: [
+          { id: "a", label: "Try again", reward: false },
+          { id: "b", label: "Free item", reward: true },
+        ],
+        landedId: null,
+      },
+      rewardReady: false,
+    };
+    const { container } = render(
+      <PreviewCard
+        progress={progress}
+        name="Spin to win"
+        rewardText="Free item"
+        revealing
+      />,
+    );
+    const wheelGroup = container.querySelector("svg g");
+    expect(wheelGroup?.getAttribute("class")).toContain(
+      "motion-safe:animate-spin",
+    );
+  });
+
+  it("passes scratching to ScratchCard while revealing", () => {
+    const progress: Progress = {
+      stage: "play",
+      label: "Scratch to reveal",
+      view: {
+        kind: "chance",
+        variant: "scratch",
+        segments: [
+          { id: "a", label: "Try again", reward: false },
+          { id: "b", label: "Free item", reward: true },
+        ],
+        landedId: null,
+      },
+      rewardReady: false,
+    };
+    render(
+      <PreviewCard
+        progress={progress}
+        name="Scratch to win"
+        rewardText="Free item"
+        revealing
+      />,
+    );
+    expect(screen.getByTestId("scratch-strokes")).toBeInTheDocument();
+  });
 });

@@ -12,6 +12,7 @@ import {
 
 const TICK_MS = 2000;
 const CELEBRATE_MS = 2000;
+const REVEAL_MS = 1400;
 
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined" || !window.matchMedia) return false;
@@ -23,10 +24,15 @@ function prefersReducedMotion(): boolean {
 // instead of showing one static snapshot. Every tick is a genuine visit
 // event through the same engine src/app/c's real customer page uses — the
 // animation can never show a transition a real card couldn't actually
-// produce.
+// produce. Wheel/scratch ticks hold the rolled result back for REVEAL_MS
+// (masking landedId to null via `revealing`) so the /setup preview can play
+// a spin/scratch anticipation animation before the win/lose signal commits
+// — there's no equivalent delay on the real customer card, since that roll
+// already happened server-side at scan time; this delay is presentation-only.
 export function usePreviewAnimation(input: PreviewInput): {
   progress: Progress;
   celebrating: boolean;
+  revealing: boolean;
   lastChanceResult: { won: boolean } | null;
 } {
   const {
@@ -86,8 +92,14 @@ export function usePreviewAnimation(input: PreviewInput): {
 
   const [card, setCard] = useState<CardLike>(initialCard);
   const [simulatedNow, setSimulatedNow] = useState(() => new Date());
-  const [phase, setPhase] = useState<"ticking" | "celebrating">("ticking");
+  const [phase, setPhase] = useState<"ticking" | "revealing" | "celebrating">(
+    "ticking",
+  );
   const [lastChanceResult, setLastChanceResult] = useState<{
+    won: boolean;
+  } | null>(null);
+  const [pendingReveal, setPendingReveal] = useState<{
+    card: CardLike;
     won: boolean;
   } | null>(null);
 
@@ -107,17 +119,31 @@ export function usePreviewAnimation(input: PreviewInput): {
     setSimulatedNow(new Date());
     setPhase("ticking");
     setLastChanceResult(null);
+    setPendingReveal(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipeKey]);
 
   useEffect(() => {
     if (reducedMotion) return;
-    const delay = phase === "celebrating" ? CELEBRATE_MS : TICK_MS;
+    const isChance = type === "wheel" || type === "scratch";
+    const delay =
+      phase === "celebrating"
+        ? CELEBRATE_MS
+        : phase === "revealing"
+          ? REVEAL_MS
+          : TICK_MS;
     const timer = setTimeout(() => {
       if (phase === "celebrating") {
         setCard(initialCard);
         setSimulatedNow(new Date());
         setPhase("ticking");
+        return;
+      }
+      if (phase === "revealing" && pendingReveal) {
+        setCard(pendingReveal.card);
+        setLastChanceResult({ won: pendingReveal.won });
+        setPendingReveal(null);
+        setPhase(pendingReveal.won ? "celebrating" : "ticking");
         return;
       }
       const nextNow = new Date();
@@ -131,27 +157,48 @@ export function usePreviewAnimation(input: PreviewInput): {
         event,
         nextNow,
       );
-      setCard({ ...card, state });
+      const nextCard = { ...card, state };
       setSimulatedNow(nextNow);
-      if (type === "wheel" || type === "scratch") {
-        setLastChanceResult({ won: rewardUnlocked });
+      if (isChance) {
+        setPendingReveal({ card: nextCard, won: rewardUnlocked });
+        setPhase("revealing");
+        return;
       }
+      setCard(nextCard);
       if (rewardUnlocked) setPhase("celebrating");
     }, delay);
     return () => clearTimeout(timer);
-  }, [reducedMotion, phase, card, simulatedNow, program, initialCard, type]);
+  }, [
+    reducedMotion,
+    phase,
+    card,
+    simulatedNow,
+    program,
+    initialCard,
+    type,
+    pendingReveal,
+  ]);
 
   if (reducedMotion) {
     return {
       progress: buildPreviewProgress(input),
       celebrating: false,
+      revealing: false,
       lastChanceResult: null,
     };
   }
 
+  const progress = getProgress(program, card, simulatedNow);
+  const revealing = phase === "revealing";
+  const maskedProgress: Progress =
+    revealing && progress.view.kind === "chance"
+      ? { ...progress, view: { ...progress.view, landedId: null } }
+      : progress;
+
   return {
-    progress: getProgress(program, card, simulatedNow),
+    progress: maskedProgress,
     celebrating: phase === "celebrating",
+    revealing,
     lastChanceResult,
   };
 }

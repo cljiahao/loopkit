@@ -28,12 +28,14 @@ export function PreviewCard({
   name,
   rewardText,
   celebrating = false,
+  revealing = false,
   lastChanceResult = null,
 }: {
   progress: Progress;
   name: string;
   rewardText: string;
   celebrating?: boolean;
+  revealing?: boolean;
   lastChanceResult?: { won: boolean } | null;
 }) {
   const view = progress.view;
@@ -85,9 +87,14 @@ export function PreviewCard({
           />
         ) : view.kind === "chance" ? (
           view.variant === "wheel" ? (
-            <Wheel segments={view.segments} landedId={view.landedId} />
+            <Wheel
+              segments={view.segments}
+              landedId={view.landedId}
+              spinning={revealing}
+            />
           ) : (
             <ScratchCard
+              scratching={revealing}
               revealed={view.landedId !== null}
               label={
                 view.segments.find((s) => s.id === view.landedId)?.label ?? ""

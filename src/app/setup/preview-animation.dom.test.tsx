@@ -175,6 +175,10 @@ describe("usePreviewAnimation", () => {
     act(() => {
       vi.advanceTimersByTime(2000);
     });
+
+    act(() => {
+      vi.advanceTimersByTime(1400);
+    });
     expect(result.current.lastChanceResult).toEqual({ won: true });
     rollSpy.mockRestore();
   });
@@ -187,6 +191,10 @@ describe("usePreviewAnimation", () => {
 
     act(() => {
       vi.advanceTimersByTime(2000);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1400);
     });
     expect(result.current.lastChanceResult).toEqual({ won: false });
     rollSpy.mockRestore();
@@ -205,8 +213,59 @@ describe("usePreviewAnimation", () => {
     act(() => {
       vi.advanceTimersByTime(2000);
     });
+
+    act(() => {
+      vi.advanceTimersByTime(1400);
+    });
     expect(result.current.lastChanceResult).toEqual({ won: true });
     rollSpy.mockRestore();
+  });
+
+  it("enters a revealing phase after a tick, delaying the win/lose result", () => {
+    const rollSpy = vi.spyOn(Math, "random").mockReturnValue(0.99);
+    const { result } = renderHook(() =>
+      usePreviewAnimation({ ...base, type: "wheel", pityCeiling: undefined }),
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+    expect(result.current.revealing).toBe(true);
+    expect(result.current.lastChanceResult).toBeNull();
+
+    act(() => {
+      vi.advanceTimersByTime(1400);
+    });
+    expect(result.current.revealing).toBe(false);
+    expect(result.current.lastChanceResult).toEqual({ won: true });
+    rollSpy.mockRestore();
+  });
+
+  it("masks landedId to null while revealing", () => {
+    const rollSpy = vi.spyOn(Math, "random").mockReturnValue(0.99);
+    const { result } = renderHook(() =>
+      usePreviewAnimation({ ...base, type: "wheel", pityCeiling: undefined }),
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+    if (result.current.progress.view.kind !== "chance") {
+      throw new Error("expected chance view");
+    }
+    expect(result.current.progress.view.landedId).toBeNull();
+    rollSpy.mockRestore();
+  });
+
+  it("never enters the revealing phase under prefers-reduced-motion", () => {
+    mockMatchMedia(true);
+    const { result } = renderHook(() =>
+      usePreviewAnimation({ ...base, type: "wheel", pityCeiling: undefined }),
+    );
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    expect(result.current.revealing).toBe(false);
   });
 
   it("never sets lastChanceResult for non-chance types", () => {
@@ -235,6 +294,10 @@ describe("usePreviewAnimation", () => {
 
     act(() => {
       vi.advanceTimersByTime(2000);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1400);
     });
     expect(result.current.lastChanceResult).toEqual({ won: true });
 
